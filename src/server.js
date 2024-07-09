@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import configCORS from './config/cors';
 import cookieParser from 'cookie-parser';
 import connection from './config/connectDB';
+import initApiRoutes from './routes/api';
 
 const app = express();
 
@@ -18,6 +19,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser())
 
 // connection();
+
+initApiRoutes(app);
 
 const POST = process.env.PORT || 8080;
 app.listen(POST, () => {
