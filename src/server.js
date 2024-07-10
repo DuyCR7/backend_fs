@@ -5,6 +5,7 @@ import configCORS from './config/cors';
 import cookieParser from 'cookie-parser';
 import connection from './config/connectDB';
 import initApiRoutes from './routes/api';
+require('./passport');
 
 const app = express();
 

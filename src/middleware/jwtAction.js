@@ -5,10 +5,6 @@ const nonSecurePaths = [
     '/admin/logout', 
     '/admin/sign-in', 
     '/admin/refresh-token',
-    '/sign-in',
-    '/sign-up',
-    '/logout',
-    '/refresh-token',
 ]
 
 // tạo token
