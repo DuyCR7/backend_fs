@@ -17,28 +17,47 @@ passport.use(new GoogleStrategy({
 
     try {
       if(profile?.id){
-        let response = await db.Customer.findOrCreate({
+        let existCustomer = await db.Customer.findOne({
           where: {
-            googleId : profile.id
-          },
-          defaults: {
-            email: profile.emails[0].value,
-            image: profile.photos[0].value,
-            username: profile.displayName,
-            typeLogin: profile.provider,
-            tokenLoginGoogle: tokenLoginGoogle
+            email: profile.emails[0].value
           }
         })
-
-        if(!response[1]){
+        if(existCustomer){
           await db.Customer.update({
-            tokenLoginGoogle: tokenLoginGoogle
+            googleId: profile.id,
+            username: profile.displayName,
+            tokenLoginGoogle: tokenLoginGoogle,
+            typeLogin: profile.provider,
           }, {
             where: {
-              googleId: profile.id
+              email: profile.emails[0].value
             }
           })
+        } else {
+          let response = await db.Customer.findOrCreate({
+            where: {
+              googleId : profile.id
+            },
+            defaults: {
+              email: profile.emails[0].value,
+              image: profile.photos[0].value,
+              username: profile.displayName,
+              typeLogin: profile.provider,
+              tokenLoginGoogle: tokenLoginGoogle
+            }
+          })
+  
+          if(!response[1]){
+            await db.Customer.update({
+              tokenLoginGoogle: tokenLoginGoogle
+            }, {
+              where: {
+                googleId: profile.id
+              }
+            })
+          }
         }
+      
       }
     } catch (err) {
       console.log(err);

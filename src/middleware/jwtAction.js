@@ -2,9 +2,9 @@ import jwt, { decode } from 'jsonwebtoken';
 require("dotenv").config();
 
 const nonSecurePaths = [
-    '/admin/logout', 
-    '/admin/sign-in', 
-    '/admin/refresh-token',
+    '/logout', 
+    '/sign-in', 
+    '/refresh-token',
 ]
 
 // tạo token

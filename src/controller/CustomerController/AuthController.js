@@ -37,6 +37,27 @@ const handleSignUp = async (req, res) => {
     }
 }
 
+const handleVerify = async (req, res) => {
+    try {
+        let id = req.params.id;
+        let token = req.params.token;
+        let data = await authService.verifyEmail(id, token);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: '',   // data
+        });
+
+    } catch (e) {
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 const handleSignIn = async (req, res) => {
     try {
         let data = await authService.signInCustomer(req.body);
@@ -44,11 +65,13 @@ const handleSignIn = async (req, res) => {
         // set cookie
         // thuộc tính httpOnly giúp nâng cao bảo mật cookie, phía client không lấy được
         if(data && data.DT && data.DT.access_token){
-            res.cookie("cus_jwt", data.DT.access_token, { httpOnly: true, maxAge: 60 * 60 * 1000, samesite: 'strict' });
+            res.cookie("cus_jwt", data.DT.access_token, { httpOnly: true, maxAge: 10000, samesite: 'strict' });
             res.cookie("cus_refresh_token", data.DT.refresh_token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, samesite: 'strict' });
         }
 
         const { refresh_token, ...newData } = data.DT;
+        console.log("newData", newData);
+        console.log("DT", data.DT);
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -102,7 +125,7 @@ const handleRefreshToken = async (req, res) => {
         }
 
         let data = await createNewAccessTokenCustomer(token);
-        res.cookie("cus_jwt", data.DT, { httpOnly: true, maxAge: 60 * 60 * 1000, samesite: 'strict' });
+        res.cookie("cus_jwt", data.DT, { httpOnly: true, maxAge: 10000, samesite: 'strict' });
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -144,11 +167,12 @@ const handleSignInGoogleSuccess = async (req, res) => {
         // set cookie
         // thuộc tính httpOnly giúp nâng cao bảo mật cookie, phía client không lấy được
         if(data && data.DT && data.DT.access_token){
-            res.cookie("cus_jwt", data.DT.access_token, { httpOnly: true, maxAge: 60 * 60 * 1000, samesite: 'strict' });
+            res.cookie("cus_jwt", data.DT.access_token, { httpOnly: true, maxAge: 10000, samesite: 'strict' });
             res.cookie("cus_refresh_token", data.DT.refresh_token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, samesite: 'strict' });
         }
 
         const { refresh_token, ...newData } = data.DT;
+        console.log("newData", newData);
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -168,6 +192,7 @@ const handleSignInGoogleSuccess = async (req, res) => {
 
 module.exports = {
     handleSignUp,
+    handleVerify,
     handleSignIn,
     handleLogout,
     handleRefreshToken,

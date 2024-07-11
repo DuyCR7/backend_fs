@@ -27,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     typeLogin: DataTypes.STRING,
     googleId: DataTypes.STRING,
     tokenLoginGoogle: DataTypes.STRING,
+    verified: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'Customer',
