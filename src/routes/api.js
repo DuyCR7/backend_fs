@@ -26,6 +26,9 @@ const initApiRoutes = (app) => {
     router.post('/refresh-token', cusAuthController.handleRefreshToken);
     router.get('/test', cusAuthController.handleTest);
     router.get('/cus/:id/verify/:token', cusAuthController.handleVerify);
+    router.post('/password-reset-link', cusAuthController.handleResetPasswordSendLink);
+    router.get('/password-reset/:id/:token', cusAuthController.handleResetPasswordVerify);
+    router.post('/password-reset/:id/:token', cusAuthController.handleResetPassword);
 
     router.get('/auth/google',
         passport.authenticate('google', { scope: ['profile', 'email'], session: false }));

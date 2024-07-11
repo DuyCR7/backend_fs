@@ -37,7 +37,7 @@ const signUpCustomer = async (rawCusData) => {
             EC: 1,
           };
         }
-    
+        console.log("pass", rawCusData.password);
         // hash user password
         let hashPassword = hashUserPassword(rawCusData.password);
     
@@ -141,6 +141,14 @@ const signInCustomer = async (rawCusData) => {
     
         // Nếu không tìm thấy khách hàng
         if (!cus) {
+          return {
+            EM: "Email hoặc mật khẩu không đúng!",
+            EC: 1,
+            DT: "",
+          };
+        }
+
+        if (cus.password === null) {
           return {
             EM: "Email hoặc mật khẩu không đúng!",
             EC: 1,
@@ -252,7 +260,7 @@ const signInGoogle = async (id, tokenLoginGoogle) => {
       };
     } else {
       return {
-        EM: "Vui lòng đăng nhập!",
+        EM: "Lỗi, vui lòng thử lại sau!",
         EC: 1,
         DT: "",
       }
@@ -267,9 +275,152 @@ const signInGoogle = async (id, tokenLoginGoogle) => {
   }
 }
 
+const resetPasswordSendLink = async (email) => {
+  try {
+    // check email/phone number are exists
+    let cus = await db.Customer.findOne({
+      where: {
+        email: email,
+      },
+    });
+    
+    if (!cus) {
+      return {
+        EM: "Email không tồn tại trong hệ thống!",
+        EC: 1,
+      };
+    }
+
+    let token = await db.Token.findOne({
+      where: {
+        cusId: cus.id,
+      },
+    });
+
+    // Tạo token mới nếu không có token
+    if (!token) {
+      token = await db.Token.create({
+        cusId: cus.id,
+        token: crypto.randomBytes(32).toString("hex"),
+      });
+      const url = `${process.env.REACT_URL}/password-reset/${cus.id}/${token.token}`;
+      await sendEmail(cus.email, "Thay đổi mật khẩu", url);
+    }
+
+    return {
+      EM: "Link thay đổi mật khẩu đã được gửi đến email của bạn!",
+      EC: 0,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      EM: "Lỗi, vui lòng thử lại sau!",
+      EC: -1,
+    };
+  }
+}
+
+const resetPasswordVerify = async (id, tokenUrl) => {
+  try {
+    const cus = await db.Customer.findOne({
+      where: {
+        id: id,
+      },
+    });
+    if (!cus) {
+      return {
+        EM: "Link không hợp lệ!",
+        EC: -1,
+      };
+    }
+
+    const token = await db.Token.findOne({
+      where: {
+        cusId: cus.id,
+        token: tokenUrl,
+      },
+    });
+    if (!token) {
+      return {
+        EM: "Link không hợp lệ!",
+        EC: -1,
+      };
+    }
+
+    return {
+      EM: "Link hợp lệ!",
+      EC: 0,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      EM: "Lỗi, vui lòng thử lại sau!",
+      EC: -1,
+    };
+  }
+} 
+
+const resetPassword = async (id, tokenUrl, password) => {
+  try {
+    const cus = await db.Customer.findOne({
+      where: {
+        id: id,
+      },
+    });
+    if (!cus) {
+      return {
+        EM: "Link không hợp lệ!",
+        EC: -1,
+      };
+    }
+
+    const token = await db.Token.findOne({
+      where: {
+        cusId: cus.id,
+        token: tokenUrl,
+      },
+    });
+    if (!token) {
+      return {
+        EM: "Link không hợp lệ!",
+        EC: -1,
+      };
+    }
+
+    let hashPassword = hashUserPassword(password);
+    await db.Customer.update({
+      password: hashPassword,
+    }, {
+      where: {
+        id: cus.id,
+      },
+    });
+
+    await db.Token.destroy({
+      where: {
+        cusId: cus.id,
+      },
+    });
+
+    return {
+      EM: "Thay đổi mật khẩu thành công!",
+      EC: 0,
+    };
+  } catch (e) {
+    console.log(e);
+    return {
+      EM: "Lỗi, vui lòng thử lại sau!",
+      EC: -1,
+    };
+  }
+}
+
 module.exports = {
     signUpCustomer,
     verifyEmail,
     signInCustomer,
-    signInGoogle
+    signInGoogle,
+    resetPasswordSendLink,
+    resetPasswordVerify,
+    resetPassword
 }

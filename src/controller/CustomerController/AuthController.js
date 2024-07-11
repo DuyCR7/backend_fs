@@ -172,7 +172,6 @@ const handleSignInGoogleSuccess = async (req, res) => {
         }
 
         const { refresh_token, ...newData } = data.DT;
-        console.log("newData", newData);
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -190,6 +189,78 @@ const handleSignInGoogleSuccess = async (req, res) => {
     }
 }
 
+const handleResetPasswordSendLink = async (req, res) => {
+    try {
+        let data = await authService.resetPasswordSendLink(req.body.email);
+        
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: '',   // data
+        });
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
+const handleResetPasswordVerify = async (req, res) => {
+    try {
+        let id = req.params.id;
+        let token = req.params.token;
+        let data = await authService.resetPasswordVerify(id, token);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: '',   // data
+        });
+
+    } catch (e) {
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
+const handleResetPassword = async (req, res) => {
+    try {
+        let id = req.params.id;
+        let token = req.params.token;
+        let password = req.body.password;
+
+        if(password && password.length < 8){
+            return res.status(200).json({
+                EM: 'Mật khẩu tối thiểu phải có 8 ký tự!',   // error message
+                EC: 1,   // error code
+                DT: '',   // data
+            })
+        }
+
+
+        let data = await authService.resetPassword(id, token, password);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: '',   // data
+        });
+
+    } catch (e) {
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 module.exports = {
     handleSignUp,
     handleVerify,
@@ -197,5 +268,8 @@ module.exports = {
     handleLogout,
     handleRefreshToken,
     handleTest,
-    handleSignInGoogleSuccess
+    handleSignInGoogleSuccess,
+    handleResetPasswordSendLink,
+    handleResetPasswordVerify,
+    handleResetPassword
 }
