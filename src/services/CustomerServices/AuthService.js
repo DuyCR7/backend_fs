@@ -150,7 +150,7 @@ const signInCustomer = async (rawCusData) => {
 
         if (cus.password === null) {
           return {
-            EM: "Email hoặc mật khẩu không đúng!",
+            EM: "Hãy đăng nhập tài khoản này bằng Google!",
             EC: 1,
             DT: "",
           };
@@ -287,6 +287,13 @@ const resetPasswordSendLink = async (email) => {
     if (!cus) {
       return {
         EM: "Email không tồn tại trong hệ thống!",
+        EC: 1,
+      };
+    }
+
+    if (!cus.password) {
+      return {
+        EM: "Hãy đăng nhập tài khoản này bằng Google!",
         EC: 1,
       };
     }

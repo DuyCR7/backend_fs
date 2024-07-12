@@ -43,7 +43,8 @@ passport.use(new GoogleStrategy({
               image: profile.photos[0].value,
               username: profile.displayName,
               typeLogin: profile.provider,
-              tokenLoginGoogle: tokenLoginGoogle
+              tokenLoginGoogle: tokenLoginGoogle,
+              verified: true,
             }
           })
   

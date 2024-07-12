@@ -70,8 +70,8 @@ const handleSignIn = async (req, res) => {
         }
 
         const { refresh_token, ...newData } = data.DT;
-        console.log("newData", newData);
-        console.log("DT", data.DT);
+        // console.log("newData", newData);
+        // console.log("DT", data.DT);
 
         return res.status(200).json({
             EM: data.EM,   // error message
