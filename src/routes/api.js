@@ -1,9 +1,26 @@
 require('dotenv').config();
+import path from "path";
 import express from 'express';
 import adAuthController from "../controller/AdminController/AuthController";
+import adTeamController from "../controller/AdminController/TeamController";
 import cusAuthController from "../controller/CustomerController/AuthController";
 import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
+import multer from 'multer';
+import { v4 as uuidv4 } from "uuid";
+
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, 'src/public/assets/images')
+    },
+    filename: (req, file, cb) => {
+        cb(null, file.fieldname + '-' + uuidv4() + '-' + Date.now() + path.extname(file.originalname));
+    }
+});
+
+const upload = multer({
+    storage: storage
+});
 
 const router = express.Router();
 const adminRouter = express.Router();
@@ -18,6 +35,8 @@ const initApiRoutes = (app) => {
     adminRouter.get('/account', adAuthController.handleGetUserAccount);
     adminRouter.get("/get-by-id/:id", adAuthController.handleGetUserById);
 
+    adminRouter.post('/team/create', upload.single('image'), adTeamController.handleCreateTeam);
+
     router.use('/admin', adminRouter);
 
     router.post('/sign-up', cusAuthController.handleSignUp);
@@ -29,6 +48,13 @@ const initApiRoutes = (app) => {
     router.post('/password-reset-link', cusAuthController.handleResetPasswordSendLink);
     router.get('/password-reset/:id/:token', cusAuthController.handleResetPasswordVerify);
     router.post('/password-reset/:id/:token', cusAuthController.handleResetPassword);
+    router.get('/test-time', (req, res) =>{
+        return res.status(200).json({
+            EM: 'Success',   // error message
+            EC: 0,   // error code
+            DT: '2024-07-22 15:51:20',   // data
+        })
+    })
 
     router.get('/auth/google',
         passport.authenticate('google', { scope: ['profile', 'email'], session: false }));

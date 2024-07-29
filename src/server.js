@@ -1,4 +1,5 @@
 require('dotenv').config();
+import path from "path";
 import express from 'express';
 import bodyParser from 'body-parser';
 import configCORS from './config/cors';
@@ -8,6 +9,9 @@ import initApiRoutes from './routes/api';
 require('./passport');
 
 const app = express();
+
+// set static folder
+app.use(express.static(path.join(__dirname, 'public')));
 
 // config CORS
 configCORS(app);
