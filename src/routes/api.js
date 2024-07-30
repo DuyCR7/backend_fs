@@ -36,6 +36,10 @@ const initApiRoutes = (app) => {
     adminRouter.get("/get-by-id/:id", adAuthController.handleGetUserById);
 
     adminRouter.post('/team/create', upload.single('image'), adTeamController.handleCreateTeam);
+    adminRouter.get('/team/read', adTeamController.handleGetTeam);
+    adminRouter.put('/team/update', upload.single('image'), adTeamController.handleUpdateTeam);
+    adminRouter.put('/team/set-active', adTeamController.handleSetActive);
+    adminRouter.delete('/team/delete', adTeamController.handleDeleteTeam);
 
     router.use('/admin', adminRouter);
 
