@@ -3,6 +3,7 @@ import path from "path";
 import express from 'express';
 import adAuthController from "../controller/AdminController/AuthController";
 import adTeamController from "../controller/AdminController/TeamController";
+import adCategoryController from "../controller/AdminController/CategoryController";
 import cusAuthController from "../controller/CustomerController/AuthController";
 import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
@@ -27,7 +28,7 @@ const adminRouter = express.Router();
 
 const initApiRoutes = (app) => {
 
-    adminRouter.use(checkUserJWT);
+    // adminRouter.use(checkUserJWT);
 
     adminRouter.post('/sign-in', adAuthController.handleSignIn);
     adminRouter.post('/logout', adAuthController.handleLogout);
@@ -40,6 +41,10 @@ const initApiRoutes = (app) => {
     adminRouter.put('/team/update', upload.single('image'), adTeamController.handleUpdateTeam);
     adminRouter.put('/team/set-active', adTeamController.handleSetActive);
     adminRouter.delete('/team/delete', adTeamController.handleDeleteTeam);
+
+    adminRouter.get('/category/get-parent', adCategoryController.handleGetParentCategory);
+    adminRouter.post('/category/create', upload.single('image'), adCategoryController.handleCreateCategory);
+    adminRouter.get('/category/read', adCategoryController.handleGetCategory);
 
     router.use('/admin', adminRouter);
 
