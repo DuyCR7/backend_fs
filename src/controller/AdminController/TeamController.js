@@ -102,7 +102,7 @@ const handleUpdateTeam = async (req, res) => {
         }
 
         let name = req.body.name;
-        let image = team.image;
+        let image = team.DT.image;
         if(req.file){
             image = req.file.filename;
         }
@@ -112,6 +112,7 @@ const handleUpdateTeam = async (req, res) => {
             name: name,
             image: image
         }
+        console.log("dataTeam: ", dataTeam);
         
         // update
         let data = await teamService.updateTeam(dataTeam);

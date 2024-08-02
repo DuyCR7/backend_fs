@@ -116,7 +116,7 @@ const getTeamById = async (id) => {
             return {
                 EM: `Lấy thông tin đội bóng thành công!`,
                 EC: 0,
-                DT: "",
+                DT: team,
             }
         } else {
             return {

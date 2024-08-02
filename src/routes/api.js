@@ -28,7 +28,7 @@ const adminRouter = express.Router();
 
 const initApiRoutes = (app) => {
 
-    // adminRouter.use(checkUserJWT);
+    adminRouter.use(checkUserJWT);
 
     adminRouter.post('/sign-in', adAuthController.handleSignIn);
     adminRouter.post('/logout', adAuthController.handleLogout);
@@ -45,6 +45,9 @@ const initApiRoutes = (app) => {
     adminRouter.get('/category/get-parent', adCategoryController.handleGetParentCategory);
     adminRouter.post('/category/create', upload.single('image'), adCategoryController.handleCreateCategory);
     adminRouter.get('/category/read', adCategoryController.handleGetCategory);
+    adminRouter.put('/category/update', upload.single('image'), adCategoryController.handleUpdateCategory);
+    adminRouter.put('/category/set-active', adCategoryController.handleSetActive);
+    adminRouter.delete('/category/delete', adCategoryController.handleDeleteCategory);
 
     router.use('/admin', adminRouter);
 
