@@ -117,13 +117,25 @@ const handleUpdateCategory = async (req, res) => {
             image = req.file.filename;
         }
 
-        let dataCategory = {
-            id: id,
-            name: name,
-            parent_id: parent_id,
-            description: description,
-            image: image
+        let dataCategory = {};
+
+        if(+id === +req.body.parent_id) {
+            dataCategory = {
+                id: id,
+                name: name,
+                description: description,
+                image: image
+            }
+        } else {
+            dataCategory = {
+                id: id,
+                name: name,
+                parent_id: parent_id,
+                description: description,
+                image: image
+            }
         }
+
         
         // update
         let data = await categoryService.updateCategory(dataCategory);

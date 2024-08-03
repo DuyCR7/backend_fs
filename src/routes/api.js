@@ -4,6 +4,8 @@ import express from 'express';
 import adAuthController from "../controller/AdminController/AuthController";
 import adTeamController from "../controller/AdminController/TeamController";
 import adCategoryController from "../controller/AdminController/CategoryController";
+import adSizeController from "../controller/AdminController/SizeController";
+import adColorController from "../controller/AdminController/ColorController";
 import cusAuthController from "../controller/CustomerController/AuthController";
 import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
@@ -48,6 +50,18 @@ const initApiRoutes = (app) => {
     adminRouter.put('/category/update', upload.single('image'), adCategoryController.handleUpdateCategory);
     adminRouter.put('/category/set-active', adCategoryController.handleSetActive);
     adminRouter.delete('/category/delete', adCategoryController.handleDeleteCategory);
+
+    adminRouter.post('/size/create', adSizeController.handleCreateSize);
+    adminRouter.get('/size/read', adSizeController.handleGetSize);
+    adminRouter.put('/size/set-active', adSizeController.handleSetActive);
+    adminRouter.put('/size/update', adSizeController.handleUpdateSize);
+    adminRouter.delete('/size/delete', adSizeController.handleDeleteSize);
+
+    adminRouter.post('/color/create', adColorController.handleCreateColor);
+    adminRouter.get('/color/read', adColorController.handleGetColor);
+    adminRouter.put('/color/set-active', adColorController.handleSetActive);
+    adminRouter.put('/color/update', adColorController.handleUpdateColor);
+    adminRouter.delete('/color/delete', adColorController.handleDeleteColor);
 
     router.use('/admin', adminRouter);
 

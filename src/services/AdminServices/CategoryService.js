@@ -163,12 +163,20 @@ const updateCategory = async (dataCategory) => {
         });
 
         if(category) {
-            await category.update({
-                name: dataCategory.name,
-                parent_id: dataCategory.parent_id,
-                description: dataCategory.description,
-                image: dataCategory.image
-            });
+            if(category.id !== dataCategory.parent_id) {
+                await category.update({
+                    name: dataCategory.name,
+                    parent_id: dataCategory.parent_id,
+                    description: dataCategory.description,
+                    image: dataCategory.image
+                });
+            } else {
+                await category.update({
+                    name: dataCategory.name,
+                    description: dataCategory.description,
+                    image: dataCategory.image
+                });
+            }
 
             return {
                 EM: `Cập nhật thành công!`,
