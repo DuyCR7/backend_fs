@@ -6,6 +6,7 @@ import adTeamController from "../controller/AdminController/TeamController";
 import adCategoryController from "../controller/AdminController/CategoryController";
 import adSizeController from "../controller/AdminController/SizeController";
 import adColorController from "../controller/AdminController/ColorController";
+import adProductController from "../controller/AdminController/ProductController";
 import cusAuthController from "../controller/CustomerController/AuthController";
 import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
@@ -62,6 +63,11 @@ const initApiRoutes = (app) => {
     adminRouter.put('/color/set-active', adColorController.handleSetActive);
     adminRouter.put('/color/update', adColorController.handleUpdateColor);
     adminRouter.delete('/color/delete', adColorController.handleDeleteColor);
+
+    adminRouter.get('/product/get-category', adProductController.handleGetProductCategory);
+    adminRouter.get('/product/get-team', adProductController.handleGetProductTeam);
+    adminRouter.get('/product/get-color', adProductController.handleGetProductColor);
+    adminRouter.get('/product/get-size', adProductController.handleGetProductSize);
 
     router.use('/admin', adminRouter);
 
