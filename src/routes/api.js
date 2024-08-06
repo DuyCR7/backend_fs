@@ -68,6 +68,10 @@ const initApiRoutes = (app) => {
     adminRouter.get('/product/get-team', adProductController.handleGetProductTeam);
     adminRouter.get('/product/get-color', adProductController.handleGetProductColor);
     adminRouter.get('/product/get-size', adProductController.handleGetProductSize);
+    adminRouter.post('/product/create', upload.fields([
+        { name: 'images', maxCount: 20 },
+        { name: 'detailImages', maxCount: 20 }
+    ]), adProductController.handleCreateProduct);
 
     router.use('/admin', adminRouter);
 

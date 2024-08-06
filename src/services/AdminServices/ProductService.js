@@ -153,9 +153,83 @@ const getAllSizes = async () => {
     }
 }
 
+const createProduct = async (dataProduct) => {
+    try {
+        console.log(dataProduct);
+        if(!dataProduct.price_sale) {
+            dataProduct.price_sale = 0;
+        }
+
+        const newProduct = await db.Product.create({
+            name: dataProduct.name,
+            price: dataProduct.price,
+            price_sale: dataProduct.price_sale,
+            image: dataProduct.image,
+            categoryId: dataProduct.categoryId,
+            teamId: dataProduct.teamId,
+        });
+
+        if(dataProduct.images && dataProduct.images.length > 0) {
+            const imageInfoArray = JSON.parse(dataProduct.imageInfo);
+            const productImages = dataProduct.images.map((file, index) => ({
+                productId: newProduct.id,
+                image: file.filename,
+                isMainImage: imageInfoArray[index].isMainImage
+            }));
+
+            await db.Product_Image.bulkCreate(productImages);
+        }
+
+        if (dataProduct.productDetails) {
+            const details = JSON.parse(dataProduct.productDetails);
+            const detailImages = dataProduct.detailImages || [];
+            let imageIndex = 0;
+    
+            // console.log("details: " , details);
+            // console.log("detailImages: " , detailImages);
+            let allDetails = [];
+            details.map(detail => {
+            let detailImage = null;
+            if (detail.hasImage && imageIndex < detailImages.length) {
+                detailImage = detailImages[imageIndex].filename;
+                imageIndex++;
+            }
+                const detailInfo = detail.sizes.map((item, index) => {
+                return {
+                productId: newProduct.id,
+                sizeId: +item.sizeId,
+                colorId: +detail.colorId,
+                image: detailImage,
+                quantity: +item.quantity,
+                }
+            });
+            allDetails = allDetails.concat(detailInfo);
+            
+            });
+            // console.log("allDetails: " ,allDetails);
+            await db.Product_Detail.bulkCreate(allDetails);
+        }
+
+        return {
+            EM: "Tạo sản phẩm thành công!",
+            EC: 0,
+            DT: newProduct
+        }
+
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     getAllCategories,
     getAllTeams,
     getAllColors,
     getAllSizes,
+    createProduct,
 }
