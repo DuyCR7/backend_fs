@@ -154,6 +154,8 @@ const getAllSizes = async () => {
 }
 
 const createProduct = async (dataProduct) => {
+    const transaction = await db.sequelize.transaction();
+
     try {
         // console.log(dataProduct);
         if(!dataProduct.price_sale) {
@@ -172,7 +174,7 @@ const createProduct = async (dataProduct) => {
             image: dataProduct.image,
             categoryId: dataProduct.categoryId,
             teamId: dataProduct.teamId,
-        });
+        }, {transaction});
 
         if(dataProduct.images && dataProduct.images.length > 0) {
             const imageInfoArray = JSON.parse(dataProduct.imageInfo);
@@ -182,7 +184,7 @@ const createProduct = async (dataProduct) => {
                 isMainImage: imageInfoArray[index].isMainImage
             }));
 
-            await db.Product_Image.bulkCreate(productImages);
+            await db.Product_Image.bulkCreate(productImages, {transaction});
         }
 
         if (dataProduct.productDetails) {
@@ -213,8 +215,10 @@ const createProduct = async (dataProduct) => {
             
             });
             // console.log("allDetails: " ,allDetails);
-            await db.Product_Detail.bulkCreate(allDetails);
+            await db.Product_Detail.bulkCreate(allDetails, {transaction});
         }
+
+        await transaction.commit();
 
         return {
             EM: "Tạo sản phẩm thành công!",
@@ -223,6 +227,7 @@ const createProduct = async (dataProduct) => {
         }
 
     } catch (e) {
+        await transaction.rollback();
         console.log(e);
         return {
             EM: "Lỗi, vui lòng thử lại sau!",
@@ -251,10 +256,12 @@ const getProductsWithPagination = async (page, limit, search, sortConfig) => {
             include: [
                 {
                     model: db.Product_Image,
-                    where: { isMainImage: true },
-                    required: false,
-                    limit: 1
-                }
+                    attributes: ['id', 'image', 'isMainImage']
+                },
+                {
+                    model: db.Product_Detail,
+                    attributes: ['id', 'sizeId', 'colorId', 'quantity', 'image']
+                },
             ],
             distinct: true
         });
@@ -312,6 +319,252 @@ const getAllProducts = async () => {
     }
 }
 
+const setActiveField = async (id, field) => {
+    try {
+        let product = await db.Product.findOne({
+            where: {
+                id: id
+            }
+        });
+
+        if(product) {
+            await product.update({
+                [field]: !product[field]
+            });
+
+            return {
+                EM: `Cập nhật thành công!`,
+                EC: 0,
+                DT: "",
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy sản phẩm",
+                EC: 1,
+                DT: "",
+            }
+        }
+        
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: "",
+        };
+    }
+}
+
+const getProductById = async (id) => {
+    try {
+        let product = await db.Product.findOne({
+            where: {
+                id: id
+            },
+            include: [
+                {
+                    model: db.Product_Image,
+                    attributes: ['id', 'image', 'isMainImage']
+                },
+                {
+                    model: db.Product_Detail,
+                    attributes: ['id', 'sizeId', 'colorId', 'quantity', 'image']
+                },
+            ],
+            distinct: true,
+        });
+        if(!product) {
+            return {
+                EM: "Không tìm thấy sản phẩm!",
+                EC: 1,
+                DT: ""
+            }
+        } else {
+            return {
+                EM: "Lấy thông tin sản phẩm thành công!",
+                EC: 0,
+                DT: product.toJSON()
+            }
+        }
+        
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: "",
+        };
+    }
+}
+
+const updateProduct = async (dataProduct) => {
+    try {
+        const transaction = await db.sequelize.transaction();
+        try {
+            // Cập nhật thông tin cơ bản của sản phẩm
+            await db.Product.update({
+                name: dataProduct.name,
+                description: dataProduct.description,
+                price: dataProduct.price,
+                price_sale: dataProduct.price_sale,
+                categoryId: dataProduct.categoryId,
+                teamId: dataProduct.teamId,
+            }, { 
+                where: { id: dataProduct.id },
+                transaction
+            });
+
+            // Xử lý Product_Images
+            const imageInfoArray = JSON.parse(dataProduct.imageInfo);
+            if (dataProduct.images && dataProduct.images.length > 0) {
+                // Xóa ảnh cũ
+                await db.Product_Image.destroy({ 
+                    where: { productId: dataProduct.id }, 
+                    transaction
+                });
+    
+                // Thêm ảnh mới
+                const productImages = dataProduct.images.map((file, index) => ({
+                    productId: dataProduct.id,
+                    image: file.filename,
+                    isMainImage: imageInfoArray[index].isMainImage
+                }));
+                await db.Product_Image.bulkCreate(productImages, {transaction});
+
+            } else {
+                // Cập nhật thông tin isMainImage nếu chỉ thay đổi ảnh chính
+                for (let i = 0; i < imageInfoArray.length; i++) {
+                    await db.Product_Image.update(
+                        { isMainImage: imageInfoArray[i].isMainImage },
+                        { 
+                            where: { 
+                                productId: dataProduct.id,
+                                id: dataProduct.Product_Images[i].id 
+                            },
+                            transaction
+                        }
+                    );
+                }
+            }
+
+            const details = JSON.parse(dataProduct.productDetails);
+            // console.log("details", details);
+            await db.Product_Detail.destroy({ 
+                where: { productId: dataProduct.id }, 
+                transaction
+            });
+
+            let allDetails = [];
+            for (const detail of details) {
+                let detailImage = null;
+                if (detail.hasImage && dataProduct.detailImages) {
+                    const matchingFile = dataProduct.detailImages.find(file => file.originalname === detail.imageName);
+                    // console.log("matchingFile", matchingFile);
+                    if (matchingFile) {
+                        detailImage = matchingFile.filename;
+                    }
+                }
+                if (!detailImage && detail.imagePreview) {
+                    // Lấy tên file từ URL imagePreview nếu không có ảnh mới
+                    detailImage = detail.imagePreview.split('/').pop();
+                }
+                    
+                const detailInfo = detail.sizes.map(item => ({
+                    productId: dataProduct.id,
+                    sizeId: +item.sizeId,
+                    colorId: +detail.colorId,
+                    image: detailImage,
+                    quantity: +item.quantity,
+                }));
+                allDetails = allDetails.concat(detailInfo);
+            }
+            // console.log("allDetails", allDetails);
+            await db.Product_Detail.bulkCreate(allDetails, {transaction});
+
+            await transaction.commit();
+
+            return {
+                EM: "Cập nhật sản phẩm thành công!",
+                EC: 0,
+                DT: "",
+            }
+        } catch (e) {
+            await transaction.rollback();
+            return {
+                EM: "Lỗi, vui lòng thử lại sau!",
+                EC: -1,
+                DT: "",
+            }
+        }
+        
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: "",
+        }
+    }
+}
+
+const deleteProduct = async (id) => {
+    const transaction = await db.sequelize.transaction();
+
+    try {
+        const product = await db.Product.findOne({
+            where: {
+                id: id
+            },
+            transaction
+        });
+        if (!product) {
+            await transaction.rollback();
+            return {
+                EM: "Sản phẩm không tồn tại!",
+                EC: 1,
+                DT: "",
+            }
+        }
+
+        await db.Product_Image.destroy({
+            where: {
+                productId: id
+            },
+            transaction
+        });
+
+        await db.Product_Detail.destroy({
+            where: {
+                productId: id
+            },
+            transaction
+        });
+
+        await db.Product.destroy({
+            where: {
+                id: id
+            },
+            transaction
+        });
+
+        await transaction.commit();
+
+        return {
+            EM: "Xóa sản phẩm thành công!",
+            EC: 0,
+            DT: "",
+        }
+    } catch (e) {
+        await transaction.rollback();
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: "",
+        }
+    }
+}
+
 module.exports = {
     getAllCategories,
     getAllTeams,
@@ -320,4 +573,8 @@ module.exports = {
     createProduct,
     getProductsWithPagination,
     getAllProducts,
+    setActiveField,
+    getProductById,
+    updateProduct,
+    deleteProduct,
 }

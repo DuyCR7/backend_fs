@@ -72,7 +72,13 @@ const initApiRoutes = (app) => {
         { name: 'images', maxCount: 20 },
         { name: 'detailImages', maxCount: 20 }
     ]), adProductController.handleCreateProduct);
+    adminRouter.put('/product/update', upload.fields([
+        { name: 'images', maxCount: 20 },
+        { name: 'detailImages', maxCount: 20 }
+    ]), adProductController.handleUpdateProduct);
     adminRouter.get('/product/read', adProductController.handleGetProduct);
+    adminRouter.put('/product/set-active-field', adProductController.handleSetActiveField);
+    adminRouter.delete('/product/delete', adProductController.handleDeleteProduct);
 
     router.use('/admin', adminRouter);
 
