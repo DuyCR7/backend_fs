@@ -31,7 +31,6 @@ module.exports = (sequelize, DataTypes) => {
     price: DataTypes.INTEGER,
     price_sale: DataTypes.INTEGER,
     isSale: DataTypes.BOOLEAN,
-    isBestSeller: DataTypes.BOOLEAN,
     isTrending: DataTypes.BOOLEAN,
     isActive: DataTypes.BOOLEAN,
     categoryId: {

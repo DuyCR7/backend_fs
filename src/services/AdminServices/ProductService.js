@@ -155,13 +155,18 @@ const getAllSizes = async () => {
 
 const createProduct = async (dataProduct) => {
     try {
-        console.log(dataProduct);
+        // console.log(dataProduct);
         if(!dataProduct.price_sale) {
             dataProduct.price_sale = 0;
         }
 
+        if(!dataProduct.description) {
+            dataProduct.description = '';
+        }
+
         const newProduct = await db.Product.create({
             name: dataProduct.name,
+            description: dataProduct.description,
             price: dataProduct.price,
             price_sale: dataProduct.price_sale,
             image: dataProduct.image,
@@ -189,19 +194,20 @@ const createProduct = async (dataProduct) => {
             // console.log("detailImages: " , detailImages);
             let allDetails = [];
             details.map(detail => {
-            let detailImage = null;
-            if (detail.hasImage && imageIndex < detailImages.length) {
-                detailImage = detailImages[imageIndex].filename;
-                imageIndex++;
-            }
-                const detailInfo = detail.sizes.map((item, index) => {
-                return {
-                productId: newProduct.id,
-                sizeId: +item.sizeId,
-                colorId: +detail.colorId,
-                image: detailImage,
-                quantity: +item.quantity,
+                let detailImage = null;
+                if (detail.hasImage && imageIndex < detailImages.length) {
+                    detailImage = detailImages[imageIndex].filename;
+                    imageIndex++;
                 }
+                
+                const detailInfo = detail.sizes.map((item, index) => {
+                    return {
+                        productId: newProduct.id,
+                        sizeId: +item.sizeId,
+                        colorId: +detail.colorId,
+                        image: detailImage,
+                        quantity: +item.quantity,
+                    }
             });
             allDetails = allDetails.concat(detailInfo);
             
@@ -226,10 +232,92 @@ const createProduct = async (dataProduct) => {
     }
 }
 
+const getProductsWithPagination = async (page, limit, search, sortConfig) => {
+    try {
+        let offset = (page - 1) * limit;
+        let order = [[sortConfig.key, sortConfig.direction]];
+
+        const whereClause = {
+            [Op.or]: [
+                { name: { [Op.like]: `%${search}%` } },
+            ]
+        };
+
+        const { count, rows } = await db.Product.findAndCountAll({
+            where: whereClause,
+            order: order,
+            offset: offset,
+            limit: limit,
+            include: [
+                {
+                    model: db.Product_Image,
+                    where: { isMainImage: true },
+                    required: false,
+                    limit: 1
+                }
+            ],
+            distinct: true
+        });
+
+        let data = {
+            totalRows: count,
+            currentPage: page,
+            totalPages: Math.ceil(count / limit),
+            products: rows,
+        }
+
+        return {
+            EM: "Lấy thông tin sản phẩm thành công!",
+            EC: 0,
+            DT: data
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
+const getAllProducts = async () => {
+    try {
+        let products = await db.Product.findAll({
+            order: [
+                'id', 'DESC'
+            ]
+        })
+
+        if(products) {
+            return {
+                EM: "Lấy thông tin tất cả sản phẩm thành công!",
+                EC: 0,
+                DT: products
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy sản phẩm nào!",
+                EC: 1,
+                DT: ""
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     getAllCategories,
     getAllTeams,
     getAllColors,
     getAllSizes,
     createProduct,
+    getProductsWithPagination,
+    getAllProducts,
 }

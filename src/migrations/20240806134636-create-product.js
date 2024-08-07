@@ -25,10 +25,6 @@ module.exports = {
         type: Sequelize.BOOLEAN,
         defaultValue: false
       },
-      isBestSeller: {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false
-      },
       isTrending: {
         type: Sequelize.BOOLEAN,
         defaultValue: false

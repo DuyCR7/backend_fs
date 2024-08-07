@@ -72,6 +72,7 @@ const initApiRoutes = (app) => {
         { name: 'images', maxCount: 20 },
         { name: 'detailImages', maxCount: 20 }
     ]), adProductController.handleCreateProduct);
+    adminRouter.get('/product/read', adProductController.handleGetProduct);
 
     router.use('/admin', adminRouter);
 
