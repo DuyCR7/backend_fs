@@ -1,4 +1,5 @@
 import categoryService from "../../services/AdminServices/CategoryService";
+import slugify from "slugify";
 
 const handleCreateCategory = async (req, res) => {
     // validate
@@ -19,12 +20,14 @@ const handleCreateCategory = async (req, res) => {
     }
     
     let name = req.body.name;
+    let slug = slugify(name, { lower: true, strict: true });
     let parent_id = +req.body.parent_id;
     let description = req.body.description ? req.body.description : '';
     let image = req.file.filename;
 
     let dataCategory = {
         name: name,
+        slug: slug,
         parent_id: parent_id,
         description: description,
         image: image
@@ -109,6 +112,7 @@ const handleUpdateCategory = async (req, res) => {
         }
 
         let name = req.body.name;
+        let slug = slugify(name, { lower: true, strict: true });
         let image = category.DT.image;
         let parent_id = +req.body.parent_id;
         let description = req.body.description;
@@ -123,6 +127,7 @@ const handleUpdateCategory = async (req, res) => {
             dataCategory = {
                 id: id,
                 name: name,
+                slug: slug,
                 description: description,
                 image: image
             }
@@ -130,6 +135,7 @@ const handleUpdateCategory = async (req, res) => {
             dataCategory = {
                 id: id,
                 name: name,
+                slug: slug,
                 parent_id: parent_id,
                 description: description,
                 image: image

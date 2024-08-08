@@ -37,9 +37,9 @@ const createColor = async (dataColor) => {
 const getAllColors = async () => {
     try {
         let colors = await db.Color.findAll({
-            order: [
+            order: [[
                 'id', 'DESC'
-            ]
+            ]]
         })
 
         if(colors) {
@@ -181,24 +181,30 @@ const updateColor = async (dataColor) => {
 
 const deleteColor = async (id) => {
     try {
-        let color = await db.Color.destroy({
+        const productCount = await db.Product_Detail.count({
+            where: {
+                colorId: id
+            }
+        });
+
+        if (productCount > 0) {
+            return {
+                EM: `Không thể xóa màu này vì đang có sản phẩm sử dụng!`,
+                EC: 1,
+                DT: "",
+            };
+        }
+
+        await db.Color.destroy({
             where: {
                 id: id
             }
         });
 
-        if(color) {
-            return {
-                EM: `Xóa thành công!`,
-                EC: 0,
-                DT: "",
-            }
-        } else {
-            return {
-                EM: "Không tìm thấy màu!",
-                EC: 1,
-                DT: "",
-            }
+        return {
+            EM: `Xóa thành công!`,
+            EC: 0,
+            DT: "",
         }
 
     } catch (e) {

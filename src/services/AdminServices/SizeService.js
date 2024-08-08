@@ -37,9 +37,9 @@ const createSize = async (dataSize) => {
 const getAllSizes = async () => {
     try {
         let sizes = await db.Size.findAll({
-            order: [
+            order: [[
                 'id', 'DESC'
-            ]
+            ]]
         })
 
         if(sizes) {
@@ -181,24 +181,30 @@ const updateSize = async (dataSize) => {
 
 const deleteSize = async (id) => {
     try {
-        let size = await db.Size.destroy({
+        const productCount = await db.Product_Detail.count({
+            where: {
+                sizeId: id
+            }
+        });
+
+        if (productCount > 0) {
+            return {
+                EM: `Không thể xóa size này vì đang có sản phẩm sử dụng!`,
+                EC: 1,
+                DT: "",
+            };
+        }
+
+        await db.Size.destroy({
             where: {
                 id: id
             }
         });
 
-        if(size) {
-            return {
-                EM: `Xóa thành công!`,
-                EC: 0,
-                DT: "",
-            }
-        } else {
-            return {
-                EM: "Không tìm thấy size!",
-                EC: 1,
-                DT: "",
-            }
+        return {
+            EM: `Xóa thành công!`,
+            EC: 0,
+            DT: "",
         }
 
     } catch (e) {

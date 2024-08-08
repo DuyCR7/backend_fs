@@ -7,7 +7,10 @@ import adCategoryController from "../controller/AdminController/CategoryControll
 import adSizeController from "../controller/AdminController/SizeController";
 import adColorController from "../controller/AdminController/ColorController";
 import adProductController from "../controller/AdminController/ProductController";
+
 import cusAuthController from "../controller/CustomerController/AuthController";
+import cusHomeController from "../controller/CustomerController/HomeController";
+
 import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
 import multer from 'multer';
@@ -112,6 +115,8 @@ const initApiRoutes = (app) => {
     }); 
 
     router.post('/sign-in-success', cusAuthController.handleSignInGoogleSuccess);
+
+    router.get('/team/read', cusHomeController.handleGetTeam);
 
     return app.use('/api/v1/', router);
 }

@@ -1,4 +1,5 @@
 import productService from "../../services/AdminServices/ProductService";
+import slugify from "slugify";
 
 const handleGetProductCategory = async (req, res) => {
     try {
@@ -101,8 +102,11 @@ const handleCreateProduct = async (req, res) => {
             })
         }
 
+        let slug = slugify(name, { lower: true, strict: true });
+
         let dataProduct = {
             name: name,
+            slug: slug,
             description: description,
             price: +price,
             price_sale: +price_sale,
@@ -146,13 +150,13 @@ const handleUpdateProduct = async (req, res) => {
             productDetails
         } = req.body;
         
-        // if(!name || !price || !categoryId || !teamId || !req.files.images || !req.files.detailImages || !imageInfo || !productDetails) {
-        //     return res.status(200).json({
-        //         EM: 'Vui lòng nhập đầy đủ thông tin!',   // error message
-        //         EC: 1,   // error code
-        //         DT: '',   // data
-        //     })
-        // }
+        if(!name || !price || !categoryId || !teamId || !imageInfo || !productDetails) {
+            return res.status(200).json({
+                EM: 'Vui lòng nhập đầy đủ thông tin!',   // error message
+                EC: 1,   // error code
+                DT: '',   // data
+            })
+        }
 
         let product = await productService.getProductById(id);
         if(!product) {
@@ -164,9 +168,12 @@ const handleUpdateProduct = async (req, res) => {
         }
         console.log("product", product.DT);
 
+        let slug = slugify(name, { lower: true, strict: true });
+
         let dataProduct = {
             id: +id,
             name: name,
+            slug: slug,
             description: description,
             price: +price,
             price_sale: +price_sale,

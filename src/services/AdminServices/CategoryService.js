@@ -166,6 +166,7 @@ const updateCategory = async (dataCategory) => {
             if(category.id !== dataCategory.parent_id) {
                 await category.update({
                     name: dataCategory.name,
+                    slug: dataCategory.slug,
                     parent_id: dataCategory.parent_id,
                     description: dataCategory.description,
                     image: dataCategory.image
@@ -173,6 +174,7 @@ const updateCategory = async (dataCategory) => {
             } else {
                 await category.update({
                     name: dataCategory.name,
+                    slug: dataCategory.slug,
                     description: dataCategory.description,
                     image: dataCategory.image
                 });
@@ -298,6 +300,26 @@ const setActiveCategory = async (id) => {
     }
 }
 
+const getAllProductIdsInCategory = async (category) => {
+    let productIds = [];
+
+    // Lấy các sản phẩm thuộc danh mục hiện tại
+    const products = await db.Product.findAll({
+        where: { categoryId: category.id },
+        attributes: ['id']
+    });
+    productIds = productIds.concat(products.map(p => p.id));
+
+    // Lấy các sản phẩm thuộc các danh mục con
+    if (category.children) {
+        for (let child of category.children) {
+            productIds = productIds.concat(await getAllProductIdsInCategory(child));
+        }
+    }
+
+    return productIds;
+}
+
 const deleteCategory = async (id) => {
     try {
         let categories = await db.Category.findAll({
@@ -317,6 +339,21 @@ const deleteCategory = async (id) => {
 
         // Xóa danh mục và các danh mục con
         const deleteCategoryAndChildren = async (category) => {
+            // Xóa các sản phẩm thuộc danh mục
+            const productIds = await getAllProductIdsInCategory(category);
+            console.log("Product Ids===========================================: " , productIds);
+            // Xóa các bảng liên quan của sản phẩm
+            await db.Product_Image.destroy({
+                where: { productId: productIds }
+            });
+            await db.Product_Detail.destroy({
+                where: { productId: productIds }
+            });
+
+            await db.Product.destroy({
+                where: { id: productIds }
+            });
+
             if (category.children) {
                 for (let child of category.children) {
                     await deleteCategoryAndChildren(child);

@@ -1,4 +1,5 @@
 import teamService from "../../services/AdminServices/TeamService";
+import slugify from "slugify";
 
 const handleCreateTeam = async (req, res) => {
     // validate
@@ -19,10 +20,12 @@ const handleCreateTeam = async (req, res) => {
     }
     
     let name = req.body.name;
+    let slug = slugify(name, { lower: true, strict: true });
     let image = req.file.filename;
 
     let dataTeam = {
         name: name,
+        slug: slug,
         image: image
     }
 
@@ -102,6 +105,7 @@ const handleUpdateTeam = async (req, res) => {
         }
 
         let name = req.body.name;
+        let slug = slugify(name, { lower: true, strict: true });
         let image = team.DT.image;
         if(req.file){
             image = req.file.filename;
@@ -110,6 +114,7 @@ const handleUpdateTeam = async (req, res) => {
         let dataTeam = {
             id: id,
             name: name,
+            slug: slug,
             image: image
         }
         console.log("dataTeam: ", dataTeam);

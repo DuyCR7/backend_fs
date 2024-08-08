@@ -17,6 +17,7 @@ module.exports = (sequelize, DataTypes) => {
   Team.init({
     name: DataTypes.STRING,
     image: DataTypes.STRING,
+    slug: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN
   }, {
     sequelize,

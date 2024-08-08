@@ -36,9 +36,9 @@ const createTeam = async (dataTeam) => {
 const getAllTeams = async () => {
     try {
         let teams = await db.Team.findAll({
-            order: [
+            order: [[
                 'id', 'DESC'
-            ]
+            ]]
         })
 
         if(teams) {
@@ -147,6 +147,7 @@ const updateTeam = async (dataTeam) => {
         if(team) {
             await team.update({
                 name: dataTeam.name,
+                slug: dataTeam.slug,
                 image: dataTeam.image
             });
 

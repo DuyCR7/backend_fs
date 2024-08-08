@@ -168,6 +168,7 @@ const createProduct = async (dataProduct) => {
 
         const newProduct = await db.Product.create({
             name: dataProduct.name,
+            slug: dataProduct.slug,
             description: dataProduct.description,
             price: dataProduct.price,
             price_sale: dataProduct.price_sale,
@@ -291,9 +292,9 @@ const getProductsWithPagination = async (page, limit, search, sortConfig) => {
 const getAllProducts = async () => {
     try {
         let products = await db.Product.findAll({
-            order: [
+            order: [[
                 'id', 'DESC'
-            ]
+            ]]
         })
 
         if(products) {
@@ -404,6 +405,7 @@ const updateProduct = async (dataProduct) => {
             // Cập nhật thông tin cơ bản của sản phẩm
             await db.Product.update({
                 name: dataProduct.name,
+                slug: dataProduct.slug,
                 description: dataProduct.description,
                 price: dataProduct.price,
                 price_sale: dataProduct.price_sale,
