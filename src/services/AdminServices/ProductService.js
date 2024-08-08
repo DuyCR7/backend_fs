@@ -402,6 +402,21 @@ const updateProduct = async (dataProduct) => {
     try {
         const transaction = await db.sequelize.transaction();
         try {
+            let checkExistName = await db.Product.findAll({
+                where: {
+                    name: dataProduct.name,
+                    id: { [Op.not]: dataProduct.id }
+                },
+                transaction
+            });
+            if(checkExistName.length > 0) {
+                return {
+                    EM: `Đã tồn tại sản phẩm có tên: ${dataProduct.name}!`,
+                    EC: 1,
+                    DT: "",
+                }
+            }
+
             // Cập nhật thông tin cơ bản của sản phẩm
             await db.Product.update({
                 name: dataProduct.name,

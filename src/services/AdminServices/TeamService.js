@@ -145,6 +145,21 @@ const updateTeam = async (dataTeam) => {
         });
 
         if(team) {
+            let checkExistName = await db.Team.findAll({
+                where: {
+                    name: dataTeam.name,
+                    id: { [Op.not]: dataTeam.id }
+                }
+            });
+            
+            if(checkExistName.length > 0) {
+                return {
+                    EM: `Đã tồn tại đội bóng có tên: ${dataTeam.name}!`,
+                    EC: -1,
+                    DT: ""
+                }
+            }
+
             await team.update({
                 name: dataTeam.name,
                 slug: dataTeam.slug,

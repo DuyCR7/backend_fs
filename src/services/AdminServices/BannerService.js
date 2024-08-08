@@ -1,25 +1,24 @@
 import db from "../../models/index";
 import { Op } from "sequelize";
 
-const createColor = async (dataColor) => {
+const createBanner = async (dataBanner) => {
     try {
-        console.log("dataColor: " , dataColor)
-        let color = await db.Color.findOne({
+        let banner = await db.Banner.findOne({
             where: {
-                [Op.or]: [{ name: dataColor.name }, { code: dataColor.code }],
+                name: dataBanner.name
             }
         });
     
-        if(color) {
+        if(banner) {
             return {
-                EM: "Tên màu hoặc mã màu đã tồn tại!",
+                EM: "Tên banner đã tồn tại!",
                 EC: -1,
                 DT: ""
             }
         } else {
-            await db.Color.create(dataColor);
+            await db.Banner.create(dataBanner);
             return {
-                EM: "Tạo mới màu thành công!",
+                EM: "Tạo mới banner thành công!",
                 EC: 0,
                 DT: ""
             }
@@ -34,38 +33,7 @@ const createColor = async (dataColor) => {
     }
 }
 
-const getAllColors = async () => {
-    try {
-        let colors = await db.Color.findAll({
-            order: [[
-                'id', 'DESC'
-            ]]
-        })
-
-        if(colors) {
-            return {
-                EM: "Lấy thông tin tất cả màu thành công!",
-                EC: 0,
-                DT: colors
-            }
-        } else {
-            return {
-                EM: "Không tìm thấy màu nào!",
-                EC: 1,
-                DT: ""
-            }
-        }
-    } catch (e) {
-        console.log(e);
-        return {
-            EM: "Lỗi, vui lòng thử lại sau!",
-            EC: -1,
-            DT: ""
-        }
-    }
-}
-
-const getColorsWithPagination = async (page, limit, search, sortConfig) => {
+const getBannersWithPagination = async (page, limit, search, sortConfig) => {
     try {
         let offset = (page - 1) * limit;
         let order = [[sortConfig.key, sortConfig.direction]];
@@ -76,7 +44,7 @@ const getColorsWithPagination = async (page, limit, search, sortConfig) => {
             ]
         };
 
-        const { count, rows } = await db.Color.findAndCountAll({
+        const { count, rows } = await db.Banner.findAndCountAll({
             where: whereClause,
             order: order,
             offset: offset,
@@ -87,11 +55,11 @@ const getColorsWithPagination = async (page, limit, search, sortConfig) => {
             totalRows: count,
             currentPage: page,
             totalPages: Math.ceil(count / limit),
-            colors: rows,
+            banners: rows,
         }
 
         return {
-            EM: "Lấy thông tin màu thành công!",
+            EM: "Lấy thông tin banner thành công!",
             EC: 0,
             DT: data
         }
@@ -105,17 +73,17 @@ const getColorsWithPagination = async (page, limit, search, sortConfig) => {
     }
 }
 
-const setActiveColor = async (id) => {
+const setActiveBanner = async (id) => {
     try {
-        let color = await db.Color.findOne({
+        let banner = await db.Banner.findOne({
             where: {
                 id: id
             }
         });
 
-        if(color) {
-            await color.update({
-                isActive: !color.isActive
+        if(banner) {
+            await banner.update({
+                isActive: !banner.isActive
             });
 
             return {
@@ -125,7 +93,7 @@ const setActiveColor = async (id) => {
             }
         } else {
             return {
-                EM: "Không tìm thấy màu!",
+                EM: "Không tìm thấy banner!",
                 EC: 1,
                 DT: "",
             }
@@ -141,34 +109,66 @@ const setActiveColor = async (id) => {
     }
 }
 
-const updateColor = async (dataColor) => {
+const getBannerById = async (id) => {
     try {
-        let color = await db.Color.findOne({
+        let banner = await db.Banner.findOne({
             where: {
-                id: dataColor.id
+                id: id
             }
         });
 
-        if(color) {
-            let checkExistName = await db.Color.findAll({
+        if(banner) {
+            return {
+                EM: `Lấy thông tin banner thành công!`,
+                EC: 0,
+                DT: banner,
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy banner!",
+                EC: 1,
+                DT: "",
+            }
+        }
+        
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: "",
+        };
+    }
+}
+
+const updateBanner = async (dataBanner) => {
+    try {
+        let banner = await db.Banner.findOne({
+            where: {
+                id: dataBanner.id
+            }
+        });
+
+        if(banner) {
+            let checkExistName = await db.Banner.findAll({
                 where: {
-                    name: dataColor.name,
-                    id: { [Op.not]: dataColor.id }
+                    name: dataBanner.name,
+                    id: { [Op.not]: dataBanner.id }
                 }
             });
             
             if(checkExistName.length > 0) {
                 return {
-                    EM: `Đã tồn tại màu có tên: ${dataColor.name}!`,
+                    EM: `Đã tồn tại banner có tên: ${dataBanner.name}!`,
                     EC: -1,
                     DT: ""
                 }
             }
 
-            await color.update({
-                name: dataColor.name,
-                code: dataColor.code,
-                description: dataColor.description
+            await banner.update({
+                name: dataBanner.name,
+                image: dataBanner.image,
+                url: dataBanner.url,
             });
 
             return {
@@ -178,7 +178,7 @@ const updateColor = async (dataColor) => {
             }
         } else {
             return {
-                EM: "Không tìm thấy màu!",
+                EM: "Không tìm thấy banner!",
                 EC: 1,
                 DT: "",
             }
@@ -194,28 +194,46 @@ const updateColor = async (dataColor) => {
     }
 }
 
-const deleteColor = async (id) => {
+const deleteBanner = async (id) => {
     try {
-        const productCount = await db.Product_Detail.count({
-            where: {
-                colorId: id
-            }
-        });
-
-        if (productCount > 0) {
-            return {
-                EM: `Không thể xóa màu này vì đang có sản phẩm sử dụng!`,
-                EC: 1,
-                DT: "",
-            };
-        }
-
-        await db.Color.destroy({
+        let banner = await db.Banner.destroy({
             where: {
                 id: id
             }
         });
 
+        if(banner) {
+            return {
+                EM: `Xóa thành công!`,
+                EC: 0,
+                DT: "",
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy banner!",
+                EC: 1,
+                DT: "",
+            }
+        }
+
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: "",
+        };
+    }
+}
+
+const deleteMany = async (ids) => {
+    try {
+        await db.Banner.destroy({
+            where: {
+                id: { [Op.in]: ids }
+            }
+        });
+        
         return {
             EM: `Xóa thành công!`,
             EC: 0,
@@ -233,10 +251,11 @@ const deleteColor = async (id) => {
 }
 
 module.exports = {
-    createColor,
-    getAllColors,
-    getColorsWithPagination,
-    setActiveColor,
-    updateColor,
-    deleteColor,
+    createBanner,
+    getBannersWithPagination,
+    setActiveBanner,
+    getBannerById,
+    updateBanner,
+    deleteBanner,
+    deleteMany,
 }

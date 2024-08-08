@@ -7,6 +7,7 @@ import adCategoryController from "../controller/AdminController/CategoryControll
 import adSizeController from "../controller/AdminController/SizeController";
 import adColorController from "../controller/AdminController/ColorController";
 import adProductController from "../controller/AdminController/ProductController";
+import adBannerController from "../controller/AdminController/BannerController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
@@ -82,6 +83,13 @@ const initApiRoutes = (app) => {
     adminRouter.get('/product/read', adProductController.handleGetProduct);
     adminRouter.put('/product/set-active-field', adProductController.handleSetActiveField);
     adminRouter.delete('/product/delete', adProductController.handleDeleteProduct);
+
+    adminRouter.post('/banner/create', upload.single('image'), adBannerController.handleCreateBanner);
+    adminRouter.get('/banner/read', adBannerController.handleGetBanner);
+    adminRouter.put('/banner/set-active', adBannerController.handleSetActive);
+    adminRouter.put('/banner/update', upload.single('image'), adBannerController.handleUpdateBanner);
+    adminRouter.delete('/banner/delete', adBannerController.handleDeleteBanner);
+    adminRouter.delete('/banner/delete-many', adBannerController.handleDeleteBannerMany);
 
     router.use('/admin', adminRouter);
 

@@ -150,6 +150,21 @@ const updateSize = async (dataSize) => {
         });
 
         if(size) {
+            let checkExistName = await db.Size.findAll({
+                where: {
+                    name: dataSize.name,
+                    id: { [Op.not]: dataSize.id }
+                }
+            });
+            
+            if(checkExistName.length > 0) {
+                return {
+                    EM: `Đã tồn tại size có tên: ${dataSize.name}!`,
+                    EC: -1,
+                    DT: ""
+                }
+            }
+
             await size.update({
                 name: dataSize.name,
                 code: dataSize.code,

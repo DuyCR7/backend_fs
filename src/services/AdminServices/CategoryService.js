@@ -163,6 +163,23 @@ const updateCategory = async (dataCategory) => {
         });
 
         if(category) {
+            let checkExistName = await db.Category.findAll({
+                where: {
+                    name: dataCategory.name,
+                    id: {
+                        [Op.not]: dataCategory.id
+                    }
+                }
+            });
+
+            if(checkExistName.length > 0) {
+                return {
+                    EM: `Đã tồn tại danh mục có tên: ${dataCategory.name}!`,
+                    EC: -1,
+                    DT: ""
+                }
+            }
+
             if(category.id !== dataCategory.parent_id) {
                 await category.update({
                     name: dataCategory.name,

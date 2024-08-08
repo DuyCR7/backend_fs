@@ -4,6 +4,9 @@ import { Op } from "sequelize";
 const getAllTeams = async () => {
     try {
         let teams = await db.Team.findAll({
+            where: {
+                isActive: true
+            },
             order: [[
                 'id', 'DESC'
             ]]
