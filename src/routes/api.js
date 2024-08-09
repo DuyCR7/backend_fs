@@ -8,6 +8,7 @@ import adSizeController from "../controller/AdminController/SizeController";
 import adColorController from "../controller/AdminController/ColorController";
 import adProductController from "../controller/AdminController/ProductController";
 import adBannerController from "../controller/AdminController/BannerController";
+import adEventController from "../controller/AdminController/EventController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
@@ -91,6 +92,24 @@ const initApiRoutes = (app) => {
     adminRouter.delete('/banner/delete', adBannerController.handleDeleteBanner);
     adminRouter.delete('/banner/delete-many', adBannerController.handleDeleteBannerMany);
 
+    adminRouter.post('/event/create', 
+        upload.fields([
+            { name: 'imageDesktop', maxCount: 1 },
+            { name: 'imageMobile', maxCount: 1 }
+        ]), 
+        adEventController.handleCreateEvent
+    );
+    adminRouter.get('/event/read', adEventController.handleGetEvent);
+    adminRouter.put('/event/set-active', adEventController.handleSetActive);
+    adminRouter.put('/event/update',
+        upload.fields([
+            { name: 'imageDesktop', maxCount: 1 },
+            { name: 'imageMobile', maxCount: 1 }
+        ]),
+        adEventController.handleUpdateEvent
+    );
+    adminRouter.delete('/event/delete', adEventController.handleDeleteEvent);
+
     router.use('/admin', adminRouter);
 
     router.post('/sign-up', cusAuthController.handleSignUp);
@@ -124,7 +143,10 @@ const initApiRoutes = (app) => {
 
     router.post('/sign-in-success', cusAuthController.handleSignInGoogleSuccess);
 
+    router.get('/banner/read', cusHomeController.handleGetBanner);
     router.get('/team/read', cusHomeController.handleGetTeam);
+    router.get('/category/read-parent', cusHomeController.handleGetParentCategory);
+    router.get('/event/get-new-event', cusHomeController.handleGetNewEvent);
 
     return app.use('/api/v1/', router);
 }
