@@ -9,14 +9,6 @@ const handleCreateBanner = async (req, res) => {
             DT: 'name',   // data
         })
     }
-    
-    if(!req.file){
-        return res.status(200).json({
-            EM: 'Vui lòng chọn hình ảnh!',   // error message
-            EC: 1,   // error code
-            DT: 'image',   // data
-        })
-    }
 
     if(!req.body.url) {
         return res.status(200).json({
@@ -25,15 +17,33 @@ const handleCreateBanner = async (req, res) => {
             DT: 'url',   // data
         })
     }
+
+    if(!req.files['imageDesktop']){
+        return res.status(200).json({
+            EM: 'Vui lòng chọn hình ảnh desktop!',   // error message
+            EC: 1,   // error code
+            DT: 'imageDesktop',   // data
+        })
+    }
+
+    if(!req.files['imageMobile']){
+        return res.status(200).json({
+            EM: 'Vui lòng chọn hình ảnh mobile!',   // error message
+            EC: 1,   // error code
+            DT: 'imageMobile',   // data
+        })
+    }
     
     let name = req.body.name;
-    let image = req.file.filename;
     let url = req.body.url;
+    let imageDesktop = req.files['imageDesktop'][0];
+    let imageMobile = req.files['imageMobile'][0];
 
     let dataBanner = {
         name: name,
-        image: image,
         url: url,
+        imageDesktop: imageDesktop.filename,
+        imageMobile: imageMobile.filename,
     }
 
     try {
@@ -135,15 +145,22 @@ const handleUpdateBanner = async (req, res) => {
 
         let name = req.body.name;
         let url = req.body.url;
-        let image = banner.DT.image;
-        if(req.file){
-            image = req.file.filename;
+        let imageDesktop = banner.DT.imageDesktop;
+        let imageMobile = banner.DT.imageMobile;
+        
+        if(req.files['imageDesktop']){
+            imageDesktop = req.files['imageDesktop'][0].filename;
+        }
+        
+        if(req.files['imageMobile']){
+            imageMobile = req.files['imageMobile'][0].filename;
         }
 
         let dataBanner = {
             id: id,
             name: name,
-            image: image,
+            imageDesktop: imageDesktop,
+            imageMobile: imageMobile,
             url: url,
         }
         

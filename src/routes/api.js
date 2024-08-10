@@ -85,10 +85,16 @@ const initApiRoutes = (app) => {
     adminRouter.put('/product/set-active-field', adProductController.handleSetActiveField);
     adminRouter.delete('/product/delete', adProductController.handleDeleteProduct);
 
-    adminRouter.post('/banner/create', upload.single('image'), adBannerController.handleCreateBanner);
+    adminRouter.post('/banner/create', upload.fields([
+        { name: 'imageDesktop', maxCount: 1 },
+        { name: 'imageMobile', maxCount: 1 }
+    ]), adBannerController.handleCreateBanner);
     adminRouter.get('/banner/read', adBannerController.handleGetBanner);
     adminRouter.put('/banner/set-active', adBannerController.handleSetActive);
-    adminRouter.put('/banner/update', upload.single('image'), adBannerController.handleUpdateBanner);
+    adminRouter.put('/banner/update', upload.fields([
+        { name: 'imageDesktop', maxCount: 1 },
+        { name: 'imageMobile', maxCount: 1 }
+    ]),  adBannerController.handleUpdateBanner);
     adminRouter.delete('/banner/delete', adBannerController.handleDeleteBanner);
     adminRouter.delete('/banner/delete-many', adBannerController.handleDeleteBannerMany);
 

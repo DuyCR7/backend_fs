@@ -167,7 +167,8 @@ const updateBanner = async (dataBanner) => {
 
             await banner.update({
                 name: dataBanner.name,
-                image: dataBanner.image,
+                imageDesktop: dataBanner.imageDesktop,
+                imageMobile: dataBanner.imageMobile,
                 url: dataBanner.url,
             });
 

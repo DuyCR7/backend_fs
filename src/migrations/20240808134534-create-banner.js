@@ -12,7 +12,10 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
-      image: {
+      imageDesktop: {
+        type: Sequelize.STRING
+      },
+      imageMobile: {
         type: Sequelize.STRING
       },
       url: {
