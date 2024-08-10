@@ -1,3 +1,4 @@
+import { includes } from "lodash";
 import db from "../../models/index";
 import { Op } from "sequelize";
 
@@ -138,9 +139,82 @@ const getNewEvent = async () => {
     }
 }
 
+const getAllTrending = async () => {
+    try {
+        let allTrending = await db.Product.findAll({
+            where: {
+                isTrending: true,
+                isActive: true
+            },
+            attributes: ['id', 'name', 'price', 'price_sale', 'isSale', 'slug', 'categoryId'],
+            include: [
+                {
+                    model: db.Product_Image,
+                    where: { isMainImage: true },
+                    attributes: ['id', 'productId', 'image'],
+                }
+            ]
+        });
+
+        if(allTrending && allTrending.length > 0) {
+            // Lấy tất cả danh mục liên quan
+            const categories = await db.Category.findAll({
+                attributes: ['id', 'name', 'parent_id']
+            });
+
+
+            // Hàm đệ quy để tìm danh mục gốc
+            const findRootCategory = (categoryId) => {
+                const category = categories.find(c => c.id === categoryId);
+                if (!category || category.parent_id === 0) {
+                    return category;
+                }
+                return findRootCategory(category.parent_id);
+            };
+
+            allTrending = allTrending.map(product => {
+                const rootCategory = findRootCategory(product.categoryId);
+                return {
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    price_sale: product.price_sale,
+                    slug: product.slug,
+                    isSale: product.isSale,
+                    category: rootCategory ? {
+                        id: rootCategory.id,
+                        name: rootCategory.name
+                    } : null,
+                    image: product.Product_Images[0]?.image
+                };
+            });
+
+            return {
+                EM: "Lấy thông tin tất cả sản phẩm trending thành công!",
+                EC: 0,
+                DT: allTrending
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy sản phẩm trending nào!",
+                EC: 1,
+                DT: ""
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     getAllBanners,
     getAllTeams,
     getAllParentCategories,
     getNewEvent,
+    getAllTrending,
 }

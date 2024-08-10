@@ -147,6 +147,7 @@ const initApiRoutes = (app) => {
     router.get('/team/read', cusHomeController.handleGetTeam);
     router.get('/category/read-parent', cusHomeController.handleGetParentCategory);
     router.get('/event/get-new-event', cusHomeController.handleGetNewEvent);
+    router.get('/product/get-all-trending', cusHomeController.handleGetAllTrending);
 
     return app.use('/api/v1/', router);
 }
