@@ -12,6 +12,7 @@ import adEventController from "../controller/AdminController/EventController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
+import cusShopController from "../controller/CustomerController/ShopController";
 
 import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
@@ -154,6 +155,8 @@ const initApiRoutes = (app) => {
     router.get('/category/read-parent', cusHomeController.handleGetParentCategory);
     router.get('/event/get-new-event', cusHomeController.handleGetNewEvent);
     router.get('/product/get-all-trending', cusHomeController.handleGetAllTrending);
+
+    router.get('/shop/get-all-infor-product', cusShopController.handleGetAllInforProduct);
 
     return app.use('/api/v1/', router);
 }
