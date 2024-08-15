@@ -2,84 +2,6 @@ import db from "../../models/index";
 import { Sequelize, Op } from "sequelize";
 
 const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filterSize, filterColor, sortOption) => {
-    // try {
-    //     let productDetailWhere = {};
-    //     if (filterSize.length > 0 || filterColor.length > 0) {
-    //         productDetailWhere = {
-    //             // [Op.or]: [
-    //             //     filterSize.length > 0 ? { sizeId: { [Op.in]: filterSize } } : null,
-    //             //     filterColor.length > 0 ? { colorId: { [Op.in]: filterColor } } : null
-    //             // ].filter(Boolean) // Loại bỏ các điều kiện null
-    //             ...(filterSize.length > 0 && { sizeId: { [Op.in]: filterSize } }),
-    //             ...(filterColor.length > 0 && { colorId: { [Op.in]: filterColor } })
-    //         };
-    //     }
-
-    //     const { count, rows } = await db.Product.findAndCountAll({
-    //         where: {isActive: true},
-    //         limit: limit,
-    //         offset: (page - 1) * limit,
-    //         order: [['id', 'DESC']],
-    //         include: [
-    //             {
-    //                 model: db.Category,
-    //                 attributes: ['id', 'name'],
-    //                 where: filterCategory.length > 0 ? { id: { [Op.in]: filterCategory } } : {}
-    //             },
-    //             {
-    //                 model: db.Team,
-    //                 attributes: ['id', 'name'],
-    //                 where: filterTeam.length > 0 ? { id: { [Op.in]: filterTeam } } : {},
-    //             },
-    //             {
-    //                 model: db.Product_Image,
-    //                 attributes: ['id', 'image'],
-    //                 where: { isMainImage: true },
-    //             },
-    //             {
-    //                 model: db.Product_Detail,
-    //                 attributes: ['sizeId', 'colorId'],
-    //                 where: productDetailWhere,
-    //                 separate: (filterSize.length > 0 || filterColor.length > 0) ? false : true,
-    //                 required: true,
-    //                 // separate: false,
-    //                 // required: true,
-    //             },
-    //         ],
-    //     });
-
-    //     // Lấy tất cả Product_Detail cho các sản phẩm đã lấy
-    //     const allProductDetails = await db.Product_Detail.findAll({
-    //         where: { productId: rows.map(product => product.id) },
-    //         attributes: ['productId', 'sizeId', 'colorId'],
-    //     });
-
-    //     let data = {
-    //         currentPage: page,
-    //         totalPages: Math.ceil(count / limit),
-    //         totalRows: count,
-    //         products: {
-    //             data: rows,
-    //             productDetails: allProductDetails,
-    //         },
-    //     }
-
-    //     return {
-    //         EM: 'Lấy sản phẩm thành công!',
-    //         EC: 0,
-    //         DT: data
-    //     };
-
-
-    // } catch (e) {
-    //     console.log(e);
-    //     return {
-    //         EM: "Lỗi, vui lòng thử lại sau!",
-    //         EC: -1,
-    //         DT: ""
-    //     }
-    // }
-
     try {
         // Xây dựng điều kiện where cho sản phẩm
         let productWhere = { isActive: true };
@@ -150,12 +72,6 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
                     attributes: ['id', 'image'],
                     where: { isMainImage: true },
                 },
-                // {
-                //     model: db.Product_Detail,
-                //     attributes: ['sizeId', 'colorId'],
-                //     where: productDetailWhere,
-                //     required: false,
-                // },
             ],
         });
 
@@ -196,21 +112,16 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
 
 const getCategories = async (filterTeam, filterSize, filterColor) => {
     try {
-        // const categoryIds = products.data.map(product => product.categoryId);
-        // const distinctCategories = await db.Category.findAll({
-        //     where: {
-        //         id: categoryIds,
-        //     },
-        // });
-        
-        // return distinctCategories;
-
         const categories = await db.Category.findAll({
-            order: [['id', 'DESC']],
+            attributes: [
+                'id',
+                'name',
+                [Sequelize.fn('COUNT', Sequelize.col('Products.id')), 'productCount']
+            ],
             include: [
                 {
                     model: db.Product,
-                    attributes: ['id'],
+                    attributes: [],
                     where: {
                         ...(filterTeam.length > 0 && { teamId: { [Op.in]: filterTeam } }),
                         ...(filterSize.length > 0 && {
@@ -230,8 +141,15 @@ const getCategories = async (filterTeam, filterSize, filterColor) => {
                     },
                 },
             ],
+            group: ['Category.id'],
+            order: [['id', 'DESC']],
         });
-        return categories;
+        
+        return categories.map(category => ({
+            id: category.id,
+            name: category.name,
+            productCount: parseInt(category.get('productCount'))
+        }));
     } catch (e) {
         console.log(e);
         return [];
@@ -241,11 +159,15 @@ const getCategories = async (filterTeam, filterSize, filterColor) => {
 const getTeams = async (filterCategory, filterSize, filterColor) => {
     try {
         const teams = await db.Team.findAll({
-            order: [['id', 'DESC']],
+            attributes: [
+                'id',
+                'name',
+                [Sequelize.fn('COUNT', Sequelize.col('Products.id')), 'productCount']
+            ],
             include: [
                 {
                     model: db.Product,
-                    attributes: ['id'],
+                    attributes: [],
                     where: {
                         ...(filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
                         ...(filterSize.length > 0 && {
@@ -265,8 +187,15 @@ const getTeams = async (filterCategory, filterSize, filterColor) => {
                     },
                 },
             ],
+            group: ['Team.id'],
+            order: [['id', 'DESC']],
         });
-        return teams;
+        
+        return teams.map(team => ({
+            id: team.id,
+            name: team.name,
+            productCount: parseInt(team.get('productCount'))
+        }));
     } catch (e) {
         console.log(e);
         return [];
@@ -276,11 +205,15 @@ const getTeams = async (filterCategory, filterSize, filterColor) => {
 const getSizes = async (filterCategory, filterTeam, filterColor) => {
     try {
         const sizes = await db.Size.findAll({
-            order: [['id', 'DESC']],
+            attributes: [
+                'id',
+                'code',
+                [Sequelize.fn('COUNT', Sequelize.fn('DISTINCT', Sequelize.col('Product_Details.productId'))), 'productCount']
+            ],
             include: [
                 {
                     model: db.Product_Detail,
-                    attributes: ['id'],
+                    attributes: [],
                     required: true,
                     include: [
                         {
@@ -297,8 +230,15 @@ const getSizes = async (filterCategory, filterTeam, filterColor) => {
                     ],
                 },
             ],
+            group: ['Size.id'],
+            order: [['id', 'DESC']],
         });
-        return sizes;
+        
+        return sizes.map(size => ({
+            id: size.id,
+            code: size.code,
+            productCount: parseInt(size.get('productCount'))
+        }));
     } catch (e) {
         console.log(e);
         return [];
@@ -308,7 +248,11 @@ const getSizes = async (filterCategory, filterTeam, filterColor) => {
 const getColors = async (filterCategory, filterTeam, filterSize) => {
     try {
         const colors = await db.Color.findAll({
-            order: [['id', 'DESC']],
+            attributes: [
+                'id',
+                'name',
+                [Sequelize.fn('COUNT', Sequelize.fn('DISTINCT', Sequelize.col('Product_Details.productId'))), 'productCount']
+            ],
             include: [
                 {
                     model: db.Product_Detail,
@@ -329,8 +273,15 @@ const getColors = async (filterCategory, filterTeam, filterSize) => {
                     ],
                 },
             ],
+            group: ['Color.id'],
+            order: [['id', 'DESC']],
         });
-        return colors;
+        
+        return colors.map(color => ({
+            id: color.id,
+            name: color.name,
+            productCount: parseInt(color.get('productCount'))
+        }));
     } catch (e) {
         console.log(e);
         return [];
