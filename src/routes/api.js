@@ -155,6 +155,7 @@ const initApiRoutes = (app) => {
     router.get('/category/read-parent', cusHomeController.handleGetParentCategory);
     router.get('/event/get-new-event', cusHomeController.handleGetNewEvent);
     router.get('/product/get-all-trending', cusHomeController.handleGetAllTrending);
+    router.get('/product/get-search-products', cusHomeController.handleGetSearchProducts);
 
     router.get('/shop/get-all-infor-product', cusShopController.handleGetAllInforProduct);
 

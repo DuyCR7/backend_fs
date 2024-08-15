@@ -210,10 +210,54 @@ const getAllTrending = async () => {
     }
 }
 
+const getSearchProducts = async (search) => {
+    try {
+        let products = await db.Product.findAll({
+            where: {
+                isActive: true,
+                name: { [Op.like]: `%${search}%` },
+                
+            },
+            include: [
+                {
+                    model: db.Product_Image,
+                    where: { isMainImage: true },
+                    attributes: ['image'],
+                }
+            ],
+            order: [[
+                'id', 'DESC'
+            ]]
+        })
+
+        if(products.length > 0) {
+            return {
+                EM: "Lấy thông tin tất cả sản phẩm thành công!",
+                EC: 0,
+                DT: products
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy sản phẩm nào!",
+                EC: 1,
+                DT: ""
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     getAllBanners,
     getAllTeams,
     getAllParentCategories,
     getNewEvent,
     getAllTrending,
+    getSearchProducts
 }
