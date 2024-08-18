@@ -162,6 +162,7 @@ const updateTeam = async (dataTeam) => {
 
             await team.update({
                 name: dataTeam.name,
+                type: dataTeam.type,
                 slug: dataTeam.slug,
                 image: dataTeam.image
             });

@@ -20,11 +20,13 @@ const handleCreateTeam = async (req, res) => {
     }
     
     let name = req.body.name;
+    let type = req.body.type;
     let slug = slugify(name, { lower: true, strict: true });
     let image = req.file.filename;
 
     let dataTeam = {
         name: name,
+        type: type,
         slug: slug,
         image: image
     }
@@ -105,6 +107,7 @@ const handleUpdateTeam = async (req, res) => {
         }
 
         let name = req.body.name;
+        let type = req.body.type;
         let slug = slugify(name, { lower: true, strict: true });
         let image = team.DT.image;
         if(req.file){
@@ -114,6 +117,7 @@ const handleUpdateTeam = async (req, res) => {
         let dataTeam = {
             id: id,
             name: name,
+            type: type,
             slug: slug,
             image: image
         }

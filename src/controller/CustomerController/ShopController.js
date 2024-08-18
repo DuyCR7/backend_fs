@@ -11,25 +11,34 @@ const handleGetAllInforProduct = async (req, res) => {
         let filterColor = req.query.filterColor ? req.query.filterColor.split(',') : [];
         let sortOption = req.query.sortOption ? req.query.sortOption : 'default';
         let team = req.query.team || null;
+        let category = req.query.category || null;
 
-        let data = await shopService.getAllInforProduct(page, limit, filterTeam, filterCategory, filterSize, filterColor, sortOption, team);
+        let data = await shopService.getAllInforProduct(page, limit, filterTeam, filterCategory, filterSize, filterColor, sortOption, team, category);
 
-        let updatedCategories = await shopService.getCategories(filterTeam, filterSize, filterColor, data.DT.teamId);
-        let updatedTeams = await shopService.getTeams(filterCategory, filterSize, filterColor, data.DT.teamId);
-        let updatedSizes = await shopService.getSizes(filterCategory, filterTeam, filterColor, data.DT.teamId);
-        let updatedColors = await shopService.getColors(filterCategory, filterTeam, filterSize, data.DT.teamId);
+        if(data.EC === 0) {
+            let updatedCategories = await shopService.getCategories(filterTeam, filterSize, filterColor, data.DT.teamIds, data.DT.categoryIds);
+            let updatedTeams = await shopService.getTeams(filterCategory, filterSize, filterColor, data.DT.teamIds, data.DT.categoryIds);
+            let updatedSizes = await shopService.getSizes(filterCategory, filterTeam, filterColor, data.DT.teamIds, data.DT.categoryIds);
+            let updatedColors = await shopService.getColors(filterCategory, filterTeam, filterSize, data.DT.teamIds, data.DT.categoryIds);
 
-        return res.status(200).json({
-            EM: data.EM,   // error message
-            EC: data.EC,   // error code
-            DT: {
-                products: data.DT,
-                updatedCategories,
-                updatedTeams,
-                updatedSizes,
-                updatedColors
-            },   // data
-        });
+            return res.status(200).json({
+                EM: data.EM,   // error message
+                EC: data.EC,   // error code
+                DT: {
+                    products: data.DT,
+                    updatedCategories,
+                    updatedTeams,
+                    updatedSizes,
+                    updatedColors
+                },   // data
+            });
+        } else {
+            return res.status(200).json({
+                EM: data.EM,   // error message
+                EC: data.EC,   // error code
+                DT: data.DT,   // data
+            });
+        }
     
     } catch (e) {
         console.log(e);

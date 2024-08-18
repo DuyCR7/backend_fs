@@ -1,23 +1,91 @@
 import db from "../../models/index";
 import { Sequelize, Op } from "sequelize";
 
-const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filterSize, filterColor, sortOption, team) => {
+const getSubCategories = async (parentId) => {
+    const subCategories = await db.Category.findAll({
+        where: { parent_id: parentId }
+    });
+    
+    const nestedSubCategories = await Promise.all(
+        subCategories.map(async (subCat) => {
+            const nested = await getSubCategories(subCat.id);
+            return [subCat, ...nested];
+        })
+    );
+
+    return nestedSubCategories.flat();
+}
+
+const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filterSize, filterColor, sortOption, team, category) => {
     try {
         // Xây dựng điều kiện where cho sản phẩm
         let productWhere = { isActive: true };
-        let teamId = null;
+        // let teamId = null;
+        let teamIds = [];
+        let categoryIds = [];
 
         if (team) {
-            const teamData = await db.Team.findOne({ where: { slug: team } });
-            if (teamData) {
-                teamId = teamData.id;
-                productWhere.teamId = teamData.id;
+            if (team === 'cau-lac-bo' || team === 'doi-tuyen-quoc-gia') {
+                const teamData = await db.Team.findAll({ where: { type: team } });
+                if (teamData && teamData.length > 0) {
+                    teamIds = teamData.map(team => team.id);
+
+                    if (filterTeam.length > 0) {
+                        productWhere.teamId = {
+                            [Op.and]: [
+                                { [Op.in]: teamIds },
+                                { [Op.in]: filterTeam }
+                            ]
+                        };
+                    } else {
+                        productWhere.teamId = { [Op.in]: teamIds };
+                    }
+                } else {
+                    return {
+                        EM: `Không tìm thấy dữ liệu cho ${team === 'cau-lac-bo' ? 'câu lạc bộ' : 'đội tuyển quốc gia'}!`,
+                        EC: -1,
+                        DT: "",
+                    };
+                }
+            } else {
+                const teamData = await db.Team.findOne({ where: { slug: team } });
+                if (teamData) {
+                    teamIds = [teamData.id];
+                    productWhere.teamId = { [Op.in]: teamIds };
+                } else {
+                    return {
+                        EM: "Đội bóng không tồn tại!",
+                        EC: -1,
+                        DT: "",
+                    };
+                }
             }
         }
         else if (filterTeam.length > 0) {
             productWhere.teamId = { [Op.in]: filterTeam };
         }
-        if (filterCategory.length > 0) {
+
+        if (category) {
+            const categoryData = await db.Category.findOne({ where: { slug: category } });
+            if (categoryData) {
+                const subCategories = await getSubCategories(categoryData.id);
+                if (subCategories.length > 0) {
+                    categoryIds = subCategories.map(cat => cat.id);
+                    productWhere.categoryId = { [Op.in]: categoryIds };
+                } else {
+                    categoryIds = [categoryData.id];
+                    productWhere.categoryId = { [Op.in]: categoryIds };
+                }
+            
+            } else {
+                return {
+                    EM: "Danh mục không tồn tại!",
+                    EC: -1,
+                    DT: "",
+                };
+            }
+        }
+        else if (filterCategory.length > 0) {
             productWhere.categoryId = { [Op.in]: filterCategory };
         }
 
@@ -102,13 +170,14 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
                 productDetails: allProductDetails,
             },
         }
-
+        
         return {
             EM: 'Lấy sản phẩm thành công!',
             EC: 0,
             DT: {
                 ...data,
-                teamId
+                teamIds,
+                categoryIds
             }
         };
 
@@ -122,12 +191,13 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
     }
 }
 
-const getCategories = async (filterTeam, filterSize, filterColor, teamId) => {
+const getCategories = async (filterTeam, filterSize, filterColor, teamIds = [], categoryIds = []) => {
     try {
         const categories = await db.Category.findAll({
             attributes: [
                 'id',
                 'name',
+                'slug',
                 [Sequelize.fn('COUNT', Sequelize.col('Products.id')), 'productCount']
             ],
             include: [
@@ -135,7 +205,8 @@ const getCategories = async (filterTeam, filterSize, filterColor, teamId) => {
                     model: db.Product,
                     attributes: [],
                     where: {
-                        ...(teamId ? { teamId: teamId } :
+                        ...(categoryIds.length > 0 ? { categoryId: { [Op.in]: categoryIds }} : {}),
+                        ...(teamIds.length > 0 ? { teamId: { [Op.in]: teamIds } } :
                             filterTeam.length > 0 && { teamId: { [Op.in]: filterTeam } }),
                         ...(filterSize.length > 0 && {
                             id: {
@@ -161,6 +232,7 @@ const getCategories = async (filterTeam, filterSize, filterColor, teamId) => {
         return categories.map(category => ({
             id: category.id,
             name: category.name,
+            slug: category.slug,
             productCount: parseInt(category.get('productCount'))
         }));
     } catch (e) {
@@ -169,12 +241,13 @@ const getCategories = async (filterTeam, filterSize, filterColor, teamId) => {
     }
 }
 
-const getTeams = async (filterCategory, filterSize, filterColor, teamId) => {
+const getTeams = async (filterCategory, filterSize, filterColor, teamIds = [], categoryIds = []) => {
     try {
         const teams = await db.Team.findAll({
             attributes: [
                 'id',
                 'name',
+                'slug',
                 [Sequelize.fn('COUNT', Sequelize.col('Products.id')), 'productCount']
             ],
             include: [
@@ -182,8 +255,9 @@ const getTeams = async (filterCategory, filterSize, filterColor, teamId) => {
                     model: db.Product,
                     attributes: [],
                     where: {
-                        ...(teamId ? { teamId: teamId } : {}),
-                        ...(filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
+                        ...(teamIds.length > 0 ? { teamId: { [Op.in]: teamIds } } : {}),
+                        ...(categoryIds.length > 0 ? { categoryId: { [Op.in]: categoryIds } } :
+                            filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
                         ...(filterSize.length > 0 && {
                             id: {
                                 [Op.in]: Sequelize.literal(`
@@ -208,6 +282,7 @@ const getTeams = async (filterCategory, filterSize, filterColor, teamId) => {
         return teams.map(team => ({
             id: team.id,
             name: team.name,
+            slug: team.slug,
             productCount: parseInt(team.get('productCount'))
         }));
     } catch (e) {
@@ -216,7 +291,7 @@ const getTeams = async (filterCategory, filterSize, filterColor, teamId) => {
     }
 }
 
-const getSizes = async (filterCategory, filterTeam, filterColor, teamId) => {
+const getSizes = async (filterCategory, filterTeam, filterColor, teamIds = [], categoryIds = []) => {
     try {
         const sizes = await db.Size.findAll({
             attributes: [
@@ -234,8 +309,9 @@ const getSizes = async (filterCategory, filterTeam, filterColor, teamId) => {
                             model: db.Product,
                             attributes: ['id'],
                             where: {
-                                ...(filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
-                                ...(teamId ? { teamId: teamId } :
+                                ...(categoryIds.length > 0 ? { categoryId: { [Op.in]: categoryIds } } :
+                                    filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
+                                ...(teamIds.length > 0 ? { teamId: { [Op.in]: teamIds } } :
                                     filterTeam.length > 0 && { teamId: { [Op.in]: filterTeam } }),
                                 ...(filterColor.length > 0 && { id: { [Op.in]: Sequelize.literal(`
                                     (SELECT productId FROM Product_Detail WHERE colorId IN (${filterColor.join(',')}))
@@ -260,7 +336,7 @@ const getSizes = async (filterCategory, filterTeam, filterColor, teamId) => {
     }
 }
 
-const getColors = async (filterCategory, filterTeam, filterSize, teamId) => {
+const getColors = async (filterCategory, filterTeam, filterSize, teamIds = [], categoryIds = []) => {
     try {
         const colors = await db.Color.findAll({
             attributes: [
@@ -278,8 +354,9 @@ const getColors = async (filterCategory, filterTeam, filterSize, teamId) => {
                             model: db.Product,
                             attributes: ['id'],
                             where: {
-                                ...(filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
-                                ...(teamId ? { teamId: teamId } :
+                                ...(categoryIds.length > 0 ? { categoryId: { [Op.in]: categoryIds } } :
+                                    filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
+                                ...(teamIds.length > 0 ? { teamId: { [Op.in]: teamIds } } :
                                     filterTeam.length > 0 && { teamId: { [Op.in]: filterTeam } }),
                                 ...(filterSize.length > 0 && { id: { [Op.in]: Sequelize.literal(`
                                     (SELECT productId FROM Product_Detail WHERE sizeId IN (${filterSize.join(',')}))
