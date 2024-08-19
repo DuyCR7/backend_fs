@@ -130,7 +130,7 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
         }
 
         // Lấy danh sách sản phẩm với phân trang và sắp xếp
-        const products = await db.Product.findAll({
+        let products = await db.Product.findAll({
             where: productWhere,
             limit: limit,
             offset: (page - 1) * limit,
@@ -149,17 +149,60 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
                     attributes: ['id', 'image'],
                     where: { isMainImage: true },
                 },
+                {
+                    model: db.Product_Detail,
+                    attributes: ['id', 'sizeId', 'colorId', 'quantity', 'image'],
+                    include: [
+                        {
+                            model: db.Size,
+                            attributes: ['id', 'code']
+                        },
+                        {
+                            model: db.Color,
+                            attributes: ['id', 'name']
+                        }
+                    ]
+                }
             ],
         });
 
+        if(products && products.length > 0) {
+            products = products.map(product => {
+                return {
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    price_sale: product.price_sale,
+                    isActive: product.isActive,
+                    slug: product.slug,
+                    Category: product.Category,
+                    Team: product.Team,
+                    image: product.Product_Images[0]?.image,
+                    details: product.Product_Details.map(detail => ({
+                        id: detail.id,
+                        size: {
+                            id: detail.Size.id,
+                            code: detail.Size.code
+                        },
+                        color: {
+                            id: detail.Color.id,
+                            name: detail.Color.name
+                        },
+                        quantity: detail.quantity,
+                        image: detail.image
+                    }))
+                }
+            })
+        }
+
         // Lấy tất cả Product_Detail cho các sản phẩm đã lấy
-        const allProductDetails = await db.Product_Detail.findAll({
-            where: { 
-                productId: products.map(product => product.id),
-                ...productDetailWhere
-            },
-            attributes: ['productId', 'sizeId', 'colorId'],
-        });
+        // const allProductDetails = await db.Product_Detail.findAll({
+        //     where: { 
+        //         productId: products.map(product => product.id),
+        //         ...productDetailWhere
+        //     },
+        //     attributes: ['productId', 'sizeId', 'colorId'],
+        // });
 
         let data = {
             currentPage: page,
@@ -167,7 +210,7 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
             totalRows: totalCount,
             products: {
                 data: products,
-                productDetails: allProductDetails,
+                // productDetails: allProductDetails,
             },
         }
         
@@ -381,10 +424,85 @@ const getColors = async (filterCategory, filterTeam, filterSize, teamIds = [], c
     }
 };
 
+const getSingleProduct = async (slug) => {
+    try {
+        const product = await db.Product.findOne({
+            where: {
+                slug: slug
+            },
+            attributes: ['id', 'name', 'price', 'price_sale', 'isSale', 'slug','description'],
+            include: [
+                {
+                    model: db.Product_Image,
+                    attributes: ['id', 'image', 'isMainImage'],
+                },
+                {
+                    model: db.Product_Detail,
+                    attributes: ['id', 'colorId', 'sizeId', 'quantity', 'image'],
+                    include: [
+                        {
+                            model: db.Color,
+                            attributes: ['id', 'name'],
+                        },
+                        {
+                            model: db.Size,
+                            attributes: ['id', 'code'],
+                        },
+                    ],
+                },
+            ],
+        })
+        
+        if(!product) {
+            return {
+                EM: "Sản phẩm không tồn tại!",
+                EC: -1,
+                DT: ""
+            }
+        } else {
+            return {
+                EM: "Lấy thông tin sản phẩm thành công!",
+                EC: 0,
+                DT: {
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    price_sale: product.price_sale,
+                    isSale: product.isSale,
+                    slug: product.slug,
+                    description: product.description,
+                    images: product.Product_Images,
+                    details: product.Product_Details.map(detail => ({
+                        id: detail.id,
+                        size: {
+                            id: detail.Size.id,
+                            code: detail.Size.code
+                        },
+                        color: {
+                            id: detail.Color.id,
+                            name: detail.Color.name
+                        },
+                        quantity: detail.quantity,
+                        image: detail.image
+                    }))
+                }
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     getAllInforProduct,
     getCategories,
     getTeams,
     getSizes,
     getColors,
+    getSingleProduct,
 }

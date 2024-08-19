@@ -50,6 +50,29 @@ const handleGetAllInforProduct = async (req, res) => {
     }
 }
 
+const handleGetSingleProduct = async (req, res) => {
+    try {
+        let slug = req.params.slug;
+
+        let data = await shopService.getSingleProduct(slug);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: data.DT,   // data
+        });
+
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 module.exports = {
     handleGetAllInforProduct,
+    handleGetSingleProduct,
 }

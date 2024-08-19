@@ -158,6 +158,7 @@ const initApiRoutes = (app) => {
     router.get('/product/get-search-products', cusHomeController.handleGetSearchProducts);
 
     router.get('/shop/get-all-infor-product', cusShopController.handleGetAllInforProduct);
+    router.get('/shop/get-single-product/:slug', cusShopController.handleGetSingleProduct);
 
     return app.use('/api/v1/', router);
 }
