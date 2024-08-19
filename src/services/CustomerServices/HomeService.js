@@ -151,6 +151,20 @@ const getAllTrending = async () => {
                     model: db.Product_Image,
                     where: { isMainImage: true },
                     attributes: ['id', 'productId', 'image'],
+                },
+                {
+                    model: db.Product_Detail,
+                    attributes: ['id', 'sizeId', 'colorId', 'quantity', 'image'],
+                    include: [
+                        {
+                            model: db.Size,
+                            attributes: ['id', 'code']
+                        },
+                        {
+                            model: db.Color,
+                            attributes: ['id', 'name']
+                        }
+                    ]
                 }
             ]
         });
@@ -173,6 +187,7 @@ const getAllTrending = async () => {
 
             allTrending = allTrending.map(product => {
                 const rootCategory = findRootCategory(product.categoryId);
+
                 return {
                     id: product.id,
                     name: product.name,
@@ -184,7 +199,20 @@ const getAllTrending = async () => {
                         id: rootCategory.id,
                         name: rootCategory.name
                     } : null,
-                    image: product.Product_Images[0]?.image
+                    image: product.Product_Images[0]?.image,
+                    details: product.Product_Details.map(detail => ({
+                        id: detail.id,
+                        size: {
+                            id: detail.Size.id,
+                            code: detail.Size.code
+                        },
+                        color: {
+                            id: detail.Color.id,
+                            name: detail.Color.name
+                        },
+                        quantity: detail.quantity,
+                        image: detail.image
+                    }))
                 };
             });
 

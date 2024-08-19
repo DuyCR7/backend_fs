@@ -102,6 +102,14 @@ const handleCreateProduct = async (req, res) => {
             })
         }
 
+        if(price_sale && +price_sale <= 0) {
+            return res.status(200).json({
+                EM: 'Giá khuyến mãi phải lớn hơn 0!',   // error message
+                EC: 1,   // error code
+                DT: 'price_sale',   // data
+            })
+        }
+
         let slug = slugify(name, { lower: true, strict: true });
 
         let dataProduct = {
@@ -167,6 +175,14 @@ const handleUpdateProduct = async (req, res) => {
             })
         }
         console.log("product", product.DT);
+        
+        if(price_sale && +price_sale <= 0) {
+            return res.status(200).json({
+                EM: 'Giá khuyến mãi phải lớn hơn 0!',   // error message
+                EC: 1,   // error code
+                DT: 'price_sale',   // data
+            })
+        }
 
         let slug = slugify(name, { lower: true, strict: true });
 
