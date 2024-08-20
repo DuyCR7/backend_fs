@@ -433,6 +433,14 @@ const getSingleProduct = async (slug) => {
             attributes: ['id', 'name', 'price', 'price_sale', 'isSale', 'slug','description'],
             include: [
                 {
+                    model: db.Team,
+                    attributes: ['id', 'name', 'slug'],
+                },
+                {
+                    model: db.Category,
+                    attributes: ['id', 'name','slug'],
+                },
+                {
                     model: db.Product_Image,
                     attributes: ['id', 'image', 'isMainImage'],
                 },
@@ -457,7 +465,7 @@ const getSingleProduct = async (slug) => {
             return {
                 EM: "Sản phẩm không tồn tại!",
                 EC: -1,
-                DT: ""
+                DT: "not-found",
             }
         } else {
             return {
@@ -470,6 +478,8 @@ const getSingleProduct = async (slug) => {
                     price_sale: product.price_sale,
                     isSale: product.isSale,
                     slug: product.slug,
+                    team: product.Team.name,
+                    category: product.Category.name,
                     description: product.description,
                     images: product.Product_Images,
                     details: product.Product_Details.map(detail => ({
