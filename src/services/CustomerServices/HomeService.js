@@ -281,11 +281,46 @@ const getSearchProducts = async (search) => {
     }
 }
 
+const getAllSellerClothing = async () => {
+    try {
+        let allSellerClothing = await db.Product.findAll({
+            include: [
+                {
+                    model: db.Product_Image,
+                    where: { isMainImage: true },
+                    attributes: ['image'],
+                }
+            ]
+        });
+        if(allSellerClothing && allSellerClothing.length > 0) {
+            return {
+                EM: "Lấy thông tin tất cả sản phẩm của các nhà cung cấp thành công!",
+                EC: 0,
+                DT: allSellerClothing
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy sản phẩm của các nhà cung cấp nào!",
+                EC: 1,
+                DT: ""
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     getAllBanners,
     getAllTeams,
     getAllParentCategories,
     getNewEvent,
     getAllTrending,
-    getSearchProducts
+    getSearchProducts,
+    getAllSellerClothing
 }

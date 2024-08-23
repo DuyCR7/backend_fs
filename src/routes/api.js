@@ -156,6 +156,7 @@ const initApiRoutes = (app) => {
     router.get('/event/get-new-event', cusHomeController.handleGetNewEvent);
     router.get('/product/get-all-trending', cusHomeController.handleGetAllTrending);
     router.get('/product/get-search-products', cusHomeController.handleGetSearchProducts);
+    router.get('/product/get-all-seller-clothing', cusHomeController.handleGetAllSellerClothing);
 
     router.get('/shop/get-all-infor-product', cusShopController.handleGetAllInforProduct);
     router.get('/shop/get-single-product/:slug', cusShopController.handleGetSingleProduct);
