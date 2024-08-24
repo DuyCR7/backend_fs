@@ -206,6 +206,7 @@ const signInCustomer = async (rawCusData) => {
           DT: {
             access_token: token,
             refresh_token: refresh_token,
+            id: cus.id,
             email: cus.email,
             image: cus.image,
             typeLogin: cus.typeLogin,
@@ -253,6 +254,7 @@ const signInGoogle = async (id, tokenLoginGoogle) => {
         DT: {
           access_token: token,
           refresh_token: refresh_token,
+          id: cus.id,
           email: cus.email,
           image: cus.image,
           typeLogin: cus.typeLogin,
