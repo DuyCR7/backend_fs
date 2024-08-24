@@ -315,6 +315,41 @@ const getAllSellerClothing = async () => {
     }
 }
 
+const getPost = async () => {
+    try {
+        let posts = await db.Post.findAll({
+            include: [
+                {
+                    model: db.User,
+                    attributes: ['id', 'username'],
+                }
+            ],
+            order: [['createdAt', 'DESC']],
+            limit: 3
+        });
+        if(posts && posts.length > 0) {
+            return {
+                EM: "Lấy thông tin bài viết thành công!",
+                EC: 0,
+                DT: posts
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy bài viết nào!",
+                EC: 1,
+                DT: ""
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     getAllBanners,
     getAllTeams,
@@ -322,5 +357,6 @@ module.exports = {
     getNewEvent,
     getAllTrending,
     getSearchProducts,
-    getAllSellerClothing
+    getAllSellerClothing,
+    getPost,
 }

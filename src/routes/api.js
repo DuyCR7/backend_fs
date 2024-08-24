@@ -9,10 +9,12 @@ import adColorController from "../controller/AdminController/ColorController";
 import adProductController from "../controller/AdminController/ProductController";
 import adBannerController from "../controller/AdminController/BannerController";
 import adEventController from "../controller/AdminController/EventController";
+import adPostController from "../controller/AdminController/PostController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
 import cusShopController from "../controller/CustomerController/ShopController";
+import cusPostController from "../controller/CustomerController/PostController";
 
 import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
@@ -117,6 +119,12 @@ const initApiRoutes = (app) => {
     );
     adminRouter.delete('/event/delete', adEventController.handleDeleteEvent);
 
+    adminRouter.post('/post/create', upload.single('image'), adPostController.handleCreatePost);
+    adminRouter.get('/post/read', adPostController.handleGetPost);
+    adminRouter.put('/post/update', upload.single('image'), adPostController.handleUpdatePost);
+    adminRouter.put('/post/set-active', adPostController.handleSetActive);
+    adminRouter.delete('/post/delete', adPostController.handleDeletePost);
+
     router.use('/admin', adminRouter);
 
     router.post('/sign-up', cusAuthController.handleSignUp);
@@ -157,9 +165,13 @@ const initApiRoutes = (app) => {
     router.get('/product/get-all-trending', cusHomeController.handleGetAllTrending);
     router.get('/product/get-search-products', cusHomeController.handleGetSearchProducts);
     router.get('/product/get-all-seller-clothing', cusHomeController.handleGetAllSellerClothing);
+    router.get('/post/get-post', cusHomeController.handleGetPost);
 
     router.get('/shop/get-all-infor-product', cusShopController.handleGetAllInforProduct);
     router.get('/shop/get-single-product/:slug', cusShopController.handleGetSingleProduct);
+
+    router.get('/post/get-all-post', cusPostController.handleGetAllPost);
+    router.get('/post/get-single-post/:slug', cusPostController.handleGetSinglePost);
 
     return app.use('/api/v1/', router);
 }

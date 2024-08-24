@@ -48,6 +48,7 @@ const signInUser = async (rawUserData) => {
             access_token: token,
             refresh_token: refresh_token,
             // groupWithRoles,
+            id: user.id,
             email: user.email,
             username: user.username,
             image: user.image,
