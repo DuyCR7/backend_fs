@@ -15,6 +15,7 @@ import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
 import cusShopController from "../controller/CustomerController/ShopController";
 import cusPostController from "../controller/CustomerController/PostController";
+import cusCartController from "../controller/CustomerController/CartController";
 
 import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
@@ -172,6 +173,9 @@ const initApiRoutes = (app) => {
 
     router.get('/post/get-all-post', cusPostController.handleGetAllPost);
     router.get('/post/get-single-post/:slug', cusPostController.handleGetSinglePost);
+
+    router.post('/cart/add-to-cart', checkUserJWT, cusCartController.handleAddToCart);
+    router.get('/cart/get-count', cusCartController.handleGetCount);
 
     return app.use('/api/v1/', router);
 }
