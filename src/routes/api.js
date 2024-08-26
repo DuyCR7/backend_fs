@@ -16,6 +16,7 @@ import cusHomeController from "../controller/CustomerController/HomeController";
 import cusShopController from "../controller/CustomerController/ShopController";
 import cusPostController from "../controller/CustomerController/PostController";
 import cusCartController from "../controller/CustomerController/CartController";
+import cusWishlistController from "../controller/CustomerController/WishListController";
 
 import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
@@ -173,12 +174,19 @@ const initApiRoutes = (app) => {
 
     router.get('/post/get-all-post', cusPostController.handleGetAllPost);
     router.get('/post/get-single-post/:slug', cusPostController.handleGetSinglePost);
+    router.post('/post/increment-view-count/:slug', cusPostController.handleIncrementViewCount);
+    router.get('/post/get-popular-post', cusPostController.handleGetPopularPost);
 
     router.post('/cart/add-to-cart', checkUserJWT, cusCartController.handleAddToCart);
     router.get('/cart/get-count', cusCartController.handleGetCount);
     router.get('/cart/get-cart', checkUserJWT, cusCartController.handleGetCart);
     router.put('/cart/update-cart-item-quantity', cusCartController.handleUpdateCartItemQuantity);
     router.delete('/cart/delete-cart-item', cusCartController.handleDeleteCartItem);
+
+    router.post('/wishlist/add-to-wishlist', checkUserJWT, cusWishlistController.handleAddToWishList);
+    router.get('/wishlist/get-count', cusWishlistController.handleGetCount);
+    router.get('/wishlist/get-wish-list', checkUserJWT, cusWishlistController.handleGetWishList);
+    router.delete('/wishlist/delete-wishlist-item', cusWishlistController.handleDeleteWishListItem);
 
     return app.use('/api/v1/', router);
 }

@@ -92,7 +92,83 @@ const getSinglePost = async (slug) => {
     }
 }
 
+const incrementViewCount = async (slug) => {
+    try {
+        const currentPost = await db.Post.findOne({
+            where: {
+                slug: slug,
+            }
+        })
+        
+        if(!currentPost) {
+            return {
+                EM: "Bài viết không tồn tại!",
+                EC: -1,
+                DT: "not-found",
+            }
+        }
+        
+        currentPost.views++;
+        await currentPost.save();
+
+        return {
+            EM: "Tăng số lượt xem bài viết thành công!",
+            EC: 0,
+            DT: currentPost.views
+        };
+
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
+const getPopularPost = async () => {
+    try {
+        const popularPosts = await db.Post.findAll({
+            order: [
+                ['views', 'DESC'],
+            ],
+            limit: 4,
+            include: [
+                {
+                    model: db.User,
+                    attributes: ['id', 'username'],
+                }
+            ],
+        });
+
+        if (popularPosts && popularPosts.length > 0) {
+            return {
+                EM: "Lấy bài viết phổ biến thành công!",
+                EC: 0,
+                DT: popularPosts
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy bài viết phổ biến nào!",
+                EC: -1,
+                DT: []
+            }
+        }
+
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }   
+}
+
 module.exports = {
     getAllPost,
     getSinglePost,
+    incrementViewCount,
+    getPopularPost,
 }

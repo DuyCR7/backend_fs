@@ -1,8 +1,11 @@
-import postService from "../../services/CustomerServices/PostService";
+import wishListService from "../../services/CustomerServices/WishListService";
 
-const handleGetAllPost = async (req, res) => {
+const handleAddToWishList = async (req, res) => {
     try {
-        let data = await postService.getAllPost();
+        const { productId } = req.body;
+        const cusId = req.user.id;
+
+        let data = await wishListService.addToWishList(cusId, productId);
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -20,18 +23,18 @@ const handleGetAllPost = async (req, res) => {
     }
 }
 
-const handleGetSinglePost = async (req, res) => {
+const handleGetCount = async (req, res) => {
     try {
-        let slug = req.params.slug;
+        const cusId = req.query.cusId;
 
-        let data = await postService.getSinglePost(slug);
+        let data = await wishListService.getCount(cusId);
 
         return res.status(200).json({
             EM: data.EM,   // error message
             EC: data.EC,   // error code
             DT: data.DT,   // data
         });
-
+    
     } catch (e) {
         console.log(e);
         return res.status(500).json({
@@ -42,18 +45,18 @@ const handleGetSinglePost = async (req, res) => {
     }
 }
 
-const handleIncrementViewCount = async (req, res) => {
+const handleGetWishList = async (req, res) => {
     try {
-        let slug = req.params.slug;
+        const cusId = req.query.cusId;
 
-        let data = await postService.incrementViewCount(slug);
+        let data = await wishListService.getWishList(cusId);
 
         return res.status(200).json({
             EM: data.EM,   // error message
             EC: data.EC,   // error code
             DT: data.DT,   // data
         });
-
+    
     } catch (e) {
         console.log(e);
         return res.status(500).json({
@@ -64,16 +67,19 @@ const handleIncrementViewCount = async (req, res) => {
     }
 }
 
-const handleGetPopularPost = async (req, res) => {
+const handleDeleteWishListItem = async (req, res) => {
     try {
-        let data = await postService.getPopularPost();
+        const cusId = req.body.cusId;
+        const productId = req.body.productId;
+
+        let data = await wishListService.deleteWishListItem(cusId, productId);
 
         return res.status(200).json({
             EM: data.EM,   // error message
             EC: data.EC,   // error code
             DT: data.DT,   // data
         });
-
+    
     } catch (e) {
         console.log(e);
         return res.status(500).json({
@@ -85,9 +91,8 @@ const handleGetPopularPost = async (req, res) => {
 }
 
 module.exports = {
-    handleGetAllPost,
-    handleGetSinglePost,
-    handleIncrementViewCount,
-    handleGetPopularPost,
- 
+    handleAddToWishList,
+    handleGetCount,
+    handleGetWishList,
+    handleDeleteWishListItem,
 }
