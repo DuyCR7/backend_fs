@@ -25,7 +25,7 @@ const handleAddToWishList = async (req, res) => {
 
 const handleGetCount = async (req, res) => {
     try {
-        const cusId = req.query.cusId;
+        const cusId = req.user.id;
 
         let data = await wishListService.getCount(cusId);
 
@@ -47,7 +47,7 @@ const handleGetCount = async (req, res) => {
 
 const handleGetWishList = async (req, res) => {
     try {
-        const cusId = req.query.cusId;
+        const cusId = req.user.id;
 
         let data = await wishListService.getWishList(cusId);
 
@@ -69,7 +69,7 @@ const handleGetWishList = async (req, res) => {
 
 const handleDeleteWishListItem = async (req, res) => {
     try {
-        const cusId = req.body.cusId;
+        const cusId = req.user.id;
         const productId = req.body.productId;
 
         let data = await wishListService.deleteWishListItem(cusId, productId);

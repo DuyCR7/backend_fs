@@ -129,6 +129,40 @@ const checkUserPermission = (req, res, next) => {
     }
 }
 
+const checkCustomerJWT = (req, res, next) => {
+    let cookies = req.cookies;   // lấy cookie người dùng gửi lên
+    let tokenFromHeader = extractToken(req);
+
+    // console.log("cookies: ", cookies.cus_jwt);
+    // console.log("tokenFromHeader: ", tokenFromHeader);
+
+    if((cookies && cookies.cus_jwt) || tokenFromHeader){
+        let token = cookies && cookies.cus_jwt ? cookies.cus_jwt : tokenFromHeader;
+        let decoded = verifyToken(token);
+        // console.log("Check: ",decoded);
+        if (decoded) {
+            req.user = decoded; // đính kèm thêm user vào req
+            req.token = token;
+
+            next();
+        } else {
+            return res.status(401).json({
+                EM: 'Vui lòng đăng nhập!',   // error message
+                EC: -1,   // error code
+                DT: '',   // data
+            })
+        }
+
+        // console.log("My Jwt: ", cookies.jwt);
+    } else {
+        return res.status(401).json({
+            EM: 'Vui lòng đăng nhập!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 const createNewAccessToken = (token) => {
     try {
         
@@ -209,6 +243,7 @@ module.exports = {
     refreshJWT,
     verifyToken,
     checkUserJWT,
+    checkCustomerJWT,
     checkUserPermission,
     createNewAccessToken,
     createNewAccessTokenCustomer

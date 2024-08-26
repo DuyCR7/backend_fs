@@ -18,7 +18,7 @@ import cusPostController from "../controller/CustomerController/PostController";
 import cusCartController from "../controller/CustomerController/CartController";
 import cusWishlistController from "../controller/CustomerController/WishListController";
 
-import { checkUserJWT, checkUserPermission } from "../middleware/jwtAction";
+import { checkUserJWT, checkCustomerJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
 import multer from 'multer';
 import { v4 as uuidv4 } from "uuid";
@@ -177,16 +177,16 @@ const initApiRoutes = (app) => {
     router.post('/post/increment-view-count/:slug', cusPostController.handleIncrementViewCount);
     router.get('/post/get-popular-post', cusPostController.handleGetPopularPost);
 
-    router.post('/cart/add-to-cart', checkUserJWT, cusCartController.handleAddToCart);
-    router.get('/cart/get-count', cusCartController.handleGetCount);
-    router.get('/cart/get-cart', checkUserJWT, cusCartController.handleGetCart);
-    router.put('/cart/update-cart-item-quantity', cusCartController.handleUpdateCartItemQuantity);
-    router.delete('/cart/delete-cart-item', cusCartController.handleDeleteCartItem);
+    router.post('/cart/add-to-cart', checkCustomerJWT, cusCartController.handleAddToCart);
+    router.get('/cart/get-count', checkCustomerJWT, cusCartController.handleGetCount);
+    router.get('/cart/get-cart', checkCustomerJWT, cusCartController.handleGetCart);
+    router.put('/cart/update-cart-item-quantity', checkCustomerJWT, cusCartController.handleUpdateCartItemQuantity);
+    router.delete('/cart/delete-cart-item', checkCustomerJWT, cusCartController.handleDeleteCartItem);
 
-    router.post('/wishlist/add-to-wishlist', checkUserJWT, cusWishlistController.handleAddToWishList);
-    router.get('/wishlist/get-count', cusWishlistController.handleGetCount);
-    router.get('/wishlist/get-wish-list', checkUserJWT, cusWishlistController.handleGetWishList);
-    router.delete('/wishlist/delete-wishlist-item', cusWishlistController.handleDeleteWishListItem);
+    router.post('/wishlist/add-to-wishlist', checkCustomerJWT, cusWishlistController.handleAddToWishList);
+    router.get('/wishlist/get-count', checkCustomerJWT, cusWishlistController.handleGetCount);
+    router.get('/wishlist/get-wish-list', checkCustomerJWT, cusWishlistController.handleGetWishList);
+    router.delete('/wishlist/delete-wishlist-item', checkCustomerJWT, cusWishlistController.handleDeleteWishListItem);
 
     return app.use('/api/v1/', router);
 }

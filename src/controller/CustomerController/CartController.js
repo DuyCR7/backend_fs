@@ -25,7 +25,7 @@ const handleAddToCart = async (req, res) => {
 
 const handleGetCount = async (req, res) => {
     try {
-        const cusId = req.query.cusId;
+        const cusId = req.user.id;
 
         let data = await cartService.getCount(cusId);
 
@@ -47,7 +47,7 @@ const handleGetCount = async (req, res) => {
 
 const handleGetCart = async (req, res) => {
     try {
-        const cusId = req.query.cusId;
+        const cusId = req.user.id;
 
         let data = await cartService.getCart(cusId);
 
@@ -69,9 +69,10 @@ const handleGetCart = async (req, res) => {
 
 const handleUpdateCartItemQuantity = async (req, res) => {
     try {
+        const cusId = req.user.id;
         const { cartDetailId, newQuantity } = req.body;
 
-        let data = await cartService.updateCartItemQuantity(cartDetailId, newQuantity);
+        let data = await cartService.updateCartItemQuantity(cusId, cartDetailId, newQuantity);
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -91,7 +92,9 @@ const handleUpdateCartItemQuantity = async (req, res) => {
 
 const handleDeleteCartItem = async (req, res) => {
     try {
-        let data = await cartService.deleteCartItem(req.body.cartDetailId);
+        const cusId = req.user.id;
+
+        let data = await cartService.deleteCartItem(cusId, req.body.cartDetailId);
 
         return res.status(200).json({
             EM: data.EM,   // error message

@@ -8,7 +8,7 @@ const handleSignIn = async (req, res) => {
         // set cookie
         // thuộc tính httpOnly giúp nâng cao bảo mật cookie, phía client không lấy được
         if(data && data.DT && data.DT.access_token){
-            res.cookie("jwt", data.DT.access_token, { httpOnly: true, maxAge: 10000, samesite: 'strict' });
+            res.cookie("jwt", data.DT.access_token, { httpOnly: true, maxAge: 60 * 60 * 1000, samesite: 'strict' });
             res.cookie("refresh_token", data.DT.refresh_token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, samesite: 'strict' });
         }
 

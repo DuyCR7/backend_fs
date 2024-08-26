@@ -178,9 +178,26 @@ const getCart = async (cusId) => {
     }
 }
 
-const updateCartItemQuantity = async (cartDetailId, newQuantity) => {
+const updateCartItemQuantity = async (cusId, cartDetailId, newQuantity) => {
     try {
-        let cartItem = await db.Cart_Detail.findByPk(cartDetailId, {
+        let cart = await db.Cart.findOne({
+            where: {
+                cusId: cusId,
+            }
+        });
+        if (!cart) {
+            return {
+                EM: "Không tìm thấy giỏ hàng của bạn!",
+                EC: 1,
+                DT: ""
+            }
+        }
+
+        let cartItem = await db.Cart_Detail.findOne({
+            where: {
+                cartId: cart.id,
+                id: cartDetailId,
+            },
             include: [
                 { model: db.Product_Detail },
             ]
@@ -225,9 +242,26 @@ const updateCartItemQuantity = async (cartDetailId, newQuantity) => {
     }
 }
 
-const deleteCartItem = async (cartDetailId) => {
+const deleteCartItem = async (cusId, cartDetailId) => {
     try {
-        let cartItem = await db.Cart_Detail.findByPk(cartDetailId, {
+        let cart = await db.Cart.findOne({
+            where: {
+                cusId: cusId,
+            }
+        });
+        if (!cart) {
+            return {
+                EM: "Không tìm thấy giỏ hàng của bạn!",
+                EC: 1,
+                DT: ""
+            }
+        }
+
+        let cartItem = await db.Cart_Detail.findOne({
+            where: {
+                cartId: cart.id,
+                id: cartDetailId,
+            },
             include: [
                 { model: db.Product_Detail },
             ]
