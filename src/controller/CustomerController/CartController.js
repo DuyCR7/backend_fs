@@ -45,7 +45,74 @@ const handleGetCount = async (req, res) => {
     }
 }
 
+const handleGetCart = async (req, res) => {
+    try {
+        const cusId = req.query.cusId;
+
+        let data = await cartService.getCart(cusId);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: data.DT,   // data
+        });
+    
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
+const handleUpdateCartItemQuantity = async (req, res) => {
+    try {
+        const { cartDetailId, newQuantity } = req.body;
+
+        let data = await cartService.updateCartItemQuantity(cartDetailId, newQuantity);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: data.DT,   // data
+        });
+    
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
+const handleDeleteCartItem = async (req, res) => {
+    try {
+        let data = await cartService.deleteCartItem(req.body.cartDetailId);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: data.DT,   // data
+        });
+    
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 module.exports = {
     handleAddToCart,
-    handleGetCount
+    handleGetCount,
+    handleGetCart,
+    handleUpdateCartItemQuantity,
+    handleDeleteCartItem,
 }

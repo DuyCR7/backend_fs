@@ -176,6 +176,9 @@ const initApiRoutes = (app) => {
 
     router.post('/cart/add-to-cart', checkUserJWT, cusCartController.handleAddToCart);
     router.get('/cart/get-count', cusCartController.handleGetCount);
+    router.get('/cart/get-cart', checkUserJWT, cusCartController.handleGetCart);
+    router.put('/cart/update-cart-item-quantity', cusCartController.handleUpdateCartItemQuantity);
+    router.delete('/cart/delete-cart-item', cusCartController.handleDeleteCartItem);
 
     return app.use('/api/v1/', router);
 }

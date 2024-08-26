@@ -124,7 +124,155 @@ const getCount = async (cusId) => {
     }
 }
 
+const getCart = async (cusId) => {
+    try {
+        let cart = await db.Cart.findOne({
+            where: {
+                cusId: cusId,
+            }
+        });
+        if (!cart) {
+            return {
+                EM: "Giỏ hàng của bạn chưa có sản phẩm nào!",
+                EC: 1,
+                DT: [],
+            }
+        } else {
+            let cartDetails = await db.Cart_Detail.findAll({
+                where: {
+                    cartId: cart.id,
+                },
+                include: [
+                    { 
+                        model: db.Product_Detail, 
+                        include: [
+                            { 
+                                model: db.Product, 
+                                attributes: ['name', 'price', 'price_sale', 'isSale', 'slug'] 
+                            },
+                            {
+                                model: db.Color, 
+                                attributes: ['name']
+                            },
+                            { 
+                                model: db.Size, 
+                                attributes: ['code']
+                            }
+                        ] 
+                    },
+                ]
+            });
+            return {
+                EM: "Lấy danh sách giỏ hàng thành công!",
+                EC: 0,
+                DT: cartDetails,
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
+const updateCartItemQuantity = async (cartDetailId, newQuantity) => {
+    try {
+        let cartItem = await db.Cart_Detail.findByPk(cartDetailId, {
+            include: [
+                { model: db.Product_Detail },
+            ]
+        });
+
+        if (!cartItem) {
+            return {
+                EM: "Không tìm thấy sản phẩm trong giỏ hàng!",
+                EC: 1,
+                DT: ""
+            }
+        }
+
+        let productDetail = cartItem.Product_Detail;
+        if (newQuantity > productDetail.quantity) {
+            newQuantity = productDetail.quantity;
+            cartItem.quantity = newQuantity;
+            await cartItem.save();
+
+            return {
+                EM: `Hiện sản phẩm này chỉ có ${productDetail.quantity} sản phẩm sẵn có!`,
+                EC: 2,
+                DT: cartItem
+            }
+        }
+
+        cartItem.quantity = newQuantity;
+        await cartItem.save();
+
+        return {
+            EM: "Cập nhật số lượng sản phẩm trong giỏ hàng thành công!",
+            EC: 0,
+            DT: cartItem,
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
+const deleteCartItem = async (cartDetailId) => {
+    try {
+        let cartItem = await db.Cart_Detail.findByPk(cartDetailId, {
+            include: [
+                { model: db.Product_Detail },
+            ]
+        });
+
+        if (!cartItem) {
+            return {
+                EM: "Không tìm thấy sản phẩm trong giỏ hàng!",
+                EC: 1,
+                DT: ""
+            }
+        }
+
+        const cartId = cartItem.cartId;
+
+        await cartItem.destroy();
+
+        let count = await db.Cart_Detail.count({
+            where: {
+                cartId: cartId,
+            }
+        });
+
+        return {
+            EM: "Xóa sản phẩm khỏi giỏ hàng thành công!",
+            EC: 0,
+            DT: { 
+                id: cartDetailId,
+                count: count,
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     addToCart,
     getCount,
+    getCart,
+    updateCartItemQuantity,
+    deleteCartItem,
 }
