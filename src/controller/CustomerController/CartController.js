@@ -112,10 +112,33 @@ const handleDeleteCartItem = async (req, res) => {
     }
 }
 
+const handleGetRelatedProducts = async (req, res) => {
+    try {
+        const cusId = req.user.id;
+
+        let data = await cartService.getRelatedProducts(cusId);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: data.DT,   // data
+        });
+    
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 module.exports = {
     handleAddToCart,
     handleGetCount,
     handleGetCart,
     handleUpdateCartItemQuantity,
     handleDeleteCartItem,
+    handleGetRelatedProducts,
 }

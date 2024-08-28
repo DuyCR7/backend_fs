@@ -182,6 +182,7 @@ const initApiRoutes = (app) => {
     router.get('/cart/get-cart', checkCustomerJWT, cusCartController.handleGetCart);
     router.put('/cart/update-cart-item-quantity', checkCustomerJWT, cusCartController.handleUpdateCartItemQuantity);
     router.delete('/cart/delete-cart-item', checkCustomerJWT, cusCartController.handleDeleteCartItem);
+    router.get('/cart/get-related-products', checkCustomerJWT, cusCartController.handleGetRelatedProducts);
 
     router.post('/wishlist/add-to-wishlist', checkCustomerJWT, cusWishlistController.handleAddToWishList);
     router.get('/wishlist/get-count', checkCustomerJWT, cusWishlistController.handleGetCount);

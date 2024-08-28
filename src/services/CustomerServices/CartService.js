@@ -303,10 +303,89 @@ const deleteCartItem = async (cusId, cartDetailId) => {
     }
 }
 
+const getRelatedProducts = async (cusId) => {
+    try {
+        let cart = await db.Cart.findOne({
+            where: {
+                cusId: cusId,
+            }
+        });
+        if (!cart) {
+            return {
+                EM: "Không tìm thấy giỏ hàng của bạn!",
+                EC: 1,
+                DT: ""
+            }
+        }
+
+        let cartItems = await db.Cart_Detail.findAll({
+            where: {
+                cartId: cart.id,
+            },
+        });
+
+        if (!cartItems) {
+            return {
+                EM: "Không tìm thấy sản phẩm trong giỏ hàng!",
+                EC: 1,
+                DT: ""
+            }
+        }
+
+        const cartProductIds = cartItems.map(item => item.productId);
+
+        const cartCategories = await db.Category.findAll({
+            include: [
+                {
+                    model: db.Product,
+                    where: {
+                        id: cartProductIds,
+                    },
+                }
+            ]
+        });
+
+        const categoryIds = cartCategories.map(category => category.id);
+
+        const relatedProducts = await db.Product.findAll({
+            include: [
+                {
+                    model: db.Category,
+                    where: { id: { [Op.in]: categoryIds } }
+                },
+                {
+                    model: db.Product_Image,
+                    where: { isMainImage: true },
+                    attributes: ['image']
+                }
+            ],
+            where: {
+              id: { [Op.notIn]: cartProductIds }
+            },
+            limit: 8
+        });
+
+        return {
+            EM: "Lấy danh sách sản phẩm liên quan thành công!",
+            EC: 0,
+            DT: relatedProducts,
+        }
+    
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     addToCart,
     getCount,
     getCart,
     updateCartItemQuantity,
     deleteCartItem,
+    getRelatedProducts,
 }
