@@ -16,7 +16,7 @@ const getSubCategories = async (parentId) => {
     return nestedSubCategories.flat();
 }
 
-const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filterSize, filterColor, sortOption, team, category) => {
+const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filterSize, filterColor, sortOption, team, category, minPrice, maxPrice) => {
     try {
         // Xây dựng điều kiện where cho sản phẩm
         let productWhere = { isActive: true };
@@ -87,6 +87,13 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
         }
         else if (filterCategory.length > 0) {
             productWhere.categoryId = { [Op.in]: filterCategory };
+        }
+
+        if (minPrice !== null) {
+            productWhere.price = { ...productWhere.price, [Op.gte]: minPrice };
+        }
+        if (maxPrice !== null) {
+            productWhere.price = { ...productWhere.price, [Op.lte]: maxPrice };
         }
 
         // Xây dựng điều kiện where cho product details
@@ -234,8 +241,29 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
     }
 }
 
-const getCategories = async (filterTeam, filterSize, filterColor, teamIds = [], categoryIds = []) => {
+const getMinMaxPrices = async () => {
     try {
+        const result = await db.Product.findAll({
+            attributes: [
+                [Sequelize.fn('MIN', Sequelize.col('price')), 'minPrice'],
+                [Sequelize.fn('MAX', Sequelize.col('price')), 'maxPrice']
+            ],
+        });
+
+        return {
+            minPrice: result[0].get('minPrice'),
+            maxPrice: result[0].get('maxPrice')
+        };
+    } catch (e) {
+        console.log(e);
+        return { minPrice: 0, maxPrice: 0 };
+    }
+};
+
+const getCategories = async (filterTeam, filterSize, filterColor, teamIds = [], categoryIds = [], minPrice = null, maxPrice = null) => {
+    try {
+        console.log("minPrice: " + minPrice);
+        console.log("maxPrice: " + maxPrice);
         const categories = await db.Category.findAll({
             attributes: [
                 'id',
@@ -265,6 +293,12 @@ const getCategories = async (filterTeam, filterSize, filterColor, teamIds = [], 
                                 `),
                             },
                         }),
+                        ...((minPrice !== null || maxPrice !== null) && {
+                            price: {
+                              ...(minPrice !== null && { [Op.gte]: minPrice }),
+                              ...(maxPrice !== null && { [Op.lte]: maxPrice })
+                            }
+                        }),
                     },
                 },
             ],
@@ -284,7 +318,7 @@ const getCategories = async (filterTeam, filterSize, filterColor, teamIds = [], 
     }
 }
 
-const getTeams = async (filterCategory, filterSize, filterColor, teamIds = [], categoryIds = []) => {
+const getTeams = async (filterCategory, filterSize, filterColor, teamIds = [], categoryIds = [], minPrice = null, maxPrice = null) => {
     try {
         const teams = await db.Team.findAll({
             attributes: [
@@ -315,6 +349,12 @@ const getTeams = async (filterCategory, filterSize, filterColor, teamIds = [], c
                                 `),
                             },
                         }),
+                        ...((minPrice !== null || maxPrice !== null) && {
+                            price: {
+                              ...(minPrice !== null && { [Op.gte]: minPrice }),
+                              ...(maxPrice !== null && { [Op.lte]: maxPrice })
+                            }
+                        }),
                     },
                 },
             ],
@@ -334,7 +374,7 @@ const getTeams = async (filterCategory, filterSize, filterColor, teamIds = [], c
     }
 }
 
-const getSizes = async (filterCategory, filterTeam, filterColor, teamIds = [], categoryIds = []) => {
+const getSizes = async (filterCategory, filterTeam, filterColor, teamIds = [], categoryIds = [], minPrice = null, maxPrice = null) => {
     try {
         const sizes = await db.Size.findAll({
             attributes: [
@@ -359,6 +399,12 @@ const getSizes = async (filterCategory, filterTeam, filterColor, teamIds = [], c
                                 ...(filterColor.length > 0 && { id: { [Op.in]: Sequelize.literal(`
                                     (SELECT productId FROM Product_Detail WHERE colorId IN (${filterColor.join(',')}))
                                 `)} }),
+                                ...((minPrice !== null || maxPrice !== null) && {
+                                    price: {
+                                      ...(minPrice !== null && { [Op.gte]: minPrice }),
+                                      ...(maxPrice !== null && { [Op.lte]: maxPrice })
+                                    }
+                                }),
                             },
                         },
                     ],
@@ -379,7 +425,7 @@ const getSizes = async (filterCategory, filterTeam, filterColor, teamIds = [], c
     }
 }
 
-const getColors = async (filterCategory, filterTeam, filterSize, teamIds = [], categoryIds = []) => {
+const getColors = async (filterCategory, filterTeam, filterSize, teamIds = [], categoryIds = [], minPrice = null, maxPrice = null) => {
     try {
         const colors = await db.Color.findAll({
             attributes: [
@@ -404,6 +450,12 @@ const getColors = async (filterCategory, filterTeam, filterSize, teamIds = [], c
                                 ...(filterSize.length > 0 && { id: { [Op.in]: Sequelize.literal(`
                                     (SELECT productId FROM Product_Detail WHERE sizeId IN (${filterSize.join(',')}))
                                 `)} }),
+                                ...((minPrice !== null || maxPrice !== null) && {
+                                    price: {
+                                      ...(minPrice !== null && { [Op.gte]: minPrice }),
+                                      ...(maxPrice !== null && { [Op.lte]: maxPrice })
+                                    }
+                                }),
                             },
                         },
                     ],
@@ -510,6 +562,7 @@ const getSingleProduct = async (slug) => {
 
 module.exports = {
     getAllInforProduct,
+    getMinMaxPrices,
     getCategories,
     getTeams,
     getSizes,

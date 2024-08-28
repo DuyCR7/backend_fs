@@ -12,14 +12,17 @@ const handleGetAllInforProduct = async (req, res) => {
         let sortOption = req.query.sortOption ? req.query.sortOption : 'default';
         let team = req.query.team || null;
         let category = req.query.category || null;
+        let minPrice = req.query.minPrice ? parseFloat(req.query.minPrice) : null;
+        let maxPrice = req.query.maxPrice ? parseFloat(req.query.maxPrice) : null;
 
-        let data = await shopService.getAllInforProduct(page, limit, filterTeam, filterCategory, filterSize, filterColor, sortOption, team, category);
+        let data = await shopService.getAllInforProduct(page, limit, filterTeam, filterCategory, filterSize, filterColor, sortOption, team, category, minPrice, maxPrice);
 
         if(data.EC === 0) {
-            let updatedCategories = await shopService.getCategories(filterTeam, filterSize, filterColor, data.DT.teamIds, data.DT.categoryIds);
-            let updatedTeams = await shopService.getTeams(filterCategory, filterSize, filterColor, data.DT.teamIds, data.DT.categoryIds);
-            let updatedSizes = await shopService.getSizes(filterCategory, filterTeam, filterColor, data.DT.teamIds, data.DT.categoryIds);
-            let updatedColors = await shopService.getColors(filterCategory, filterTeam, filterSize, data.DT.teamIds, data.DT.categoryIds);
+            let updatedCategories = await shopService.getCategories(filterTeam, filterSize, filterColor, data.DT.teamIds, data.DT.categoryIds, minPrice, maxPrice);
+            let updatedTeams = await shopService.getTeams(filterCategory, filterSize, filterColor, data.DT.teamIds, data.DT.categoryIds, minPrice, maxPrice);
+            let updatedSizes = await shopService.getSizes(filterCategory, filterTeam, filterColor, data.DT.teamIds, data.DT.categoryIds, minPrice, maxPrice);
+            let updatedColors = await shopService.getColors(filterCategory, filterTeam, filterSize, data.DT.teamIds, data.DT.categoryIds, minPrice, maxPrice);
+            let minMaxPrices = await shopService.getMinMaxPrices();
 
             return res.status(200).json({
                 EM: data.EM,   // error message
@@ -29,7 +32,8 @@ const handleGetAllInforProduct = async (req, res) => {
                     updatedCategories,
                     updatedTeams,
                     updatedSizes,
-                    updatedColors
+                    updatedColors,
+                    minMaxPrices
                 },   // data
             });
         } else {
