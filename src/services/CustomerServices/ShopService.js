@@ -89,6 +89,17 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
             productWhere.categoryId = { [Op.in]: filterCategory };
         }
 
+        const priceRange = await db.Product.findAll({
+            attributes: [
+                [Sequelize.fn('MIN', Sequelize.col('price')), 'minPrice'],
+                [Sequelize.fn('MAX', Sequelize.col('price')), 'maxPrice']
+            ],
+            where: productWhere  // Chỉ áp dụng điều kiện isActive và team/category nếu có
+        });
+
+        const overallMinPrice = priceRange[0].get('minPrice');
+        const overallMaxPrice = priceRange[0].get('maxPrice');
+
         if (minPrice !== null) {
             productWhere.price = { ...productWhere.price, [Op.gte]: minPrice };
         }
@@ -219,6 +230,10 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
                 data: products,
                 // productDetails: allProductDetails,
             },
+            overallPriceRange: {
+                minPrice: overallMinPrice,
+                maxPrice: overallMaxPrice
+            }
         }
         
         return {
@@ -240,25 +255,6 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
         }
     }
 }
-
-const getMinMaxPrices = async () => {
-    try {
-        const result = await db.Product.findAll({
-            attributes: [
-                [Sequelize.fn('MIN', Sequelize.col('price')), 'minPrice'],
-                [Sequelize.fn('MAX', Sequelize.col('price')), 'maxPrice']
-            ],
-        });
-
-        return {
-            minPrice: result[0].get('minPrice'),
-            maxPrice: result[0].get('maxPrice')
-        };
-    } catch (e) {
-        console.log(e);
-        return { minPrice: 0, maxPrice: 0 };
-    }
-};
 
 const getCategories = async (filterTeam, filterSize, filterColor, teamIds = [], categoryIds = [], minPrice = null, maxPrice = null) => {
     try {
@@ -396,9 +392,9 @@ const getSizes = async (filterCategory, filterTeam, filterColor, teamIds = [], c
                                     filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
                                 ...(teamIds.length > 0 ? { teamId: { [Op.in]: teamIds } } :
                                     filterTeam.length > 0 && { teamId: { [Op.in]: filterTeam } }),
-                                ...(filterColor.length > 0 && { id: { [Op.in]: Sequelize.literal(`
-                                    (SELECT productId FROM Product_Detail WHERE colorId IN (${filterColor.join(',')}))
-                                `)} }),
+                                // ...(filterColor.length > 0 && { id: { [Op.in]: Sequelize.literal(`
+                                //     (SELECT productId FROM Product_Detail WHERE colorId IN (${filterColor.join(',')}))
+                                // `)} }),
                                 ...((minPrice !== null || maxPrice !== null) && {
                                     price: {
                                       ...(minPrice !== null && { [Op.gte]: minPrice }),
@@ -408,10 +404,14 @@ const getSizes = async (filterCategory, filterTeam, filterColor, teamIds = [], c
                             },
                         },
                     ],
+                    where: {
+                        ...(filterColor.length > 0 && { colorId: { [Op.in]: filterColor } }),
+                    },
                 },
             ],
             group: ['Size.id'],
             order: [['id', 'DESC']],
+            having: Sequelize.literal('productCount > 0'),
         });
         
         return sizes.map(size => ({
@@ -447,9 +447,9 @@ const getColors = async (filterCategory, filterTeam, filterSize, teamIds = [], c
                                     filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
                                 ...(teamIds.length > 0 ? { teamId: { [Op.in]: teamIds } } :
                                     filterTeam.length > 0 && { teamId: { [Op.in]: filterTeam } }),
-                                ...(filterSize.length > 0 && { id: { [Op.in]: Sequelize.literal(`
-                                    (SELECT productId FROM Product_Detail WHERE sizeId IN (${filterSize.join(',')}))
-                                `)} }),
+                                // ...(filterSize.length > 0 && { id: { [Op.in]: Sequelize.literal(`
+                                //     (SELECT productId FROM Product_Detail WHERE sizeId IN (${filterSize.join(',')}))
+                                // `)} }),
                                 ...((minPrice !== null || maxPrice !== null) && {
                                     price: {
                                       ...(minPrice !== null && { [Op.gte]: minPrice }),
@@ -459,10 +459,14 @@ const getColors = async (filterCategory, filterTeam, filterSize, teamIds = [], c
                             },
                         },
                     ],
+                    where: {
+                        ...(filterSize.length > 0 && { sizeId: { [Op.in]: filterSize } }),
+                    },
                 },
             ],
             group: ['Color.id'],
             order: [['id', 'DESC']],
+            having: Sequelize.literal('productCount > 0'),
         });
         
         return colors.map(color => ({
@@ -562,7 +566,6 @@ const getSingleProduct = async (slug) => {
 
 module.exports = {
     getAllInforProduct,
-    getMinMaxPrices,
     getCategories,
     getTeams,
     getSizes,

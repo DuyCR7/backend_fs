@@ -22,7 +22,6 @@ const handleGetAllInforProduct = async (req, res) => {
             let updatedTeams = await shopService.getTeams(filterCategory, filterSize, filterColor, data.DT.teamIds, data.DT.categoryIds, minPrice, maxPrice);
             let updatedSizes = await shopService.getSizes(filterCategory, filterTeam, filterColor, data.DT.teamIds, data.DT.categoryIds, minPrice, maxPrice);
             let updatedColors = await shopService.getColors(filterCategory, filterTeam, filterSize, data.DT.teamIds, data.DT.categoryIds, minPrice, maxPrice);
-            let minMaxPrices = await shopService.getMinMaxPrices();
 
             return res.status(200).json({
                 EM: data.EM,   // error message
@@ -33,7 +32,6 @@ const handleGetAllInforProduct = async (req, res) => {
                     updatedTeams,
                     updatedSizes,
                     updatedColors,
-                    minMaxPrices
                 },   // data
             });
         } else {
