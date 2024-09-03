@@ -251,6 +251,10 @@ const getSearchProducts = async (search) => {
                     model: db.Product_Image,
                     where: { isMainImage: true },
                     attributes: ['image'],
+                },
+                {
+                    model: db.Category,
+                    attributes: ['id', 'name', 'slug'],
                 }
             ],
             order: [[

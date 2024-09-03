@@ -191,6 +191,7 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
                     name: product.name,
                     price: product.price,
                     price_sale: product.price_sale,
+                    isSale: product.isSale,
                     isActive: product.isActive,
                     slug: product.slug,
                     Category: product.Category,
