@@ -317,6 +317,42 @@ const setActiveCategory = async (id) => {
     }
 }
 
+const setIsHomeCategory = async (id) => {
+    try {
+        let parentCategory = await db.Category.findOne({
+            where: {
+                id: id
+            }
+        });
+
+        if(parentCategory) {
+            await parentCategory.update({
+                isHome: !parentCategory.isHome
+            });
+
+            return {
+                EM: `Cập nhật thành công!`,
+                EC: 0,
+                DT: "",
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy danh mục!",
+                EC: 1,
+                DT: "",
+            }
+        }
+
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: "",
+        };
+    }
+}
+
 const getAllProductIdsInCategory = async (category) => {
     let productIds = [];
 
@@ -407,5 +443,6 @@ module.exports = {
     getCategoryById,
     updateCategory,
     setActiveCategory,
+    setIsHomeCategory,
     deleteCategory,
 }

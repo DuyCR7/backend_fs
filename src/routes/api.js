@@ -60,6 +60,7 @@ const initApiRoutes = (app) => {
     adminRouter.get('/category/read', adCategoryController.handleGetCategory);
     adminRouter.put('/category/update', upload.single('image'), adCategoryController.handleUpdateCategory);
     adminRouter.put('/category/set-active', adCategoryController.handleSetActive);
+    adminRouter.put('/category/set-home', adCategoryController.handleSetHome);
     adminRouter.delete('/category/delete', adCategoryController.handleDeleteCategory);
 
     adminRouter.post('/size/create', adSizeController.handleCreateSize);

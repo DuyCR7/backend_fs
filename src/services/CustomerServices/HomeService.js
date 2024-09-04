@@ -74,11 +74,14 @@ const getAllParentCategories = async () => {
         let parent_categories = await db.Category.findAll({
             where: {
                 parent_id: 0,
-                isActive: true
+                isActive: true,
+                isHome: true,
             },
-            order: [[
-                'id', 'DESC'
-            ]]
+            order: [
+                [
+                    'updatedAt', 'DESC'
+                ]
+            ]
         })
 
         if(parent_categories) {
@@ -111,7 +114,7 @@ const getNewEvent = async () => {
                 isActive: true
             },
             order: [[
-                'updatedAt', 'DESC'
+                'createdAt', 'DESC'
             ]]
         })
 
