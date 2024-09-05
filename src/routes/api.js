@@ -17,6 +17,7 @@ import cusShopController from "../controller/CustomerController/ShopController";
 import cusPostController from "../controller/CustomerController/PostController";
 import cusCartController from "../controller/CustomerController/CartController";
 import cusWishlistController from "../controller/CustomerController/WishListController";
+import cusCheckOutController from "../controller/CustomerController/CheckOutController";
 
 import { checkUserJWT, checkCustomerJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
@@ -189,6 +190,10 @@ const initApiRoutes = (app) => {
     router.get('/wishlist/get-count', checkCustomerJWT, cusWishlistController.handleGetCount);
     router.get('/wishlist/get-wish-list', checkCustomerJWT, cusWishlistController.handleGetWishList);
     router.delete('/wishlist/delete-wishlist-item', checkCustomerJWT, cusWishlistController.handleDeleteWishListItem);
+
+    router.get('/checkout/get-address', checkCustomerJWT, cusCheckOutController.handleGetAddress);
+    router.post('/checkout/add-new-address', checkCustomerJWT, cusCheckOutController.handleAddNewAddress);
+    router.put('/checkout/update-address', checkCustomerJWT, cusCheckOutController.handleUpdateAddress);    
 
     return app.use('/api/v1/', router);
 }
