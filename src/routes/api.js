@@ -19,6 +19,8 @@ import cusCartController from "../controller/CustomerController/CartController";
 import cusWishlistController from "../controller/CustomerController/WishListController";
 import cusCheckOutController from "../controller/CustomerController/CheckOutController";
 
+import chatController from "../controller/ChatController";
+
 import { checkUserJWT, checkCustomerJWT, checkUserPermission } from "../middleware/jwtAction";
 import passport from 'passport';
 import multer from 'multer';
@@ -194,6 +196,11 @@ const initApiRoutes = (app) => {
     router.get('/checkout/get-address', checkCustomerJWT, cusCheckOutController.handleGetAddress);
     router.post('/checkout/add-new-address', checkCustomerJWT, cusCheckOutController.handleAddNewAddress);
     router.put('/checkout/update-address', checkCustomerJWT, cusCheckOutController.handleUpdateAddress);    
+
+    router.post('/chat', chatController.handleCreateOrUpdateChat);
+    router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);
+    router.post('/chat/send-message', chatController.handleSendMessage);
+    router.get('/chat/get-messages/:chatId', chatController.handleGetMessages);
 
     return app.use('/api/v1/', router);
 }
