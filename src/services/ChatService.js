@@ -191,9 +191,120 @@ const getMessages = async (chatId) => {
   }
 };
 
+const getUnreadMessageCount = async (userId, userType, chatId = null) => {
+  try {
+    let whereCondition = {
+      isRead: false,
+      [Op.not]: { 
+        [Op.and]: [
+          { senderId: userId },
+          { senderType: userType }
+        ]
+      }
+    };
+
+    if (chatId) {
+      whereCondition.chatId = chatId;
+    }
+
+    const count = await db.Message.count({
+      where: whereCondition,
+      include: [{
+        model: db.Chat,
+        where: userType === 'customer' 
+          ? { cusId: userId }
+          : db.Sequelize.literal(`JSON_CONTAINS(participants, '{"id": ${userId}}', '$')`)
+      }]
+    });
+
+    return {
+      EM: "Lấy số tin nhắn chưa đọc thành công!",
+      EC: 0,
+      DT: count,
+    };
+
+  } catch (e) {
+    console.log(e);
+    return {
+      EM: "Lỗi, vui lòng thử lại sau!",
+      EC: -1,
+      DT: "",
+    };
+  }
+}
+
+const markMessagesAsRead = async (chatId, userId, userType) => {
+  try {
+    await db.Message.update(
+      { isRead: true },
+      { 
+        where: {
+          chatId,
+          isRead: false,
+          [Op.not]: { 
+            [Op.and]: [
+              { senderId: userId },
+              { senderType: userType }
+            ]
+          }
+        }
+      }
+    );
+
+    return {
+      EM: "Đánh dấu tin nhắn đã đọc thành công!",
+      EC: 0,
+      DT: "",
+    };
+
+  } catch (e) {
+    console.log(e);
+    return {
+      EM: "Lỗi, vui lòng thử lại sau!",
+      EC: -1,
+      DT: "",
+    };
+  }
+}
+
+const getCurrentChat = async (cusId) => {
+  try {
+    const chat = await db.Chat.findOne({
+      where: {
+        cusId: cusId,
+      },
+    });
+
+    if (!chat) {
+      return {
+        EM: "Đoạn chat không tồn tại!",
+        EC: 1,
+        DT: "",
+      };
+    }
+
+    return {
+      EM: "Lấy đoạn chat hiện tại thành công!",
+      EC: 0,
+      DT: chat.id,
+    };
+
+  } catch (e) {
+    console.log(e);
+    return {
+      EM: "Lỗi, vui lòng thử lại sau!",
+      EC: -1,
+      DT: "",
+    };
+  }
+}
+
 module.exports = {
   createOrUpdateChat,
   getAdminChats,
   sendMessage,
   getMessages,
+  getUnreadMessageCount,
+  markMessagesAsRead,
+  getCurrentChat,
 };

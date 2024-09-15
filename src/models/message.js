@@ -46,7 +46,11 @@ module.exports = (sequelize, DataTypes) => {
     productInfo: {
       type: DataTypes.JSON,
       allowNull: true,
-  },
+    },
+    isRead: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    }
   }, {
     sequelize,
     modelName: 'Message',
