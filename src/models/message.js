@@ -47,9 +47,9 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.JSON,
       allowNull: true,
     },
-    isRead: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: false,
+    readBy: {
+      type: DataTypes.JSON,
+      defaultValue: []
     }
   }, {
     sequelize,

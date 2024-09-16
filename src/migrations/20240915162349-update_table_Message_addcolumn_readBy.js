@@ -5,11 +5,10 @@ module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.addColumn(
       'Message',
-      'isRead',
+      'readBy',
       {
-        type: Sequelize.BOOLEAN,
-        defaultValue: false,
-        allowNull: false,
+        type: Sequelize.JSON,
+        defaultValue: [],
       }
     )
     /**
@@ -27,6 +26,6 @@ module.exports = {
      * Example:
      * await queryInterface.dropTable('users');
      */
-    await queryInterface.removeColumn('Message', 'isRead')
+    await queryInterface.removeColumn('Message', 'readBy')
   }
 };

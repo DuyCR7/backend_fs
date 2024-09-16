@@ -194,13 +194,15 @@ const getMessages = async (chatId) => {
 const getUnreadMessageCount = async (userId, userType, chatId = null) => {
   try {
     let whereCondition = {
-      isRead: false,
-      [Op.not]: { 
-        [Op.and]: [
-          { senderId: userId },
-          { senderType: userType }
-        ]
-      }
+      [Op.and]: [
+        {
+          [Op.or]: [
+            { senderId: { [Op.ne]: userId } },
+            { senderType: { [Op.ne]: userType } }
+          ]
+        },
+        db.Sequelize.literal(`NOT JSON_CONTAINS(readBy, JSON_OBJECT('userId', ${userId}, 'userType', '${userType}'))`)
+      ]
     };
 
     if (chatId) {
@@ -213,7 +215,7 @@ const getUnreadMessageCount = async (userId, userType, chatId = null) => {
         model: db.Chat,
         where: userType === 'customer' 
           ? { cusId: userId }
-          : db.Sequelize.literal(`JSON_CONTAINS(participants, '{"id": ${userId}}', '$')`)
+          : db.Sequelize.literal(`JSON_CONTAINS(participants, JSON_OBJECT('id', ${userId}))`)
       }]
     });
 
@@ -235,26 +237,41 @@ const getUnreadMessageCount = async (userId, userType, chatId = null) => {
 
 const markMessagesAsRead = async (chatId, userId, userType) => {
   try {
-    await db.Message.update(
-      { isRead: true },
-      { 
-        where: {
-          chatId,
-          isRead: false,
-          [Op.not]: { 
-            [Op.and]: [
-              { senderId: userId },
-              { senderType: userType }
-            ]
-          }
-        }
+    const messages = await db.Message.findAll({
+      where: {
+        chatId,
+        [Op.not]: { 
+          [Op.and]: [
+            { senderId: userId },
+            { senderType: userType }
+          ]
+        },
+        [Op.and]: [
+          db.Sequelize.literal(`NOT JSON_CONTAINS(readBy, JSON_OBJECT('userId', ${userId}, 'userType', '${userType}'))`)
+        ]
       }
-    );
+    });
+console.log("messages", messages);
+    for (let message of messages) {
+      let readBy = JSON.parse(message.readBy);
+      
+      // Tạo đối tượng user để lưu vào readBy
+      let userReadObj = { userId, userType };
+
+      // Kiểm tra nếu đối tượng này chưa có trong readBy
+      const isRead = readBy.some(user => user.userId === userId && user.userType === userType);
+
+      if (!isRead) {
+        // Thêm đối tượng userReadObj vào readBy
+        readBy.push(userReadObj);
+        await message.update({ readBy: readBy });
+      }
+    }
 
     return {
       EM: "Đánh dấu tin nhắn đã đọc thành công!",
       EC: 0,
-      DT: "",
+      DT: messages.length,
     };
 
   } catch (e) {
