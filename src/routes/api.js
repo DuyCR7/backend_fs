@@ -196,6 +196,7 @@ const initApiRoutes = (app) => {
     router.get('/checkout/get-address', checkCustomerJWT, cusCheckOutController.handleGetAddress);
     router.post('/checkout/add-new-address', checkCustomerJWT, cusCheckOutController.handleAddNewAddress);
     router.put('/checkout/update-address', checkCustomerJWT, cusCheckOutController.handleUpdateAddress);    
+    router.post('/checkout/create-order', checkCustomerJWT, cusCheckOutController.handleCreateOrder);
 
     router.post('/chat', chatController.handleCreateOrUpdateChat);
     router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);

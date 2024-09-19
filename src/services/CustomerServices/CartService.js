@@ -15,7 +15,7 @@ const addToCart = async (cusId, productId, productDetailId, quantity) => {
                 EM: productDetail.quantity === 0 ?
                     `Sản phẩm ${productDetail.Product.name} với size ${productDetail.Size.code} và màu ${productDetail.Color.name} đã hết hàng!`
                     :
-                    `Sản phẩm ${productDetail.Product.name} với size ${productDetail.Size.code} và màu ${productDetail.Color.name} không đủ số lượng sẵn có!`,
+                    `Sản phẩm ${productDetail.Product.name} với size ${productDetail.Size.code} và màu ${productDetail.Color.name} chỉ còn ${productDetail.quantity} sản phẩm sẵn có!`,
                 EC: 1,
                 DT: ""
             }

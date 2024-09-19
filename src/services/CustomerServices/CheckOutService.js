@@ -1,5 +1,6 @@
 import db from "../../models/index";
 import { Op } from "sequelize";
+import { io } from "../../server";
 
 const getAddress = async (cusId) => {
     try {
@@ -179,8 +180,139 @@ const updateAddress = async (dataAddress) => {
     }
 }
 
+const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cusAddressId, orderDetails) => {
+    const t = await db.sequelize.transaction();
+    
+    try {
+        const newOrder = await db.Order.create({
+            cusId: cusId,
+            paymentMethod: paymentMethod,
+            shippingMethod: shippingMethod,
+            totalPrice: totalPrice,
+            cusAddressId: cusAddressId,
+            status: 1,
+        }, {
+            transaction: t
+        });
+
+        const cart = await db.Cart.findOne({
+            where: { cusId: cusId },
+            transaction: t
+        });
+
+        if (!cart) {
+            await t.rollback();
+            return {
+                EM: "Không tìm thấy giỏ hàng!",
+                EC: 1,
+                DT: ""
+            };
+        }
+
+        for (const detail of orderDetails) {
+            const productDetail = await db.Product_Detail.findByPk(detail.productDetailId, 
+                { 
+                    transaction: t,
+                    lock: true,
+                    include: [
+                        { 
+                            model: db.Product,
+                            attributes: ['id', 'name']
+                        },
+                        { 
+                            model: db.Color,
+                            attributes: ['id', 'name']
+                        },
+                        { 
+                            model: db.Size,
+                            attributes: ['id', 'code']
+                        },
+                    ]
+                }
+            );
+
+            if (!productDetail) {
+                await t.rollback();
+                return {
+                    EM: "Sản phẩm không tồn tại!",
+                    EC: 1,
+                    DT: ""
+                };
+            }
+
+            if (productDetail.quantity < detail.quantity) {
+                await t.rollback();
+                return {
+                    EM: `Sản phẩm ${productDetail.Product.name} với size ${productDetail.Size.code} và màu ${productDetail.Color.name} chỉ còn ${productDetail.quantity} sản phẩm sẵn có!`,
+                    EC: 1,
+                    DT: ""
+                };
+            }
+
+            await Promise.all([
+                db.Order_Detail.create({
+                    orderId: newOrder.id,
+                    productDetailId: detail.productDetailId,
+                    quantity: detail.quantity,
+                    price: detail.price,
+                }, {
+                    transaction: t
+                }),
+                productDetail.decrement('quantity', { by: detail.quantity, transaction: t }),
+                db.Cart_Detail.destroy({
+                    where: {
+                        cartId: cart.id,
+                        productDetailId: detail.productDetailId
+                    },
+                    transaction: t
+                })
+            ]);
+
+            io.emit('productQuantityUpdated', {
+                productId: productDetail.Product.id,
+                productDetailId: productDetail.id,
+                newQuantity: productDetail.quantity - detail.quantity
+            });
+        }
+
+        const remainingCartItems = await db.Cart_Detail.count({
+            where: { cartId: cart.id },
+            transaction: t
+        });
+
+        if (remainingCartItems === 0) {
+            await db.Cart.destroy({
+                where: { id: cart.id },
+                transaction: t
+            });
+        }
+
+        await t.commit();
+
+        return {
+            EM: "Tạo đơn hàng thành công!",
+            EC: 0,
+            DT: {
+                orderId: newOrder.id,
+                orderDetails: orderDetails,
+                remainingCartItems: remainingCartItems
+            }
+        }
+
+    } catch (e) {
+        console.log(e);
+        await t.rollback();
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     getAddress,
     addNewAddress,
     updateAddress,
+    createOrder,
 }
