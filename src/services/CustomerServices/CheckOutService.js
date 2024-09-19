@@ -1,6 +1,7 @@
 import db from "../../models/index";
 import { Op } from "sequelize";
 import { io } from "../../server";
+import sendEmail from "../../utils/sendEmail";
 
 const getAddress = async (cusId) => {
     try {
@@ -180,6 +181,95 @@ const updateAddress = async (dataAddress) => {
     }
 }
 
+const generateOrderConfirmationEmail = (customer, order, orderDetails) => {
+    const formatPrice = (price) => price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
+
+    let emailContent = `
+    <!DOCTYPE html>
+    <html lang="vi">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Xác nhận đơn hàng</title>
+        <style>
+            body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+            .container { width: 100%; max-width: 600px; margin: 0 auto; }
+            .header { background-color: #f4f4f4; padding: 20px; text-align: center; }
+            .content { padding: 20px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            .footer { background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Xác nhận đơn hàng</h1>
+            </div>
+            <div class="content">
+                <p>Xin chào ${customer.email},</p>
+                <p>Cảm ơn bạn đã đặt hàng tại cửa hàng chúng tôi. Dưới đây là chi tiết đơn hàng của bạn:</p>
+                
+                <table>
+                    <tr>
+                        <th>Mã đơn hàng</th>
+                        <td>${order.id}</td>
+                    </tr>
+                    <tr>
+                        <th>Ngày đặt hàng</th>
+                        <td>${new Date(order.createdAt).toLocaleString('vi-VN')}</td>
+                    </tr>
+                    <tr>
+                        <th>Phương thức thanh toán</th>
+                        <td>${order.paymentMethod === 'cod' ? 'Thanh toán khi nhận hàng' : 'PayPal'}</td>
+                    </tr>
+                    <tr>
+                        <th>Phương thức vận chuyển</th>
+                        <td>${order.shippingMethod === 'standard' ? `Tiêu chuẩn - ${formatPrice(20000)}` : `Nhanh - ${formatPrice(50000)}`}</td>
+                    </tr>
+                    <tr>
+                        <th>Tổng giá trị đơn hàng</th>
+                        <td>${formatPrice(order.totalPrice)}</td>
+                    </tr>
+                </table>
+
+                <h2>Chi tiết sản phẩm</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sản phẩm</th>
+                            <th>Số lượng</th>
+                            <th>Đơn giá</th>
+                            <th>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${orderDetails.map(detail => `
+                            <tr>
+                                <td>${detail.name} (${detail.color}, ${detail.size})</td>
+                                <td>${detail.quantity}</td>
+                                <td>${formatPrice(detail.price)}</td>
+                                <td>${formatPrice(detail.price * detail.quantity)}</td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+
+                <p>Nếu bạn có bất kỳ câu hỏi nào về đơn hàng, vui lòng liên hệ với chúng tôi.</p>
+                <p>Trân trọng,<br>Đội ngũ cửa hàng</p>
+            </div>
+            <div class="footer">
+                <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+            </div>
+        </div>
+    </body>
+    </html>
+    `;
+
+    return emailContent;
+};
+
 const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cusAddressId, orderDetails, paypalOrderId) => {
     const t = await db.sequelize.transaction();
     
@@ -289,6 +379,10 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cus
         }
 
         await t.commit();
+
+        const customer = await db.Customer.findByPk(cusId);
+        const orderConfirmationEmail = generateOrderConfirmationEmail(customer, newOrder, orderDetails);
+        await sendEmail(customer.email, "Thông Tin Đơn Hàng", orderConfirmationEmail);
 
         return {
             EM: "Đặt hàng thành công!",

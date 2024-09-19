@@ -54,8 +54,49 @@ const signUpCustomer = async (rawCusData) => {
           token: crypto.randomBytes(32).toString("hex")
         });
 
-        const url = `${process.env.REACT_URL}/cus/${cus.id}/verify/${token.token}`;
-        await sendEmail(cus.email, "Xác nhận tài khoản", url);
+        const verificationUrl  = `${process.env.REACT_URL}/cus/${cus.id}/verify/${token.token}`;
+
+        const emailContent = `
+        <!DOCTYPE html>
+        <html lang="vi">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Xác nhận tài khoản</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; }
+                .container { width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+                .header { text-align: center; padding: 20px 0; }
+                .content { padding: 20px 0; }
+                .button { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #ffffff; text-decoration: none; border-radius: 5px; }
+                .footer { background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Xác nhận tài khoản của bạn</h1>
+                </div>
+                <div class="content">
+                    <p>Chào mừng bạn đến với cửa hàng của chúng tôi!</p>
+                    <p>Cảm ơn bạn đã đăng ký tài khoản. Để hoàn tất quá trình đăng ký, vui lòng xác nhận địa chỉ email của bạn bằng cách nhấp vào nút bên dưới:</p>
+                    <p style="text-align: center;">
+                        <a href="${verificationUrl}" style="color: white;" class="button">Xác nhận tài khoản</a>
+                    </p>
+                    <p>Nếu bạn không thể nhấp vào nút, vui lòng sao chép và dán liên kết sau vào trình duyệt của bạn:</p>
+                    <p>${verificationUrl}</p>
+                    <p>Nếu bạn không tạo tài khoản này, vui lòng bỏ qua email này.</p>
+                </div>
+                <div class="footer">
+                    <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+
+
+        await sendEmail(cus.email, "Xác nhận tài khoản", emailContent);
     
         return {
           EM: "Hãy truy cập Email của bạn để xác nhận tài khoản!",
@@ -180,8 +221,48 @@ const signInCustomer = async (rawCusData) => {
               cusId: cus.id,
               token: crypto.randomBytes(32).toString("hex"),
             });
-            const url = `${process.env.REACT_URL}/cus/${cus.id}/verify/${token.token}`;
-            await sendEmail(cus.email, "Xác nhận tài khoản", url);
+            const verificationUrl  = `${process.env.REACT_URL}/cus/${cus.id}/verify/${token.token}`;
+
+            const emailContent = `
+              <!DOCTYPE html>
+              <html lang="vi">
+              <head>
+                  <meta charset="UTF-8">
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                  <title>Xác minh tài khoản</title>
+                  <style>
+                      body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; }
+                      .container { width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+                      .header { text-align: center; padding: 20px 0; }
+                      .content { padding: 20px 0; }
+                      .button { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #ffffff; text-decoration: none; border-radius: 5px; }
+                      .footer { background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; }
+                  </style>
+              </head>
+              <body>
+                  <div class="container">
+                      <div class="header">
+                          <h1>Xác minh tài khoản của bạn</h1>
+                      </div>
+                      <div class="content">
+                          <p>Chào bạn,</p>
+                          <p>Cảm ơn bạn đã đăng nhập. Để hoàn tất quá trình và bảo mật tài khoản của bạn, vui lòng xác minh địa chỉ email của bạn bằng cách nhấp vào nút bên dưới:</p>
+                          <p style="text-align: center;">
+                              <a href="${verificationUrl}" style="color: white;" class="button">Xác minh tài khoản</a>
+                          </p>
+                          <p>Nếu bạn không thể nhấp vào nút, vui lòng sao chép và dán liên kết sau vào trình duyệt của bạn:</p>
+                          <p>${verificationUrl}</p>
+                          <p>Nếu bạn không yêu cầu xác minh này, vui lòng bỏ qua email này hoặc liên hệ với bộ phận hỗ trợ của chúng tôi.</p>
+                      </div>
+                      <div class="footer">
+                          <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+                      </div>
+                  </div>
+              </body>
+              </html>
+              `;
+
+              await sendEmail(cus.email, "Xác minh tài khoản", emailContent);
           }
 
           return {
@@ -319,8 +400,48 @@ const resetPasswordSendLink = async (email) => {
         cusId: cus.id,
         token: crypto.randomBytes(32).toString("hex"),
       });
-      const url = `${process.env.REACT_URL}/password-reset/${cus.id}/${token.token}`;
-      await sendEmail(cus.email, "Thay đổi mật khẩu", url);
+      const resetUrl  = `${process.env.REACT_URL}/password-reset/${cus.id}/${token.token}`;
+      
+      const emailContent = `
+      <!DOCTYPE html>
+      <html lang="vi">
+      <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>Đặt lại mật khẩu</title>
+          <style>
+              body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; }
+              .container { width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+              .header { text-align: center; padding: 20px 0; }
+              .content { padding: 20px 0; }
+              .button { display: inline-block; padding: 10px 20px; background-color: #4CAF50; color: #ffffff; text-decoration: none; border-radius: 5px; }
+              .footer { background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; }
+          </style>
+      </head>
+      <body>
+          <div class="container">
+              <div class="header">
+                  <h1>Đặt lại mật khẩu của bạn</h1>
+              </div>
+              <div class="content">
+                  <p>Chào bạn,</p>
+                  <p>Chúng tôi nhận được yêu cầu đặt lại mật khẩu cho tài khoản của bạn. Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này.</p>
+                  <p>Để đặt lại mật khẩu, vui lòng nhấp vào nút bên dưới:</p>
+                  <p style="text-align: center;">
+                      <a href="${resetUrl}" style="color: white;" class="button">Đặt lại mật khẩu</a>
+                  </p>
+                  <p>Nếu bạn không thể nhấp vào nút, vui lòng sao chép và dán liên kết sau vào trình duyệt của bạn:</p>
+                  <p>${resetUrl}</p>
+              </div>
+              <div class="footer">
+                  <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+              </div>
+          </div>
+      </body>
+      </html>
+      `;
+
+      await sendEmail(cus.email, "Đặt lại mật khẩu", emailContent);
     }
 
     return {
