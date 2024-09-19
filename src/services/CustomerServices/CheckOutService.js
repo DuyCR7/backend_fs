@@ -180,7 +180,7 @@ const updateAddress = async (dataAddress) => {
     }
 }
 
-const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cusAddressId, orderDetails) => {
+const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cusAddressId, orderDetails, paypalOrderId) => {
     const t = await db.sequelize.transaction();
     
     try {
@@ -191,6 +191,7 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cus
             totalPrice: totalPrice,
             cusAddressId: cusAddressId,
             status: 1,
+            paypalOrderId: paypalOrderId
         }, {
             transaction: t
         });
@@ -268,11 +269,11 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cus
                 })
             ]);
 
-            io.emit('productQuantityUpdated', {
-                productId: productDetail.Product.id,
-                productDetailId: productDetail.id,
-                newQuantity: productDetail.quantity - detail.quantity
-            });
+            // io.emit('productQuantityUpdated', {
+            //     productId: productDetail.Product.id,
+            //     productDetailId: productDetail.id,
+            //     newQuantity: productDetail.quantity - detail.quantity
+            // });
         }
 
         const remainingCartItems = await db.Cart_Detail.count({
@@ -290,7 +291,7 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cus
         await t.commit();
 
         return {
-            EM: "Tạo đơn hàng thành công!",
+            EM: "Đặt hàng thành công!",
             EC: 0,
             DT: {
                 orderId: newOrder.id,

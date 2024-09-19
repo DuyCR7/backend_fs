@@ -161,9 +161,9 @@ const handleUpdateAddress = async (req, res) => {
 const handleCreateOrder = async (req, res) => {
     try {
         const cusId = req.user.id;
-        const { paymentMethod, shippingMethod, totalPrice, cusAddressId, orderDetails } = req.body;
-        
-        let data = await checkOutService.createOrder(cusId, paymentMethod, shippingMethod, totalPrice, cusAddressId, orderDetails);
+        const { paymentMethod, shippingMethod, totalPrice, cusAddressId, orderDetails, paypalOrderId } = req.body;
+
+        let data = await checkOutService.createOrder(cusId, paymentMethod, shippingMethod, totalPrice, cusAddressId, orderDetails, paypalOrderId);
 
         return res.status(200).json({
             EM: data.EM,   // error message
