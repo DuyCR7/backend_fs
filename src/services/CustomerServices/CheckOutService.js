@@ -270,7 +270,7 @@ const generateOrderConfirmationEmail = (customer, order, orderDetails) => {
     return emailContent;
 };
 
-const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cusAddressId, orderDetails, paypalOrderId) => {
+const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, addLocation, addName, addPhone, addEmail, orderDetails, paypalOrderId) => {
     const t = await db.sequelize.transaction();
     
     try {
@@ -279,7 +279,10 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cus
             paymentMethod: paymentMethod,
             shippingMethod: shippingMethod,
             totalPrice: totalPrice,
-            cusAddressId: cusAddressId,
+            addLocation: addLocation,
+            addName: addName,
+            addPhone: addPhone,
+            addEmail: addEmail,
             status: 1,
             paypalOrderId: paypalOrderId
         }, {
@@ -334,7 +337,10 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, cus
             if (productDetail.quantity < detail.quantity) {
                 await t.rollback();
                 return {
-                    EM: `Sản phẩm ${productDetail.Product.name} với size ${productDetail.Size.code} và màu ${productDetail.Color.name} chỉ còn ${productDetail.quantity} sản phẩm sẵn có!`,
+                    EM: productDetail.quantity === 0 ? 
+                        `Sản phẩm ${productDetail.Product.name} với size ${productDetail.Size.code} và màu ${productDetail.Color.name} đã hết hàng!`
+                        :
+                        `Sản phẩm ${productDetail.Product.name} với size ${productDetail.Size.code} và màu ${productDetail.Color.name} chỉ còn ${productDetail.quantity} sản phẩm sẵn có!`,
                     EC: 1,
                     DT: ""
                 };

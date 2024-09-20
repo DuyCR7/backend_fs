@@ -465,45 +465,102 @@ const updateProduct = async (dataProduct) => {
             }
 
             const details = JSON.parse(dataProduct.productDetails);
-            // console.log("details", details);
-            await db.Product_Detail.destroy({ 
-                where: { productId: dataProduct.id }, 
-                transaction
+
+            // Lấy tất cả Product_Detail hiện có cho sản phẩm này
+            const existingDetails = await db.Product_Detail.findAll({
+                where: { productId: dataProduct.id },
+                include: [
+                    { model: db.Color, attributes: ['name'] },
+                    { model: db.Size, attributes: ['code'] }
+                ],
+                transaction,
             });
 
-            let allDetails = [];
             for (const detail of details) {
                 let detailImage = null;
                 if (detail.hasImage && dataProduct.detailImages) {
                     const matchingFile = dataProduct.detailImages.find(file => file.originalname === detail.imageName);
-                    // console.log("matchingFile", matchingFile);
                     if (matchingFile) {
                         detailImage = matchingFile.filename;
                     }
                 }
                 if (!detailImage && detail.imagePreview) {
-                    // Lấy tên file từ URL imagePreview nếu không có ảnh mới
                     detailImage = detail.imagePreview.split('/').pop();
                 }
-                    
-                const detailInfo = detail.sizes.map(item => ({
-                    productId: dataProduct.id,
-                    sizeId: +item.sizeId,
-                    colorId: +detail.colorId,
-                    image: detailImage,
-                    quantity: +item.quantity,
-                }));
-                allDetails = allDetails.concat(detailInfo);
+                
+                for (const item of detail.sizes) {
+                    const existingDetail = existingDetails.find(ed => 
+                        ed.sizeId === +item.sizeId && 
+                        ed.colorId === +detail.colorId
+                    );
+
+                    if (existingDetail) {
+                        // Cập nhật bản ghi hiện có
+                        await existingDetail.update({
+                            image: detailImage,
+                            quantity: +item.quantity,
+                        }, { transaction });
+                    } else {
+                        // Tạo bản ghi mới nếu không tồn tại
+                        await db.Product_Detail.create({
+                            productId: dataProduct.id,
+                            sizeId: +item.sizeId,
+                            colorId: +detail.colorId,
+                            image: detailImage,
+                            quantity: +item.quantity,
+                        }, { transaction });
+                    }
+                }
             }
-            // console.log("allDetails", allDetails);
-            await db.Product_Detail.bulkCreate(allDetails, {transaction});
+
+            // Xóa các bản ghi không còn được sử dụng
+            const updatedDetailIds = details.flatMap(detail => 
+                detail.sizes.map(item => `${detail.colorId}-${item.sizeId}`)
+            );
+            console.log("details", details);
+            console.log("existingDetails", existingDetails.map(detail => detail.get({ plain: true })));
+            console.log("updatedDetailIds", updatedDetailIds);
+            let cannotDeleteDetails = [];
+            
+            for (const existingDetail of existingDetails) {
+                if (!updatedDetailIds.includes(`${existingDetail.colorId}-${existingDetail.sizeId}`)) {
+                    // Kiểm tra xem Product_Detail có trong Order_Detail không
+                    const orderDetailCount = await db.Order_Detail.count({
+                        where: { productDetailId: existingDetail.id },
+                        transaction
+                    });
+                    
+                    if (orderDetailCount > 0) {
+                        // Nếu có, thêm vào danh sách không thể xóa
+                        cannotDeleteDetails.push({
+                            id: existingDetail.id,
+                            color: existingDetail.Color.name,
+                            size: existingDetail.Size.code
+                        });
+                    } else {
+                        // Nếu không, tiến hành xóa
+                        await db.Product_Detail.destroy({
+                            where: { id: existingDetail.id },
+                            transaction
+                        });
+                    }
+                }
+            }
 
             await transaction.commit();
 
+            let message = "Cập nhật sản phẩm thành công!";
+            if (cannotDeleteDetails.length > 0) {
+                message += ` Tuy nhiên, Không thể xóa ${cannotDeleteDetails.length} chi tiết sản phẩm do đã có trong đơn hàng:\n`;
+                cannotDeleteDetails.forEach(detail => {
+                    message += `Màu: ${detail.color}, Size: ${detail.size}\n`;
+                });
+            }
+
             return {
-                EM: "Cập nhật sản phẩm thành công!",
-                EC: 0,
-                DT: "",
+                EM: message.trim(),
+                EC: cannotDeleteDetails.length > 0 ? 1 : 0,
+                DT: cannotDeleteDetails,
             }
         } catch (e) {
             await transaction.rollback();

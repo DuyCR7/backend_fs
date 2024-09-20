@@ -212,14 +212,27 @@ const updateCartItemQuantity = async (cusId, cartDetailId, newQuantity) => {
         }
 
         let productDetail = cartItem.Product_Detail;
+
+        if (productDetail.quantity === 0) {
+            await cartItem.destroy();
+            return {
+                EM: "Sản phẩm đã hết hàng và bị xóa khỏi giỏ hàng!",
+                EC: 2,
+                DT: null
+            }
+        }
+
         if (newQuantity > productDetail.quantity) {
             newQuantity = productDetail.quantity;
             cartItem.quantity = newQuantity;
             await cartItem.save();
 
             return {
-                EM: `Hiện sản phẩm này chỉ có ${productDetail.quantity} sản phẩm sẵn có!`,
-                EC: 2,
+                EM: productDetail.quantity === 0 ?
+                    `Hiện sản phẩm này đã hết hàng!`
+                    :
+                    `Hiện sản phẩm này chỉ có ${productDetail.quantity} sản phẩm sẵn có!`,
+                EC: 3,
                 DT: cartItem
             }
         }

@@ -174,7 +174,7 @@ const handleUpdateProduct = async (req, res) => {
                 DT: '',   // data
             })
         }
-        console.log("product", product.DT);
+        // console.log("product", product.DT);
         
         if(price_sale && +price_sale <= 0) {
             return res.status(200).json({

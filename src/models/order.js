@@ -11,6 +11,12 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Order.hasMany(models.Order_Detail, {
+        foreignKey: 'orderId',
+      });
+      Order.belongsTo(models.Customer, {
+        foreignKey: 'cusId',
+      });
     }
   }
   Order.init({
@@ -25,12 +31,20 @@ module.exports = (sequelize, DataTypes) => {
     status: DataTypes.INTEGER,
     paymentMethod: DataTypes.STRING,
     shippingMethod: DataTypes.STRING,
-    cusAddressId: {
-      type: DataTypes.INTEGER,
-      references: {
-        model: 'Cus_Address',
-        key: 'id',
-      },
+    addLocation: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    addName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    addPhone: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    addEmail: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
     paypalOrderId: {

@@ -18,6 +18,7 @@ import cusPostController from "../controller/CustomerController/PostController";
 import cusCartController from "../controller/CustomerController/CartController";
 import cusWishlistController from "../controller/CustomerController/WishListController";
 import cusCheckOutController from "../controller/CustomerController/CheckOutController";
+import cusOrderController from "../controller/CustomerController/OrderController";
 
 import chatController from "../controller/ChatController";
 
@@ -197,6 +198,8 @@ const initApiRoutes = (app) => {
     router.post('/checkout/add-new-address', checkCustomerJWT, cusCheckOutController.handleAddNewAddress);
     router.put('/checkout/update-address', checkCustomerJWT, cusCheckOutController.handleUpdateAddress);    
     router.post('/checkout/create-order', checkCustomerJWT, cusCheckOutController.handleCreateOrder);
+
+    router.get('/order/my-orders', checkCustomerJWT, cusOrderController.handleGetMyOrders);
 
     router.post('/chat', chatController.handleCreateOrUpdateChat);
     router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);
