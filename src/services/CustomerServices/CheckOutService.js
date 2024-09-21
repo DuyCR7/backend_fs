@@ -283,7 +283,7 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, add
             addName: addName,
             addPhone: addPhone,
             addEmail: addEmail,
-            status: 1,
+            status: paymentMethod === 'cod' ? 1 : 2,
             paypalOrderId: paypalOrderId
         }, {
             transaction: t

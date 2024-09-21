@@ -10,6 +10,7 @@ import adProductController from "../controller/AdminController/ProductController
 import adBannerController from "../controller/AdminController/BannerController";
 import adEventController from "../controller/AdminController/EventController";
 import adPostController from "../controller/AdminController/PostController";
+import adOrderController from "../controller/AdminController/OrderController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
@@ -132,6 +133,9 @@ const initApiRoutes = (app) => {
     adminRouter.put('/post/set-active', adPostController.handleSetActive);
     adminRouter.delete('/post/delete', adPostController.handleDeletePost);
 
+    adminRouter.get('/order/read', adOrderController.handleGetOrder);
+    adminRouter.put('/order/update-status/:orderId', adOrderController.handleUpdateOrderStatus);
+
     router.use('/admin', adminRouter);
 
     router.post('/sign-up', cusAuthController.handleSignUp);
@@ -200,6 +204,8 @@ const initApiRoutes = (app) => {
     router.post('/checkout/create-order', checkCustomerJWT, cusCheckOutController.handleCreateOrder);
 
     router.get('/order/my-orders', checkCustomerJWT, cusOrderController.handleGetMyOrders);
+    router.put('/order/cancel/:orderId', checkCustomerJWT, cusOrderController.handleCancelOrder);
+    router.put('/order/confirm-received/:orderId', checkCustomerJWT, cusOrderController.handleConfirmReceivedOrder);
 
     router.post('/chat', chatController.handleCreateOrUpdateChat);
     router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);

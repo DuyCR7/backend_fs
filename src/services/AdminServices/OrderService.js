@@ -1,31 +1,24 @@
 import db from "../../models/index";
 import { Op } from "sequelize";
 
-const getMyOrders = async (cusId, page, limit) => {
+const getOrdersWithPagination = async (page, limit, search, sortConfig) => {
     try {
-        console.log("Getting", cusId, page, limit);
-        const customer = await db.Customer.findByPk(cusId);
-        if (!customer) {
-            return {
-                EM: "Không tìm thấy khách hàng!",
-                EC: 1,
-                DT: ""
-            };
-        }
-
         let offset = (page - 1) * limit;
+        let order = [[sortConfig.key, sortConfig.direction]];
+
+        const whereClause = {
+            [Op.or]: [
+                { id: { [Op.like]: `%${search}%` } },
+            ]
+        };
 
         const [totalCount, orders] = await Promise.all([
             db.Order.count({
-                where: { cusId: cusId }
+                where: whereClause,
             }),
             db.Order.findAll({
-                where: {
-                    cusId: cusId,
-                },
-                order: [
-                    ['id', 'DESC']
-                ],
+                where: whereClause,
+                order: order,
                 include: [
                     {
                         model: db.Order_Detail,
@@ -53,18 +46,19 @@ const getMyOrders = async (cusId, page, limit) => {
                 offset: offset,
                 limit: limit,
             })
-        ])
+        ]);
 
-        return {
-            EM: `Lấy danh sách đơn hàng của khách hàng ${customer.email} thành công!`,
-            EC: 0,
-            DT: {
-                totalRows: totalCount, 
-                orders: orders,
-                totalPages: Math.ceil(totalCount / limit)
-            }
+        let data = {
+            totalRows: totalCount,
+            totalPages: Math.ceil(totalCount / limit),
+            orders: orders,
         }
 
+        return {
+            EM: "Lấy thông tin đơn hàng thành công!",
+            EC: 0,
+            DT: data
+        }
     } catch (e) {
         console.log(e);
         return {
@@ -75,70 +69,50 @@ const getMyOrders = async (cusId, page, limit) => {
     }
 }
 
-const cancelOrder = async (orderId, cusId) => {
+const updateOrderStatus = async (orderId, newStatus) => {
     try {
-        const order = await db.Order.findOne({
-            where: {
-                id: orderId,
-                cusId: cusId,
-                status: 1
-            }
-        });
-
+        console.log(newStatus);
+        const order = await db.Order.findByPk(orderId);
         if (!order) {
             return {
-                EM: "Đơn hàng không thể hủy! Refresh lại trang để cập nhật!",
+                EM: "Không tìm thấy đơn hàng!",
                 EC: 1,
                 DT: ""
             };
         }
 
-        order.status = 0;
-        await order.save();
-
-        return {
-            EM: "Hủy đơn hàng thành công!",
-            EC: 0,
-            DT: ""
-        }
-
-    } catch (e) {
-        console.log(e);
-        return {
-            EM: "Lỗi, vui lòng thử lại sau!",
-            EC: -1,
-            DT: ""
-        }
-    }
-}
-
-const confirmReceivedOrder = async (orderId, cusId) => {
-    try {
-        const order = await db.Order.findOne({
-            where: {
-                id: orderId,
-                cusId: cusId,
-                status: 3
-            }
-        });
-
-        if (!order) {
+        if (![0, 1, 2, 3, 4].includes(newStatus)) {
             return {
-                EM: "Đơn hàng không thể xác nhận! Refresh lại trang để cập nhật!",
+                EM: "Trạng thái không hợp lệ!",
+                EC: 1,
+                DT: ""
+            };
+        }
+        
+        if (order.status === 0) {
+            return {
+                EM: "Đơn hàng đã bị hủy! Nhấn Làm mới để cập nhật",
                 EC: 1,
                 DT: ""
             };
         }
 
-        order.status = 4;
+        if (newStatus <= order.status) {
+            return {
+                EM: "Không thể chuyển về trạng thái trước đó!",
+                EC: 1,
+                DT: ""
+            };
+        }
+
+        order.status = newStatus;
         await order.save();
 
         return {
-            EM: "Xác nhận đơn hàng thành công!",
+            EM: "Cập nhật trạng thái đơn hàng thành công!",
             EC: 0,
-            DT: ""
-        }
-
+            DT: order
+        };
     } catch (e) {
         console.log(e);
         return {
@@ -150,7 +124,6 @@ const confirmReceivedOrder = async (orderId, cusId) => {
 }
 
 module.exports = {
-    getMyOrders,
-    cancelOrder,
-    confirmReceivedOrder,
+    getOrdersWithPagination,
+    updateOrderStatus,
 }
