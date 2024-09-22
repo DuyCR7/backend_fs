@@ -360,7 +360,7 @@ const getRelatedProducts = async (cusId) => {
 
         const categoryIds = cartCategories.map(category => category.id);
 
-        const relatedProducts = await db.Product.findAll({
+        let relatedProducts = await db.Product.findAll({
             include: [
                 {
                     model: db.Category,
@@ -370,6 +370,10 @@ const getRelatedProducts = async (cusId) => {
                     model: db.Product_Image,
                     where: { isMainImage: true },
                     attributes: ['image']
+                },
+                {
+                    model: db.Review,
+                    attributes: ['rating']
                 }
             ],
             where: {
@@ -377,6 +381,32 @@ const getRelatedProducts = async (cusId) => {
             },
             limit: 8
         });
+
+        if (relatedProducts.length === 0) {
+            return {
+                EM: "Không có sản phẩm liên quan!",
+                EC: 0,
+                DT: relatedProducts,
+            }
+        }
+
+        relatedProducts = relatedProducts.map(product => {
+            
+            const ratings = product.Reviews.map(review => review.rating);
+            const averageRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+
+            return {
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                price_sale: product.price_sale,
+                slug: product.slug,
+                isSale: product.isSale,
+                category: product.Category,
+                image: product.Product_Images[0]?.image,
+                averageRating: parseFloat(averageRating.toFixed(1)),
+            };
+        })
 
         return {
             EM: "Lấy danh sách sản phẩm liên quan thành công!",

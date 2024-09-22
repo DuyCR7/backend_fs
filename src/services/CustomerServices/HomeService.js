@@ -1,5 +1,5 @@
 import db from "../../models/index";
-import { Op } from "sequelize";
+import { fn, col, Op } from "sequelize";
 
 const getAllBanners = async () => {
     try {
@@ -296,29 +296,137 @@ const getSearchProducts = async (search) => {
     }
 }
 
-const getAllSellerClothing = async () => {
+const getAllSalesProducts = async () => {
     try {
-        let allSellerClothing = await db.Product.findAll({
+        let allSalesProducts = await db.Product.findAll({
+            where: {
+                isActive: true,
+                isSale: true
+            },
             include: [
                 {
                     model: db.Product_Image,
                     where: { isMainImage: true },
                     attributes: ['image'],
+                },
+                {
+                    model: db.Review,
+                    attributes: ['rating'],
                 }
-            ]
+            ],
+            order: [[
+                'id', 'DESC'
+            ]]
         });
-        if(allSellerClothing && allSellerClothing.length > 0) {
+
+        allSalesProducts = allSalesProducts.map(product => {
+            const ratings = product.Reviews.map(review => review.rating);
+            const averageRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+
             return {
-                EM: "Lấy thông tin tất cả sản phẩm của các nhà cung cấp thành công!",
-                EC: 0,
-                DT: allSellerClothing
-            }
-        } else {
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                price_sale: product.price_sale,
+                slug: product.slug,
+                isSale: product.isSale,
+                Product_Images: product.Product_Images,
+                averageRating: parseFloat(averageRating.toFixed(1)),
+            };
+        })
+
+    
+        return {
+            EM: "Lấy thông tin tất cả sản phẩm đã bán thành công!",
+            EC: 0,
+            DT: allSalesProducts
+        }
+        
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
+const getAllBestSeller = async () => {
+    try {
+        const productSales = await db.Product.findAll({
+            attributes: [
+                'id',
+                'name',
+                'price',
+                'price_sale',
+                'isSale',
+                'slug',
+              // Tính tổng số lượng bán
+                [fn('SUM', col('Product_Details.Order_Details.quantity')), 'totalSold']
+            ],
+            include: [
+                {
+                    model: db.Product_Image,
+                    where: { isMainImage: true },
+                    attributes: ['image'],
+                },
+                {
+                    model: db.Product_Detail,
+                    attributes: [],
+                    include: [
+                        {
+                            model: db.Order_Detail,
+                            attributes: [],
+                            include: [
+                                {
+                                    model: db.Order,
+                                    where: { status: 4 },  // Chỉ lấy đơn hàng hoàn thành (status = 4)
+                                    attributes: []
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ],
+            group: ['Product.id'],
+            order: [[fn('SUM', col('Product_Details.Order_Details.quantity')), 'DESC']],
+            limit: 8, // Lấy 8 sản phẩm bán chạy nhất
+            subQuery: false,
+            raw: true
+        });
+      
+        // Bước 2: Truy vấn rating trung bình của từng sản phẩm
+        const productRatings = await db.Product.findAll({
+            attributes: [
+                'id',
+                // Tính rating trung bình
+                [fn('AVG', col('Reviews.rating')), 'avgRating']
+            ],
+            include: [
+                {
+                    model: db.Review,
+                    attributes: []
+                }
+            ],
+            group: ['Product.id'],
+            raw: true
+        });
+    
+        // Bước 3: Kết hợp dữ liệu bán và rating trung bình
+        const combinedResults = productSales.map(product => {
+            const ratingData = productRatings.find(r => r.id === product.id);
             return {
-                EM: "Không tìm thấy sản phẩm của các nhà cung cấp nào!",
-                EC: 1,
-                DT: ""
-            }
+                ...product,
+                totalSold: parseInt(product.totalSold) || 0,  // Nếu không có totalSold, gán là 0
+                averageRating: ratingData && ratingData.avgRating !== null ? parseFloat(ratingData.avgRating) : 0  // Nếu không có rating, trả về null
+            };
+        });
+
+        return {
+            EM: "Lấy thông tin 8 sản phẩm bán chạy nhất thành công!",
+            EC: 0,
+            DT: combinedResults
         }
     } catch (e) {
         console.log(e);
@@ -372,6 +480,7 @@ module.exports = {
     getNewEvent,
     getAllTrending,
     getSearchProducts,
-    getAllSellerClothing,
+    getAllSalesProducts,
+    getAllBestSeller,
     getPost,
 }

@@ -122,9 +122,29 @@ const handleGetSearchProducts = async (req, res) => {
     }
 }
 
-const handleGetAllSellerClothing = async (req, res) => {
+const handleGetAllSalesProducts = async (req, res) => {
     try {
-        let data = await homeService.getAllSellerClothing();
+        let data = await homeService.getAllSalesProducts();
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: data.DT,   // data
+        });
+    
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
+const handleGetAllBestSeller = async (req, res) => {
+    try {
+        let data = await homeService.getAllBestSeller();
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -169,6 +189,7 @@ module.exports = {
     handleGetNewEvent,
     handleGetAllTrending,
     handleGetSearchProducts,
-    handleGetAllSellerClothing,
+    handleGetAllSalesProducts,
+    handleGetAllBestSeller,
     handleGetPost
 }
