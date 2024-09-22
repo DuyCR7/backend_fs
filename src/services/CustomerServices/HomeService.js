@@ -168,6 +168,10 @@ const getAllTrending = async () => {
                             attributes: ['id', 'name']
                         }
                     ]
+                },
+                {
+                    model: db.Review,
+                    attributes: ['rating']
                 }
             ]
         });
@@ -191,6 +195,9 @@ const getAllTrending = async () => {
             allTrending = allTrending.map(product => {
                 const rootCategory = findRootCategory(product.categoryId);
 
+                const ratings = product.Reviews.map(review => review.rating);
+                const averageRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+
                 return {
                     id: product.id,
                     name: product.name,
@@ -203,6 +210,7 @@ const getAllTrending = async () => {
                         name: rootCategory.name
                     } : null,
                     image: product.Product_Images[0]?.image,
+                    averageRating: parseFloat(averageRating.toFixed(1)),
                     details: product.Product_Details.map(detail => ({
                         id: detail.id,
                         size: {

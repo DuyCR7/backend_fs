@@ -180,12 +180,20 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
                             attributes: ['id', 'name']
                         }
                     ]
+                },
+                {
+                    model: db.Review,
+                    attributes: ['rating']
                 }
             ],
         });
 
         if(products && products.length > 0) {
             products = products.map(product => {
+
+                const ratings = product.Reviews.map(review => review.rating);
+                const averageRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+
                 return {
                     id: product.id,
                     name: product.name,
@@ -197,6 +205,7 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
                     Category: product.Category,
                     Team: product.Team,
                     image: product.Product_Images[0]?.image,
+                    averageRating: parseFloat(averageRating.toFixed(1)),
                     details: product.Product_Details.map(detail => ({
                         id: detail.id,
                         size: {
@@ -515,6 +524,10 @@ const getSingleProduct = async (slug) => {
                         },
                     ],
                 },
+                {
+                    model: db.Review,
+                    attributes: ['rating']
+                }
             ],
         })
         
@@ -525,6 +538,9 @@ const getSingleProduct = async (slug) => {
                 DT: "not-found",
             }
         } else {
+            const ratings = product.Reviews.map(review => review.rating);
+            const averageRating = ratings.length > 0 ? ratings.reduce((a, b) => a + b, 0) / ratings.length : 0;
+
             return {
                 EM: "Lấy thông tin sản phẩm thành công!",
                 EC: 0,
@@ -539,6 +555,7 @@ const getSingleProduct = async (slug) => {
                     category: product.Category.name,
                     description: product.description,
                     images: product.Product_Images,
+                    averageRating: parseFloat(averageRating.toFixed(1)),
                     details: product.Product_Details.map(detail => ({
                         id: detail.id,
                         size: {

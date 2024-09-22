@@ -36,6 +36,15 @@ const getMyOrders = async (cusId, page, limit) => {
                                     {
                                         model: db.Product,
                                         attributes: ['id', 'name', 'price', 'price_sale', 'isSale', 'slug'],
+                                        include: [
+                                            {
+                                                model: db.Review,
+                                                where: {
+                                                    cusId: cusId
+                                                },
+                                                required: false,
+                                            }
+                                        ]
                                     },
                                     {
                                         model: db.Color,
@@ -149,8 +158,97 @@ const confirmReceivedOrder = async (orderId, cusId) => {
     }
 }
 
+const submitReview = async (productId, cusId, rating, comment) => {
+    try {
+        let hasReviewed = await db.Review.findOne({
+            where: {
+                productId: productId,
+                cusId: cusId
+            }
+        });
+
+        if (hasReviewed) {
+            return {
+                EM: "Bạn đã đánh giá sản phẩm này rồi!",
+                EC: 1,
+                DT: ""
+            };
+        }
+
+        const review = await db.Review.create({
+            productId: productId,
+            cusId: cusId,
+            rating: rating,
+            comment: comment
+        });
+
+        return {
+            EM: "Đánh giá sản phẩm thành công!",
+            EC: 0,
+            DT: review
+        }
+
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
+const updateReview = async (reviewId, cusId, rating, comment) => {
+    try {
+        const review = await db.Review.findOne({
+            where: {
+                id: reviewId,
+                cusId: cusId
+            }
+        });
+
+        if (!review) {
+            return {
+                EM: "Không tìm thấy đánh giá!",
+                EC: 1,
+                DT: ""
+            };
+        }
+
+        if (review.isUpdated) {
+            return {
+                EM: "Bạn đã sửa đánh giá này rồi và không thể sửa lại!",
+                EC: 2,
+                DT: ""
+            };
+        }
+
+        const updatedReview = await review.update({
+            rating: rating,
+            comment: comment,
+            isUpdated: true
+        });
+
+        return {
+            EM: "Cập nhật đánh giá thành công!",
+            EC: 0,
+            DT: updatedReview
+        }
+
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 module.exports = {
     getMyOrders,
     cancelOrder,
     confirmReceivedOrder,
+    submitReview,
+    updateReview,
 }

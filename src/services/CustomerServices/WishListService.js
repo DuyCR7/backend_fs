@@ -83,6 +83,10 @@ const getWishList = async (cusId) => {
                             model: db.Product_Image,
                             where: { isMainImage: true },
                             attributes: ["image"]
+                        },
+                        {
+                            model: db.Review,
+                            attributes: ['rating']
                         }
                     ]
                 }
@@ -96,6 +100,25 @@ const getWishList = async (cusId) => {
                 DT: []
             }
         } else {
+
+            wishList = wishList.map(item => {
+                const product = item.Product;
+
+                const ratings = product.Reviews.map(review => review.rating);
+                
+                const averageRating = ratings.length > 0 
+                    ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+                    : 0;
+
+                return {
+                    ...item.toJSON(),  // Chuyển item sang object
+                    Product: {
+                        ...product.toJSON(),  // Chuyển product sang object
+                        averageRating: averageRating
+                    }
+                };
+            });
+
             return {
                 EM: "Lấy danh sách yêu thích thành công!",
                 EC: 0,

@@ -206,6 +206,8 @@ const initApiRoutes = (app) => {
     router.get('/order/my-orders', checkCustomerJWT, cusOrderController.handleGetMyOrders);
     router.put('/order/cancel/:orderId', checkCustomerJWT, cusOrderController.handleCancelOrder);
     router.put('/order/confirm-received/:orderId', checkCustomerJWT, cusOrderController.handleConfirmReceivedOrder);
+    router.post('/order/submit-review/:productId', checkCustomerJWT, cusOrderController.handleSubmitReview);
+    router.put('/order/update-review/:reviewId', checkCustomerJWT, cusOrderController.handleUpdateReview);
 
     router.post('/chat', chatController.handleCreateOrUpdateChat);
     router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);
