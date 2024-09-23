@@ -526,7 +526,12 @@ const getSingleProduct = async (slug) => {
                 },
                 {
                     model: db.Review,
-                    attributes: ['rating']
+                    include: [
+                        {
+                            model: db.Customer,
+                            attributes: ['email', 'username', 'image']
+                        }
+                    ]
                 }
             ],
         })
@@ -555,6 +560,7 @@ const getSingleProduct = async (slug) => {
                     category: product.Category.name,
                     description: product.description,
                     images: product.Product_Images,
+                    reviews: product.Reviews,
                     averageRating: parseFloat(averageRating.toFixed(1)),
                     details: product.Product_Details.map(detail => ({
                         id: detail.id,
