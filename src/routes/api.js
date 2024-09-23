@@ -20,6 +20,7 @@ import cusCartController from "../controller/CustomerController/CartController";
 import cusWishlistController from "../controller/CustomerController/WishListController";
 import cusCheckOutController from "../controller/CustomerController/CheckOutController";
 import cusOrderController from "../controller/CustomerController/OrderController";
+import cusProfileController from "../controller/CustomerController/ProfileController";
 
 import chatController from "../controller/ChatController";
 
@@ -142,19 +143,11 @@ const initApiRoutes = (app) => {
     router.post('/sign-in', cusAuthController.handleSignIn);
     router.post('/logout', cusAuthController.handleLogout);
     router.post('/refresh-token', cusAuthController.handleRefreshToken);
-    router.get('/test', cusAuthController.handleTest);
     router.get('/cus/:id/verify/:token', cusAuthController.handleVerify);
     router.post('/password-reset-link', cusAuthController.handleResetPasswordSendLink);
     router.get('/password-reset/:id/:token', cusAuthController.handleResetPasswordVerify);
     router.post('/password-reset/:id/:token', cusAuthController.handleResetPassword);
-    router.get('/test-time', (req, res) =>{
-        return res.status(200).json({
-            EM: 'Success',   // error message
-            EC: 0,   // error code
-            DT: '2024-07-22 15:51:20',   // data
-        })
-    })
-
+    router.post('/verify-and-reset/:id/:token', cusAuthController.handleVerifyAndResetPassword);
     router.get('/auth/google',
         passport.authenticate('google', { scope: ['profile', 'email'], session: false }));
       
@@ -209,6 +202,11 @@ const initApiRoutes = (app) => {
     router.put('/order/confirm-received/:orderId', checkCustomerJWT, cusOrderController.handleConfirmReceivedOrder);
     router.post('/order/submit-review/:productId', checkCustomerJWT, cusOrderController.handleSubmitReview);
     router.put('/order/update-review/:reviewId', checkCustomerJWT, cusOrderController.handleUpdateReview);
+
+    router.get('/profile/get-profile', checkCustomerJWT, cusProfileController.handleGetProfile);
+    router.post('/profile/send-verification-code', checkCustomerJWT, cusProfileController.handleSendVerificationCode);
+    router.post('/profile/update-profile-email', checkCustomerJWT, cusProfileController.handleUpdateProfileEmail);
+    router.put('/profile/update-profile', checkCustomerJWT, upload.single('image'), cusProfileController.handleUpdateProfile);
 
     router.post('/chat', chatController.handleCreateOrUpdateChat);
     router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);

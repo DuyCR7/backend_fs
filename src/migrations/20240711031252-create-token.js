@@ -16,7 +16,6 @@ module.exports = {
           model: 'Customer',
           key: 'id'
         },
-        unique: true
       },
       token: {
         type: Sequelize.STRING,

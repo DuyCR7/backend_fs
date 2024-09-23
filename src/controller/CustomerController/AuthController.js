@@ -143,14 +143,6 @@ const handleRefreshToken = async (req, res) => {
     }
 }
 
-const handleTest = async (req, res) => {
-    return res.status(200).json({
-        EM: 'API test thành công!',   // error message
-        EC: 0,   // error code
-        DT: '',   // data
-    });
-}
-
 const handleSignInGoogleSuccess = async (req, res) => {
     let { id, tokenLoginGoogle } = req?.body;
     try {
@@ -229,6 +221,38 @@ const handleResetPasswordVerify = async (req, res) => {
     }
 }
 
+const handleVerifyAndResetPassword = async (req, res) => {
+    try {
+        let id = req.params.id;
+        let token = req.params.token;
+        let password = req.body.password;
+
+        if(password && password.length < 8){
+            return res.status(200).json({
+                EM: 'Mật khẩu tối thiểu phải có 8 ký tự!',   // error message
+                EC: 1,   // error code
+                DT: '',   // data
+            })
+        }
+
+
+        let data = await authService.verifyAndResetPassword(id, token, password);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: '',   // data
+        });
+
+    } catch (e) {
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 const handleResetPassword = async (req, res) => {
     try {
         let id = req.params.id;
@@ -267,9 +291,9 @@ module.exports = {
     handleSignIn,
     handleLogout,
     handleRefreshToken,
-    handleTest,
     handleSignInGoogleSuccess,
     handleResetPasswordSendLink,
     handleResetPasswordVerify,
+    handleVerifyAndResetPassword,
     handleResetPassword
 }
