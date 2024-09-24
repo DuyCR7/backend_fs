@@ -134,14 +134,14 @@ const verifyEmail = async (id, tokenUrl) => {
     const token = await db.Token.findOne({
       where: {
         cusId: cus.id,
-        token: tokenUrl,
         isVerified: false,
         expiresAt: {
           [Op.gt]: new Date(),
         },
       },
+      order: [['createdAt', 'DESC']],
     });
-    if (!token) {
+    if (!token || token.token !== tokenUrl) {
       return {
         EM: "Link không hợp lệ hoặc đã hết hạn!",
         EC: -1,
@@ -162,7 +162,19 @@ const verifyEmail = async (id, tokenUrl) => {
       where: {
         id: token.id,
       }
-    })
+    });
+
+    await db.Token.update({
+      expiresAt: new Date(),
+    }, {
+      where: {
+        cusId: cus.id,
+        isVerified: false,
+        id: {
+          [Op.ne]: token.id,
+        },
+      },
+    });
 
     return {
       EM: "Email đã được xác nhận!",
@@ -526,14 +538,14 @@ const verifyAndResetPassword = async (id, tokenUrl, password) => {
     const token = await db.Token.findOne({
       where: {
         cusId: cus.id,
-        token: tokenUrl,
         isVerified: false,
         expiresAt: {
           [Op.gt]: new Date(),
         },
       },
+      order: [['createdAt', 'DESC']],
     });
-    if (!token) {
+    if (!token || token.token !== tokenUrl) {
       return {
         EM: "Link không hợp lệ hoặc đã hết hạn!",
         EC: -1,
@@ -560,6 +572,17 @@ const verifyAndResetPassword = async (id, tokenUrl, password) => {
         id: token.id,
       },
     });
+
+    await db.Token.update(
+      { expiresAt: new Date() },
+      {
+        where: {
+          cusId: cus.id,
+          isVerified: false,
+          id: { [Op.ne]: token.id },
+        },
+      }
+    );
 
     return {
       EM: "Tài khoản đã được xác nhận và mật khẩu đã được đặt lại thành công!",
@@ -591,14 +614,14 @@ const resetPasswordVerify = async (id, tokenUrl) => {
     const token = await db.Token.findOne({
       where: {
         cusId: cus.id,
-        token: tokenUrl,
         isVerified: false,
         expiresAt: {
           [Op.gt]: new Date(),
         },
       },
+      order: [['createdAt', 'DESC']]
     });
-    if (!token) {
+    if (!token || token.token !== tokenUrl) {
       return {
         EM: "Link không hợp lệ hoặc đã hết hạn!",
         EC: -1,
@@ -635,14 +658,14 @@ const resetPassword = async (id, tokenUrl, password) => {
     const token = await db.Token.findOne({
       where: {
         cusId: cus.id,
-        token: tokenUrl,
         isVerified: false,
         expiresAt: {
           [Op.gt]: new Date(),
         },
       },
+      order: [['createdAt', 'DESC']]
     });
-    if (!token) {
+    if (!token || token.token !== tokenUrl) {
       return {
         EM: "Link không hợp lệ hoặc đã hết hạn!",
         EC: -1,
@@ -665,6 +688,17 @@ const resetPassword = async (id, tokenUrl, password) => {
         id: token.id,
       },
     });
+
+    await db.Token.update(
+      { expiresAt: new Date() },
+      {
+        where: {
+          cusId: cus.id,
+          isVerified: false,
+          id: { [Op.ne]: token.id },
+        },
+      }
+    );
 
     return {
       EM: "Thay đổi mật khẩu thành công!",

@@ -117,17 +117,25 @@ const updateProfileEmail = async (cusId, email, verificationCode) => {
             where: {
                 cusId: cusId,
                 email: email,
-                verification_code: verificationCode,
                 isVerified: false,
                 expiresAt: {
                     [Op.gt]: new Date(),
                 },
             },
+            order: [['createdAt', 'DESC']],
         });
 
         if (!token) {
             return {
                 EM: "Mã xác nhận không hợp lệ hoặc đã hết hạn!",
+                EC: 1,
+                DT: "",
+            };
+        }
+
+        if (token.verification_code !== verificationCode) {
+            return {
+                EM: "Mã xác nhận không chính xác!",
                 EC: 1,
                 DT: "",
             };
@@ -143,6 +151,19 @@ const updateProfileEmail = async (cusId, email, verificationCode) => {
 
         await token.update({
             isVerified: true,
+        });
+
+        await db.Token.update({
+            expiresAt: new Date(),
+        }, {
+            where: {
+                cusId: cusId,
+                email: email,
+                isVerified: false,
+                id: {
+                    [Op.ne]: token.id,
+                },
+            },
         });
 
         return {
