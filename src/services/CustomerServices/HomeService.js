@@ -310,6 +310,20 @@ const getAllSalesProducts = async () => {
                     attributes: ['image'],
                 },
                 {
+                    model: db.Product_Detail,
+                    attributes: ['id', 'colorId', 'sizeId', 'quantity', 'image'],
+                    include: [
+                        {
+                            model: db.Color,
+                            attributes: ['id', 'name'],
+                        },
+                        {
+                            model: db.Size,
+                            attributes: ['id', 'code'],
+                        },
+                    ],
+                },
+                {
                     model: db.Review,
                     attributes: ['rating'],
                 }
@@ -330,8 +344,21 @@ const getAllSalesProducts = async () => {
                 price_sale: product.price_sale,
                 slug: product.slug,
                 isSale: product.isSale,
-                Product_Images: product.Product_Images,
+                image: product.Product_Images[0]?.image,
                 averageRating: parseFloat(averageRating.toFixed(1)),
+                details: product.Product_Details.map(detail => ({
+                    id: detail.id,
+                    size: {
+                        id: detail.Size.id,
+                        code: detail.Size.code
+                    },
+                    color: {
+                        id: detail.Color.id,
+                        name: detail.Color.name
+                    },
+                    quantity: detail.quantity,
+                    image: detail.image
+                }))
             };
         })
 
@@ -354,7 +381,7 @@ const getAllSalesProducts = async () => {
 
 const getAllBestSeller = async () => {
     try {
-        const productSales = await db.Product.findAll({
+        let productSales = await db.Product.findAll({
             attributes: [
                 'id',
                 'name',
@@ -362,7 +389,6 @@ const getAllBestSeller = async () => {
                 'price_sale',
                 'isSale',
                 'slug',
-              // Tính tổng số lượng bán
                 [fn('SUM', col('Product_Details.Order_Details.quantity')), 'totalSold']
             ],
             include: [
@@ -373,7 +399,7 @@ const getAllBestSeller = async () => {
                 },
                 {
                     model: db.Product_Detail,
-                    attributes: [],
+                    attributes: ['id'],
                     include: [
                         {
                             model: db.Order_Detail,
@@ -381,7 +407,7 @@ const getAllBestSeller = async () => {
                             include: [
                                 {
                                     model: db.Order,
-                                    where: { status: 4 },  // Chỉ lấy đơn hàng hoàn thành (status = 4)
+                                    where: { status: 4 },
                                     attributes: []
                                 }
                             ]
@@ -391,10 +417,51 @@ const getAllBestSeller = async () => {
             ],
             group: ['Product.id'],
             order: [[fn('SUM', col('Product_Details.Order_Details.quantity')), 'DESC']],
-            limit: 8, // Lấy 8 sản phẩm bán chạy nhất
+            limit: 8,
             subQuery: false,
-            raw: true
         });
+
+        // Bước 2: Lấy chi tiết cho mỗi sản phẩm
+        const productDetails = await Promise.all(productSales.map(async (product) => {
+            const details = await db.Product_Detail.findAll({
+                where: { productId: product.id },
+                attributes: ['id', 'colorId', 'sizeId', 'quantity', 'image'],
+                include: [
+                    {
+                        model: db.Color,
+                        attributes: ['id', 'name'],
+                    },
+                    {
+                        model: db.Size,
+                        attributes: ['id', 'code'],
+                    }
+                ]
+            });
+
+            return {
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                price_sale: product.price_sale,
+                isSale: product.isSale,
+                slug: product.slug,
+                image: product.Product_Images[0]?.image,
+                details: details.map(detail => ({
+                    id: detail.id,
+                    size: {
+                        id: detail.Size.id,
+                        code: detail.Size.code
+                    },
+                    color: {
+                        id: detail.Color.id,
+                        name: detail.Color.name
+                    },
+                    quantity: detail.quantity,
+                    image: detail.image
+                })),
+                totalSold: parseInt(product.get('totalSold')) || 0
+            };
+        }));
       
         // Bước 2: Truy vấn rating trung bình của từng sản phẩm
         const productRatings = await db.Product.findAll({
@@ -410,16 +477,14 @@ const getAllBestSeller = async () => {
                 }
             ],
             group: ['Product.id'],
-            raw: true
         });
     
         // Bước 3: Kết hợp dữ liệu bán và rating trung bình
-        const combinedResults = productSales.map(product => {
+        const combinedResults = productDetails.map(product => {
             const ratingData = productRatings.find(r => r.id === product.id);
             return {
                 ...product,
-                totalSold: parseInt(product.totalSold) || 0,  // Nếu không có totalSold, gán là 0
-                averageRating: ratingData && ratingData.avgRating !== null ? parseFloat(ratingData.avgRating) : 0  // Nếu không có rating, trả về null
+                averageRating: ratingData && ratingData.get('avgRating') !== null ? parseFloat(ratingData.get('avgRating')) : 0  // Nếu không có rating, trả về null
             };
         });
 
