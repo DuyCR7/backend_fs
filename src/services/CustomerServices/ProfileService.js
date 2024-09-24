@@ -98,7 +98,7 @@ const sendVerifycationCode = async (cusId, email) => {
         await sendEmail(token.email, "Xác nhận tài khoản Email mới", emailContent);
 
         return {
-            EM: "Đã gửi mã xác nhận tài khoản email cho bạn!",
+            EM: "Truy cập email để lấy mã xác nhận! Mã xác nhận sẽ hết hạn trong vòng 1 phút.",
             EC: 0,
             DT: "",
         };
@@ -181,7 +181,7 @@ const updateProfileEmail = async (cusId, email, verificationCode) => {
     }
 }
 
-const updateProfile = async (cusId, fullname, username, sex, birthdate, image) => {
+const updateProfile = async (cusId, fullname, username, phone, sex, birthdate, image) => {
     try {
         if (username) {
             const existsUsername = await db.Customer.findOne({
@@ -195,12 +195,30 @@ const updateProfile = async (cusId, fullname, username, sex, birthdate, image) =
 
             if (existsUsername) {
                 return {
-                    EM: "Tên đăng nhập đã tồn tại!",
+                    EM: "Tên người dùng đã tồn tại!",
                     EC: 1,
                     DT: "",
                 };
             }
+        }
 
+        if (phone) {
+            const existsPhone = await db.Customer.findOne({
+                where: {
+                    phone: phone,
+                    id: {
+                        [Op.ne]: cusId,
+                    }
+                },
+            });
+
+            if (existsPhone) {
+                return {
+                    EM: "Số điện thoại đã tồn tại!",
+                    EC: 1,
+                    DT: "",
+                };
+            }
         }
 
         const customer = await db.Customer.findByPk(cusId);
@@ -214,6 +232,7 @@ const updateProfile = async (cusId, fullname, username, sex, birthdate, image) =
 
         if (fullname) customer.fullname = fullname;
         if (username) customer.username = username;
+        if (phone) customer.phone = phone;
         if (sex) customer.sex = sex;
         if (birthdate) customer.birthdate = new Date(birthdate);
         if (image) customer.image = image;

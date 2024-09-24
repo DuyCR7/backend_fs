@@ -508,8 +508,8 @@ const resetPasswordSendLink = async (email) => {
 
     return {
       EM: cus.verified
-        ? "Link thay đổi mật khẩu đã được gửi đến email của bạn!"
-        : "Link xác nhận tài khoản và đặt lại mật khẩu đã được gửi đến email của bạn!",
+        ? "Link thay đổi mật khẩu đã được gửi đến email của bạn! Link sẽ hết hạn trong vòng 1 giờ."
+        : "Link xác nhận tài khoản và đặt lại mật khẩu đã được gửi đến email của bạn! Link sẽ hết hạn trong vòng 1 giờ.",
       EC: 0,
     };
   } catch (e) {

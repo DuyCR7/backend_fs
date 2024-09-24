@@ -72,6 +72,7 @@ const handleUpdateProfile = async (req, res) => {
         const cusId = req.user.id;
         let fullname = req.body.fullname ? req.body.fullname : null;
         let username = req.body.username ? req.body.username : null;
+        let phone = req.body.phone ? req.body.phone : null;
         let sex = req.body.sex ? req.body.sex : null;
         let birthdate = req.body.birthdate ? req.body.birthdate : null;
         let image = req.file ? req.file.filename : null;
@@ -95,7 +96,7 @@ const handleUpdateProfile = async (req, res) => {
             }
         }
         
-        let data = await profileService.updateProfile(cusId, fullname, username, sex, birthdate, image);
+        let data = await profileService.updateProfile(cusId, fullname, username, phone, sex, birthdate, image);
         
         return res.status(200).json({
             EM: data.EM,   // error message
