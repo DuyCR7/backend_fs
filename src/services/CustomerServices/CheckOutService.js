@@ -270,7 +270,7 @@ const generateOrderConfirmationEmail = (customer, order, orderDetails) => {
     return emailContent;
 };
 
-const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, addLocation, addName, addPhone, addEmail, orderDetails, paypalOrderId) => {
+const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, addLocation, addName, addPhone, addEmail, note, orderDetails, paypalOrderId) => {
     const t = await db.sequelize.transaction();
     
     try {
@@ -284,6 +284,7 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, add
             addPhone: addPhone,
             addEmail: addEmail,
             status: paymentMethod === 'cod' ? 1 : 2,
+            note: note,
             paypalOrderId: paypalOrderId
         }, {
             transaction: t

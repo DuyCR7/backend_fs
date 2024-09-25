@@ -534,6 +534,7 @@ const getSingleProduct = async (slug) => {
                     ]
                 }
             ],
+            order: [[{ model: db.Review }, 'createdAt', 'DESC']]
         })
         
         if(!product) {

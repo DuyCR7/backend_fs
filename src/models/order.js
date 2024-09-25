@@ -50,6 +50,10 @@ module.exports = (sequelize, DataTypes) => {
     paypalOrderId: {
       type: DataTypes.STRING,
       allowNull: true,
+    },
+    note: {
+      type: DataTypes.TEXT,
+      allowNull: true,
     }
   }, {
     sequelize,

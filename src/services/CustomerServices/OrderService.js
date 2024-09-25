@@ -85,16 +85,30 @@ const getMyOrders = async (cusId, page, limit) => {
 }
 
 const cancelOrder = async (orderId, cusId) => {
+    const t = await db.sequelize.transaction();
+
     try {
         const order = await db.Order.findOne({
             where: {
                 id: orderId,
                 cusId: cusId,
                 status: 1
-            }
+            },
+            include: [
+                {
+                    model: db.Order_Detail,
+                    include: [
+                        {
+                            model: db.Product_Detail,
+                        }
+                    ]
+                }
+            ],
+            transaction: t
         });
 
         if (!order) {
+            await t.rollback();
             return {
                 EM: "Đơn hàng không thể hủy! Refresh lại trang để cập nhật!",
                 EC: 1,
@@ -102,16 +116,26 @@ const cancelOrder = async (orderId, cusId) => {
             };
         }
 
+        for (const orderDetail of order.Order_Details) {
+            await orderDetail.Product_Detail.increment('quantity', {
+                by: orderDetail.quantity,
+                transaction: t
+            });
+        }
+
         order.status = 0;
         await order.save();
+
+        await t.commit();
 
         return {
             EM: "Hủy đơn hàng thành công!",
             EC: 0,
-            DT: ""
+            DT: order
         }
 
     } catch (e) {
+        await t.rollback();
         console.log(e);
         return {
             EM: "Lỗi, vui lòng thử lại sau!",
@@ -122,16 +146,20 @@ const cancelOrder = async (orderId, cusId) => {
 }
 
 const confirmReceivedOrder = async (orderId, cusId) => {
+    const t = await db.sequelize.transaction();
+
     try {
         const order = await db.Order.findOne({
             where: {
                 id: orderId,
                 cusId: cusId,
                 status: 3
-            }
+            },
+            transaction: t
         });
 
         if (!order) {
+            await t.rollback();
             return {
                 EM: "Đơn hàng không thể xác nhận! Refresh lại trang để cập nhật!",
                 EC: 1,
@@ -142,6 +170,8 @@ const confirmReceivedOrder = async (orderId, cusId) => {
         order.status = 4;
         await order.save();
 
+        await t.commit();
+
         return {
             EM: "Xác nhận đơn hàng thành công!",
             EC: 0,
@@ -149,6 +179,7 @@ const confirmReceivedOrder = async (orderId, cusId) => {
         }
 
     } catch (e) {
+        await t.rollback();
         console.log(e);
         return {
             EM: "Lỗi, vui lòng thử lại sau!",
