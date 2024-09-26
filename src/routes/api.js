@@ -11,6 +11,7 @@ import adBannerController from "../controller/AdminController/BannerController";
 import adEventController from "../controller/AdminController/EventController";
 import adPostController from "../controller/AdminController/PostController";
 import adOrderController from "../controller/AdminController/OrderController";
+import adVoucherController from "../controller/AdminController/VoucherController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
@@ -21,6 +22,7 @@ import cusWishlistController from "../controller/CustomerController/WishListCont
 import cusCheckOutController from "../controller/CustomerController/CheckOutController";
 import cusOrderController from "../controller/CustomerController/OrderController";
 import cusProfileController from "../controller/CustomerController/ProfileController";
+import cusVoucherController from "../controller/CustomerController/VoucherController";
 
 import chatController from "../controller/ChatController";
 
@@ -134,6 +136,11 @@ const initApiRoutes = (app) => {
     adminRouter.put('/post/set-active', adPostController.handleSetActive);
     adminRouter.delete('/post/delete', adPostController.handleDeletePost);
 
+    adminRouter.post('/voucher/create', adVoucherController.handleCreateVoucher);
+    adminRouter.get('/voucher/read', adVoucherController.handleGetVoucher);
+    adminRouter.put('/voucher/update', adVoucherController.handleUpdateVoucher);
+    adminRouter.put('/voucher/set-active', adVoucherController.handleSetActive);
+
     adminRouter.get('/order/read', adOrderController.handleGetOrder);
     adminRouter.put('/order/update-status/:orderId', adOrderController.handleUpdateOrderStatus);
 
@@ -179,6 +186,8 @@ const initApiRoutes = (app) => {
     router.get('/post/get-single-post/:slug', cusPostController.handleGetSinglePost);
     router.post('/post/increment-view-count/:slug', cusPostController.handleIncrementViewCount);
     router.get('/post/get-popular-post', cusPostController.handleGetPopularPost);
+
+    router.get('/voucher/get-all-vouchers', cusVoucherController.handleGetAllVouchers);
 
     router.post('/cart/add-to-cart', checkCustomerJWT, cusCartController.handleAddToCart);
     router.get('/cart/get-count', checkCustomerJWT, cusCartController.handleGetCount);
