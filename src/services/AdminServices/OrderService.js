@@ -42,6 +42,10 @@ const getOrdersWithPagination = async (page, limit, search, sortConfig) => {
                             }
                         ]
                     },
+                    {
+                        model: db.Voucher,
+                        attributes: ['code']
+                    }
                 ],
                 offset: offset,
                 limit: limit,

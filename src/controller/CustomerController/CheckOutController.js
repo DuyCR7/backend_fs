@@ -158,12 +158,48 @@ const handleUpdateAddress = async (req, res) => {
     }
 }
 
+const handleGetMyVoucher = async (req, res) => {
+    try {
+        const cusId = req.user.id;
+
+        let data = await checkOutService.getMyVoucher(cusId);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: data.DT,   // data
+        });
+    
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 const handleCreateOrder = async (req, res) => {
     try {
         const cusId = req.user.id;
-        const { paymentMethod, shippingMethod, totalPrice, addLocation, addName, addPhone, addEmail, note, orderDetails, paypalOrderId } = req.body;
+        const { paymentMethod, shippingMethod, totalPrice, addLocation, addName, addPhone, addEmail, note, orderDetails, paypalOrderId, voucherId, appliedDiscount } = req.body;
         
-        let data = await checkOutService.createOrder(cusId, paymentMethod, shippingMethod, totalPrice, addLocation, addName, addPhone, addEmail, note, orderDetails, paypalOrderId);
+        console.log("cusId", cusId);
+        console.log("paymentMethod", paymentMethod);
+        console.log("shippingMethod", shippingMethod);
+        console.log("totalPrice", totalPrice);
+        console.log("addLocation", addLocation);
+        console.log("addName", addName);
+        console.log("addPhone", addPhone);
+        console.log("addEmail", addEmail);
+        console.log("note", note);
+        console.log("orderDetails", orderDetails);
+        console.log("paypalOrderId", paypalOrderId);
+        console.log("voucherId", voucherId);
+        console.log("appliedDiscount", appliedDiscount);
+
+        let data = await checkOutService.createOrder(cusId, paymentMethod, shippingMethod, totalPrice, addLocation, addName, addPhone, addEmail, note, orderDetails, paypalOrderId, voucherId, appliedDiscount);
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -185,5 +221,6 @@ module.exports = {
     handleGetAddress,
     handleAddNewAddress,
     handleUpdateAddress,
+    handleGetMyVoucher,
     handleCreateOrder,
 }

@@ -187,7 +187,9 @@ const initApiRoutes = (app) => {
     router.post('/post/increment-view-count/:slug', cusPostController.handleIncrementViewCount);
     router.get('/post/get-popular-post', cusPostController.handleGetPopularPost);
 
-    router.get('/voucher/get-all-vouchers', cusVoucherController.handleGetAllVouchers);
+    router.get('/voucher/get-all-vouchers-guest', cusVoucherController.handleGetAllVoucherForGuest);
+    router.get('/voucher/get-all-vouchers', checkCustomerJWT, cusVoucherController.handleGetAllVouchers);
+    router.post('/voucher/save-voucher', checkCustomerJWT, cusVoucherController.handleSaveVoucher);
 
     router.post('/cart/add-to-cart', checkCustomerJWT, cusCartController.handleAddToCart);
     router.get('/cart/get-count', checkCustomerJWT, cusCartController.handleGetCount);
@@ -203,7 +205,8 @@ const initApiRoutes = (app) => {
 
     router.get('/checkout/get-address', checkCustomerJWT, cusCheckOutController.handleGetAddress);
     router.post('/checkout/add-new-address', checkCustomerJWT, cusCheckOutController.handleAddNewAddress);
-    router.put('/checkout/update-address', checkCustomerJWT, cusCheckOutController.handleUpdateAddress);    
+    router.put('/checkout/update-address', checkCustomerJWT, cusCheckOutController.handleUpdateAddress); 
+    router.get('/checkout/get-my-voucher', checkCustomerJWT, cusCheckOutController.handleGetMyVoucher);   
     router.post('/checkout/create-order', checkCustomerJWT, cusCheckOutController.handleCreateOrder);
 
     router.get('/order/my-orders', checkCustomerJWT, cusOrderController.handleGetMyOrders);

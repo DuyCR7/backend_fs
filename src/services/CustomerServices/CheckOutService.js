@@ -181,6 +181,48 @@ const updateAddress = async (dataAddress) => {
     }
 }
 
+const getMyVoucher = async (cusId) => {
+    try {
+        const vouchers = await db.Voucher.findAll({
+            where: {
+                isActive: true,
+                startDate: {
+                    [Op.lt]: new Date()
+                },
+                endDate: {
+                    [Op.gt]: new Date()
+                },
+                usageLimit: {
+                    [Op.gt]: db.Sequelize.col('usedCount')
+                }
+            },
+            include: [
+                {
+                    model: db.Voucher_Customer,
+                    where: {
+                        cusId: cusId,
+                        isUsed: false
+                    }
+                }
+            ]
+        });
+
+        return {
+            EM: "Lấy voucher thành công!",
+            EC: 0,
+            DT: vouchers
+        }
+
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
 const generateOrderConfirmationEmail = (customer, order, orderDetails) => {
     const formatPrice = (price) => price.toLocaleString('vi-VN', { style: 'currency', currency: 'VND' });
 
@@ -228,6 +270,14 @@ const generateOrderConfirmationEmail = (customer, order, orderDetails) => {
                         <th>Phương thức vận chuyển</th>
                         <td>${order.shippingMethod === 'standard' ? `Tiêu chuẩn - ${formatPrice(20000)}` : `Nhanh - ${formatPrice(50000)}`}</td>
                     </tr>
+                    ${
+                        order.voucherId ? `
+                        <tr>
+                            <th>Giảm giá</th>
+                            <td>${formatPrice(order.appliedDiscount)}</td>
+                        </tr>
+                        ` : ''
+                    }
                     <tr>
                         <th>Tổng giá trị đơn hàng</th>
                         <td>${formatPrice(order.totalPrice)}</td>
@@ -270,10 +320,35 @@ const generateOrderConfirmationEmail = (customer, order, orderDetails) => {
     return emailContent;
 };
 
-const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, addLocation, addName, addPhone, addEmail, note, orderDetails, paypalOrderId) => {
+const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, addLocation, addName, addPhone, addEmail, note, orderDetails, paypalOrderId, voucherId, appliedDiscount) => {
     const t = await db.sequelize.transaction();
     
     try {
+        if (voucherId) {
+            const voucher = await db.Voucher.findByPk(voucherId, { transaction: t });
+            if (!voucher || !voucher.isActive || voucher.usedCount >= voucher.usageLimit || new Date() > new Date(voucher.endDate)) {
+                await t.rollback();
+                return {
+                    EM: "Mã giảm giá không hợp lệ hoặc đã hết hạn!",
+                    EC: 1,
+                    DT: ""
+                };
+            }
+
+            voucher.usedCount++;
+            await voucher.save({ transaction: t });
+            await db.Voucher_Customer.update({
+                isUsed: true,
+                usedDate: new Date()
+            }, {
+                where: {
+                    cusId: cusId,
+                    voucherId: voucherId
+                },
+                transaction: t
+            })
+        }
+
         const newOrder = await db.Order.create({
             cusId: cusId,
             paymentMethod: paymentMethod,
@@ -285,7 +360,9 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, add
             addEmail: addEmail,
             status: paymentMethod === 'cod' ? 1 : 2,
             note: note,
-            paypalOrderId: paypalOrderId
+            paypalOrderId: paypalOrderId,
+            voucherId: voucherId,
+            appliedDiscount: appliedDiscount
         }, {
             transaction: t
         });
@@ -416,5 +493,6 @@ module.exports = {
     getAddress,
     addNewAddress,
     updateAddress,
+    getMyVoucher,
     createOrder,
 }

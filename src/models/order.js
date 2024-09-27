@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
       Order.belongsTo(models.Customer, {
         foreignKey: 'cusId',
       });
+      Order.belongsTo(models.Voucher, {
+        foreignKey: 'voucherId',
+      });
     }
   }
   Order.init({
@@ -53,6 +56,18 @@ module.exports = (sequelize, DataTypes) => {
     },
     note: {
       type: DataTypes.TEXT,
+      allowNull: true,
+    },
+    voucherId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Voucher',
+        key: 'id',
+      },
+      allowNull: true,
+    },
+    appliedDiscount: {
+      type: DataTypes.INTEGER,
       allowNull: true,
     }
   }, {
