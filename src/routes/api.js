@@ -12,6 +12,7 @@ import adEventController from "../controller/AdminController/EventController";
 import adPostController from "../controller/AdminController/PostController";
 import adOrderController from "../controller/AdminController/OrderController";
 import adVoucherController from "../controller/AdminController/VoucherController";
+import adStatisticController from "../controller/AdminController/StatisticController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
@@ -49,7 +50,7 @@ const adminRouter = express.Router();
 
 const initApiRoutes = (app) => {
 
-    adminRouter.use(checkUserJWT);
+    // adminRouter.use(checkUserJWT);
 
     adminRouter.post('/sign-in', adAuthController.handleSignIn);
     adminRouter.post('/logout', adAuthController.handleLogout);
@@ -143,6 +144,13 @@ const initApiRoutes = (app) => {
 
     adminRouter.get('/order/read', adOrderController.handleGetOrder);
     adminRouter.put('/order/update-status/:orderId', adOrderController.handleUpdateOrderStatus);
+
+    adminRouter.get('/statistic/get-statistic-some', adStatisticController.handleGetStatisticSome);
+    adminRouter.get('/statistic/get-revenue', adStatisticController.handleGetRevenueStatistic);
+    adminRouter.get('/statistic/get-best-slow-selling', adStatisticController.handleGetBestSlowSelling);
+    adminRouter.get('/statistic/get-best-wishlist', adStatisticController.handleGetBestWishlist);
+    adminRouter.get('/statistic/get-order-status', adStatisticController.handleGetOrderStatus);
+    adminRouter.get('/statistic/get-available-product', adStatisticController.handleGetAvailableProduct);
 
     router.use('/admin', adminRouter);
 
