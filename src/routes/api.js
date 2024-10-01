@@ -227,6 +227,7 @@ const initApiRoutes = (app) => {
     router.post('/profile/send-verification-code', checkCustomerJWT, cusProfileController.handleSendVerificationCode);
     router.post('/profile/update-profile-email', checkCustomerJWT, cusProfileController.handleUpdateProfileEmail);
     router.put('/profile/update-profile', checkCustomerJWT, upload.single('image'), cusProfileController.handleUpdateProfile);
+    router.put('/profile/change-password', checkCustomerJWT, cusProfileController.handleChangePassword);
 
     router.post('/chat', chatController.handleCreateOrUpdateChat);
     router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);

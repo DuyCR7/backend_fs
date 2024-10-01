@@ -263,9 +263,56 @@ const updateProfile = async (cusId, fullname, username, phone, sex, birthdate, i
     }
 }
 
+const salt = bcrypt.genSaltSync(10);
+
+const hashUserPassword = (userPassword) => {
+  let hashPassword = bcrypt.hashSync(userPassword, salt);
+  return hashPassword;
+};
+
+const changePassword = async (cusId, oldPassword, newPassword, confirmPassword) => {
+    try {
+        const customer = await db.Customer.findByPk(cusId);
+        if (!customer) {
+            return {
+                EM: "Lỗi, vui lòng thử lại sau!",
+                EC: -1,
+                DT: "",
+            };
+        }
+
+        if (!bcrypt.compareSync(oldPassword, customer.password)) {
+            return {
+                EM: "Mật khẩu cũ không chính xác!",
+                EC: 1,
+                DT: "oldPassword",
+            };
+        }
+
+        const hashNewPassword = hashUserPassword(newPassword);
+        customer.password = hashNewPassword;
+
+        await customer.save();
+
+        return {
+            EM: "Thay đổi mật khẩu thành công!",
+            EC: 0,
+            DT: "",
+        };
+
+    } catch (e) {
+        console.log(e);
+        return {
+          EM: "Lỗi, vui lòng thử lại sau!",
+          EC: -1,
+        };
+    }
+}
+
 module.exports = {
     getProfile,
     sendVerifycationCode,
     updateProfileEmail,
     updateProfile,
+    changePassword,
 }

@@ -10,14 +10,11 @@ const checkPassword = (inputPassword, hashPassword) => {
   return bcrypt.compareSync(inputPassword, hashPassword); // true or false
 };
 
-const signInUser = async (rawUserData) => {
+const signInUser = async (email, password) => {
   try {
-    const delay = rawUserData.delay || 0;
-    await new Promise((resolve) => setTimeout(resolve, delay));
-
     let user = await db.User.findOne({
       where: {
-        email: rawUserData.email,
+        email: email,
       },
     });
 
@@ -25,7 +22,7 @@ const signInUser = async (rawUserData) => {
     // console.log("Check user sequelize object: ", user);
     if (user) {
       let isPasswordCorrect = checkPassword(
-        rawUserData.password,
+        password,
         user.password
       );
       if (isPasswordCorrect) {
@@ -59,7 +56,7 @@ const signInUser = async (rawUserData) => {
 
     return {
       EM: "Email hoặc mật khẩu không đúng!",
-      EC: 1,
+      EC: -1,
       DT: "",
     };
   } catch (e) {

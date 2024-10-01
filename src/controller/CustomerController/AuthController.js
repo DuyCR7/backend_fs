@@ -1,26 +1,78 @@
 import authService from "../../services/CustomerServices/AuthService";
 import { createNewAccessTokenCustomer } from "../../middleware/jwtAction";
 
+const validateEmail = (email) => {
+    return String(email)
+        .toLowerCase()
+        .match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        );
+};
+
 const handleSignUp = async (req, res) => {
     try {
-        if(!req.body.email || !req.body.password){
+        const email = req.body.email;
+        const password = req.body.password;
+        const confirmPassword = req.body.confirmPassword;
+        console.log(req.body);
+        if(!email){
             return res.status(200).json({
-                EM: 'Vui lòng nhập đầy đủ thông tin!',   // error message
+                EM: 'Vui lòng nhập email!',   // error message
                 EC: 1,   // error code
-                DT: '',   // data
+                DT: 'email',   // data
             })
         }
 
-        if(req.body.password && req.body.password.length < 8){
+        if(!validateEmail(email)){
+            return res.status(200).json({
+                EM: 'Vui lòng nhập đúng định dạng email!',   // error message
+                EC: 1,   // error code
+                DT: 'email',   // data
+            })
+        }
+
+        if(!password){
+            return res.status(200).json({
+                EM: 'Vui lòng nhập mật khẩu!',   // error message
+                EC: 1,   // error code
+                DT: 'password',   // data
+            })
+        }
+
+        if(password.includes(' ')) {
+            return res.status(200).json({
+                EM: 'Mật khẩu không được chứa khoảng trắng!',   // error message
+                EC: 1,   // error code
+                DT: 'password',   // data
+            })
+        }
+
+        if(password && password.length < 8){
             return res.status(200).json({
                 EM: 'Mật khẩu tối thiểu phải có 8 ký tự!',   // error message
                 EC: 1,   // error code
-                DT: '',   // data
+                DT: 'password',   // data
+            })
+        }
+
+        if (!confirmPassword) {
+            return res.status(200).json({
+                EM: 'Vui lòng xác nhận lại mật khẩu!',   // error message
+                EC: 1,   // error code
+                DT: 'cfPassword',   // data
+            })
+        }
+
+        if(password !== confirmPassword){
+            return res.status(200).json({
+                EM: 'Mật khẩu xác nhận không khớp!',   // error message
+                EC: 1,   // error code
+                DT: 'cfPassword',   // data
             })
         }
 
         // service: create user account
-        let data = await authService.signUpCustomer(req.body);
+        let data = await authService.signUpCustomer(email, password);
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -60,7 +112,27 @@ const handleVerify = async (req, res) => {
 
 const handleSignIn = async (req, res) => {
     try {
-        let data = await authService.signInCustomer(req.body);
+        const email = req.body.email;
+        const password = req.body.password;
+        console.log(req.body);
+
+        if(!email){
+            return res.status(200).json({
+                EM: 'Vui lòng nhập email!',   // error message
+                EC: 1,   // error code
+                DT: 'email',   // data
+            })
+        }
+
+        if(!password){
+            return res.status(200).json({
+                EM: 'Vui lòng nhập mật khẩu!',   // error message
+                EC: 1,   // error code
+                DT: 'password',   // data
+            })
+        }
+
+        let data = await authService.signInCustomer(email, password);
 
         // set cookie
         // thuộc tính httpOnly giúp nâng cao bảo mật cookie, phía client không lấy được

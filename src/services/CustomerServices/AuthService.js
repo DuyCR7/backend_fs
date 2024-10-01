@@ -28,23 +28,23 @@ const checkEmailExists = async (email) => {
   }
 };
 
-const signUpCustomer = async (rawCusData) => {
+const signUpCustomer = async (email, password) => {
     try {
         // check email/phone number are exists
-        let isEmailExists = await checkEmailExists(rawCusData.email);
+        let isEmailExists = await checkEmailExists(email);
         if (isEmailExists === true) {
           return {
             EM: "Email đã tồn tại!",
-            EC: 1,
+            EC: -1,
           };
         }
-        console.log("pass", rawCusData.password);
+        console.log("pass", password);
         // hash user password
-        let hashPassword = hashUserPassword(rawCusData.password);
+        let hashPassword = hashUserPassword(password);
     
         // create new customer
         let cus = await db.Customer.create({
-          email: rawCusData.email,
+          email: email,
           password: hashPassword,
           typeLogin: 'normal',
           image: "avatar.jpg"
@@ -193,14 +193,11 @@ const checkPassword = (inputPassword, hashPassword) => {
     return bcrypt.compareSync(inputPassword, hashPassword); // true or false
   };
 
-const signInCustomer = async (rawCusData) => {
+const signInCustomer = async (email, password) => {
     try {
-        const delay = rawCusData.delay || 0;
-        await new Promise((resolve) => setTimeout(resolve, delay));
-    
         let cus = await db.Customer.findOne({
           where: {
-            email: rawCusData.email,
+            email: email,
           },
         });
     
@@ -208,7 +205,7 @@ const signInCustomer = async (rawCusData) => {
         if (!cus) {
           return {
             EM: "Email hoặc mật khẩu không đúng!",
-            EC: 1,
+            EC: -1,
             DT: "",
           };
         }
@@ -216,17 +213,17 @@ const signInCustomer = async (rawCusData) => {
         if (cus.password === null) {
           return {
             EM: "Hãy đăng nhập tài khoản này bằng Google!",
-            EC: 1,
+            EC: -1,
             DT: "",
           };
         }
 
         // Kiểm tra mật khẩu
-        let isPasswordCorrect = checkPassword(rawCusData.password, cus.password);
+        let isPasswordCorrect = checkPassword(password, cus.password);
         if (!isPasswordCorrect) {
           return {
             EM: "Email hoặc mật khẩu không đúng!",
-            EC: 1,
+            EC: -1,
             DT: "",
           };
         }

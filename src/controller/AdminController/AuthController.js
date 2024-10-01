@@ -3,7 +3,26 @@ import { createNewAccessToken } from "../../middleware/jwtAction";
 
 const handleSignIn = async (req, res) => {
     try {
-        let data = await authService.signInUser(req.body);
+        const email = req.body.email;
+        const password = req.body.password;
+
+        if(!email){
+            return res.status(200).json({
+                EM: 'Vui lòng nhập email!',   // error message
+                EC: 1,   // error code
+                DT: 'email',   // data
+            })
+        }
+
+        if(!password){
+            return res.status(200).json({
+                EM: 'Vui lòng nhập mật khẩu!',   // error message
+                EC: 1,   // error code
+                DT: 'password',   // data
+            })
+        }
+
+        let data = await authService.signInUser(email, password);
 
         // set cookie
         // thuộc tính httpOnly giúp nâng cao bảo mật cookie, phía client không lấy được
