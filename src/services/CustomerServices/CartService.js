@@ -372,6 +372,20 @@ const getRelatedProducts = async (cusId) => {
                     attributes: ['image']
                 },
                 {
+                    model: db.Product_Detail,
+                    attributes: ['id', 'sizeId', 'colorId', 'quantity', 'image'],
+                    include: [
+                        {
+                            model: db.Size,
+                            attributes: ['id', 'code']
+                        },
+                        {
+                            model: db.Color,
+                            attributes: ['id', 'name']
+                        }
+                    ]
+                },
+                {
                     model: db.Review,
                     attributes: ['rating']
                 }
@@ -405,6 +419,19 @@ const getRelatedProducts = async (cusId) => {
                 category: product.Category,
                 image: product.Product_Images[0]?.image,
                 averageRating: parseFloat(averageRating.toFixed(1)),
+                details: product.Product_Details.map(detail => ({
+                    id: detail.id,
+                    size: {
+                        id: detail.Size.id,
+                        code: detail.Size.code
+                    },
+                    color: {
+                        id: detail.Color.id,
+                        name: detail.Color.name
+                    },
+                    quantity: detail.quantity,
+                    image: detail.image
+                }))
             };
         })
 

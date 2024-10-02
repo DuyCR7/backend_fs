@@ -87,6 +87,20 @@ const getWishList = async (cusId) => {
                         {
                             model: db.Review,
                             attributes: ['rating']
+                        },
+                        {
+                            model: db.Product_Detail,
+                            attributes: ['id', 'sizeId', 'colorId', 'quantity', 'image'],
+                            include: [
+                                {
+                                    model: db.Size,
+                                    attributes: ['id', 'code']
+                                },
+                                {
+                                    model: db.Color,
+                                    attributes: ['id', 'name']
+                                }
+                            ]
                         }
                     ]
                 }
@@ -101,28 +115,43 @@ const getWishList = async (cusId) => {
             }
         } else {
 
-            wishList = wishList.map(item => {
+            const formattedWishList = wishList.map(item => {
                 const product = item.Product;
-
-                const ratings = product.Reviews.map(review => review.rating);
                 
+                const ratings = product.Reviews.map(review => review.rating);
                 const averageRating = ratings.length > 0 
-                    ? ratings.reduce((a, b) => a + b, 0) / ratings.length
+                    ? parseFloat((ratings.reduce((a, b) => a + b, 0) / ratings.length).toFixed(1))
                     : 0;
 
                 return {
-                    ...item.toJSON(),  // Chuyển item sang object
-                    Product: {
-                        ...product.toJSON(),  // Chuyển product sang object
-                        averageRating: averageRating
-                    }
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    price_sale: product.price_sale,
+                    slug: product.slug,
+                    isSale: product.isSale,
+                    image: product.Product_Images[0]?.image,
+                    averageRating: averageRating,
+                    details: product.Product_Details.map(detail => ({
+                        id: detail.id,
+                        size: {
+                            id: detail.Size.id,
+                            code: detail.Size.code
+                        },
+                        color: {
+                            id: detail.Color.id,
+                            name: detail.Color.name
+                        },
+                        quantity: detail.quantity,
+                        image: detail.image
+                    }))
                 };
             });
 
             return {
                 EM: "Lấy danh sách yêu thích thành công!",
                 EC: 0,
-                DT: wishList
+                DT: formattedWishList
             }
         }
     } catch (e) {
