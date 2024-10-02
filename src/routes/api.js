@@ -214,6 +214,7 @@ const initApiRoutes = (app) => {
     router.get('/checkout/get-address', checkCustomerJWT, cusCheckOutController.handleGetAddress);
     router.post('/checkout/add-new-address', checkCustomerJWT, cusCheckOutController.handleAddNewAddress);
     router.put('/checkout/update-address', checkCustomerJWT, cusCheckOutController.handleUpdateAddress); 
+    router.delete('/checkout/delete-address', checkCustomerJWT, cusCheckOutController.handleDeleteAddress);
     router.get('/checkout/get-my-voucher', checkCustomerJWT, cusCheckOutController.handleGetMyVoucher);   
     router.post('/checkout/create-order', checkCustomerJWT, cusCheckOutController.handleCreateOrder);
 

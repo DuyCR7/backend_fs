@@ -40,24 +40,6 @@ const getAddress = async (cusId) => {
 
 const addNewAddress = async (dataAddress) => {
     try {
-        let checkEmailPhone = await db.Cus_Address.findOne({
-            where: {
-                [Op.or]: [
-                    { email: dataAddress.email },
-                    { phone: dataAddress.phone }
-                ],
-                cusId: { [Op.not]: dataAddress.cusId }
-            }
-        });
-
-        if (checkEmailPhone) {
-            return {
-                EM: "Email hoặc số điện thoại đã tồn tại!",
-                EC: 1,
-                DT: ""
-            }
-        }
-
         let address = await db.Cus_Address.findOne({
             where: {
                 [Op.and]: [
@@ -109,25 +91,6 @@ const updateAddress = async (dataAddress) => {
         });
 
         if (address) {
-            let checkEmailPhone = await db.Cus_Address.findOne({
-                where: {
-                    [Op.or]: [
-                        { email: dataAddress.email },
-                        { phone: dataAddress.phone }
-                    ],
-                    id: { [Op.not]: dataAddress.id },
-                    cusId: { [Op.not]: dataAddress.cusId }
-                }
-            });
-
-            if (checkEmailPhone) {
-                return {
-                    EM: "Email hoặc số điện thoại đã tồn tại!",
-                    EC: 1,
-                    DT: ""
-                }
-            }
-
             let checkExists = await db.Cus_Address.findAll({
                 where: {
                     [Op.and]: [
@@ -171,6 +134,40 @@ const updateAddress = async (dataAddress) => {
                 DT: ""
             }
         }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
+const deleteAddress = async (cusId, addressId) => {
+    try {
+        let address = await db.Cus_Address.findOne({
+            where: {
+                id: addressId,
+                cusId: cusId
+            }
+        });
+
+        if (address) {
+            await address.destroy();
+            return {
+                EM: "Xóa địa chỉ thành công!",
+                EC: 0,
+                DT: ""
+            }
+        } else {
+            return {
+                EM: "Địa chỉ không tồn tại!",
+                EC: 1,
+                DT: ""
+            }
+        }
+        
     } catch (e) {
         console.log(e);
         return {
@@ -493,6 +490,7 @@ module.exports = {
     getAddress,
     addNewAddress,
     updateAddress,
+    deleteAddress,
     getMyVoucher,
     createOrder,
 }

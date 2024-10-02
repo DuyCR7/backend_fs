@@ -158,6 +158,30 @@ const handleUpdateAddress = async (req, res) => {
     }
 }
 
+const handleDeleteAddress = async (req, res) => {
+    try {
+        const cusId = req.user.id;
+        const addressId = req.body.addressId;
+        console.log("cusId: " , cusId);
+        console.log("addressId: " , req.body.addressId);
+
+        let data = await checkOutService.deleteAddress(cusId, addressId);
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: data.DT,   // data
+        });
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 const handleGetMyVoucher = async (req, res) => {
     try {
         const cusId = req.user.id;
@@ -221,6 +245,7 @@ module.exports = {
     handleGetAddress,
     handleAddNewAddress,
     handleUpdateAddress,
+    handleDeleteAddress,
     handleGetMyVoucher,
     handleCreateOrder,
 }
