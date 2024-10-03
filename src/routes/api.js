@@ -13,6 +13,7 @@ import adPostController from "../controller/AdminController/PostController";
 import adOrderController from "../controller/AdminController/OrderController";
 import adVoucherController from "../controller/AdminController/VoucherController";
 import adStatisticController from "../controller/AdminController/StatisticController";
+import adManageCustomerController from "../controller/AdminController/ManageCustomerController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
@@ -50,7 +51,7 @@ const adminRouter = express.Router();
 
 const initApiRoutes = (app) => {
 
-    // adminRouter.use(checkUserJWT);
+    adminRouter.use(checkUserJWT);
 
     adminRouter.post('/sign-in', adAuthController.handleSignIn);
     adminRouter.post('/logout', adAuthController.handleLogout);
@@ -144,6 +145,9 @@ const initApiRoutes = (app) => {
 
     adminRouter.get('/order/read', adOrderController.handleGetOrder);
     adminRouter.put('/order/update-status/:orderId', adOrderController.handleUpdateOrderStatus);
+
+    adminRouter.get('/customer/read', adManageCustomerController.handleGetCustomer);
+    adminRouter.put('/customer/lock', adManageCustomerController.handleLockCustomer);
 
     adminRouter.get('/statistic/get-statistic-some', adStatisticController.handleGetStatisticSome);
     adminRouter.get('/statistic/get-revenue', adStatisticController.handleGetRevenueStatistic);
