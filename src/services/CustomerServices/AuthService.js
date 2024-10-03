@@ -210,6 +210,14 @@ const signInCustomer = async (email, password) => {
           };
         }
 
+        if (!cus.isActive) {
+          return {
+              EM: "Tài khoản của bạn đã bị khóa! Vui lòng liên hệ email: anhduy0317@gmail.com để được hỗ trợ!",
+              EC: -1,
+              DT: "",
+          };
+      }
+
         if (cus.password === null) {
           return {
             EM: "Hãy đăng nhập tài khoản này bằng Google!",
@@ -332,6 +340,13 @@ const signInGoogle = async (id, tokenLoginGoogle) => {
     });
 
     if(cus) {
+      if (!cus.isActive) {
+        return {
+          EM: "Tài khoản của bạn đã bị khóa! Vui lòng liên hệ email: anhduy0317@gmail.com để được hỗ trợ!",
+          EC: 1,
+          DT: "",
+        };
+      }
 
       await db.Customer.update({
         tokenLoginGoogle: newTokenLoginGoogle
@@ -361,7 +376,7 @@ const signInGoogle = async (id, tokenLoginGoogle) => {
       };
     } else {
       return {
-        EM: "Lỗi, vui lòng thử lại sau!",
+        EM: "Đăng nhập không thành công!",
         EC: 1,
         DT: "",
       }

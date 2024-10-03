@@ -1,5 +1,6 @@
 import jwt, { decode } from 'jsonwebtoken';
 require("dotenv").config();
+import db from "../models/index";
 
 const nonSecurePaths = [
     '/logout', 
@@ -129,7 +130,7 @@ const checkUserPermission = (req, res, next) => {
     }
 }
 
-const checkCustomerJWT = (req, res, next) => {
+const checkCustomerJWT = async (req, res, next) => {
     let cookies = req.cookies;   // lấy cookie người dùng gửi lên
     let tokenFromHeader = extractToken(req);
 
@@ -138,19 +139,43 @@ const checkCustomerJWT = (req, res, next) => {
 
     if((cookies && cookies.cus_jwt) || tokenFromHeader){
         let token = cookies && cookies.cus_jwt ? cookies.cus_jwt : tokenFromHeader;
-        let decoded = verifyToken(token);
-        // console.log("Check: ",decoded);
-        if (decoded) {
-            req.user = decoded; // đính kèm thêm user vào req
-            req.token = token;
-
-            next();
-        } else {
-            return res.status(401).json({
-                EM: 'Vui lòng đăng nhập!',   // error message
-                EC: -1,   // error code
-                DT: '',   // data
-            })
+        if (token) {
+            try {
+                let decoded = verifyToken(token);
+                // console.log("Check: ",decoded);
+                if (decoded) {
+                    req.user = decoded; // đính kèm thêm user vào req
+                    req.token = token;
+    
+                    const customer = await db.Customer.findOne({
+                        where: {
+                            id: req.user.id,
+                            isActive: true,
+                        }
+                    })
+                    if(!customer) {
+                        return res.status(401).json({
+                            EM: `Tài khoản của bạn đã bị khóa! Vui lòng liên hệ email: anhduy0317@gmail.com để được hỗ trợ!`,   // error message
+                            EC: -1,   // error code
+                            DT: '',   // data
+                        })
+                    }
+    
+                    return next();
+                } else {
+                    return res.status(401).json({
+                        EM: 'Vui lòng đăng nhập!',   // error message
+                        EC: -1,   // error code
+                        DT: '',   // data
+                    })
+                }
+            } catch (e) {
+                return res.status(401).json({
+                    EM: 'Lỗi xác thực token!',   // error message
+                    EC: -1,   // error code
+                    DT: '',   // data
+                })
+            }
         }
 
         // console.log("My Jwt: ", cookies.jwt);

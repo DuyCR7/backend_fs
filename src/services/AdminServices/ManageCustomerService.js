@@ -1,5 +1,6 @@
 import db from "../../models/index";
 import { Op, fn, col, literal } from "sequelize";
+import { io } from "../../server";
 
 const getCustomersWithPagination = async (page, limit, search, sortConfig) => {
     try {
@@ -64,7 +65,61 @@ const getCustomersWithPagination = async (page, limit, search, sortConfig) => {
 
 const lockCustomer = async (cusId) => {
     try {
-        
+        const customer = await db.Customer.update({
+            isActive: false,
+        }, {
+            where: {
+                id: cusId,
+            }
+        });
+
+        if (customer) {
+            io.emit('lockCustomer', { cusId });
+            return {
+                EM: "Khóa khách hàng thành công!",
+                EC: 0,
+                DT: ""
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy khách hàng nào phù hợp!",
+                EC: -1,
+                DT: ""
+            }
+        }
+    } catch (e) {
+        console.log(e);
+        return {
+            EM: "Lỗi, vui lòng thử lại sau!",
+            EC: -1,
+            DT: ""
+        }
+    }
+}
+
+const unLockCustomer = async (cusId) => {
+    try {
+        const customer = await db.Customer.update({
+            isActive: true,
+        }, {
+            where: {
+                id: cusId,
+            }
+        });
+
+        if (customer) {
+            return {
+                EM: "Mở khóa tài khoản khách hàng thành công!",
+                EC: 0,
+                DT: ""
+            }
+        } else {
+            return {
+                EM: "Không tìm thấy khách hàng nào phù hợp!",
+                EC: -1,
+                DT: ""
+            }
+        }
     } catch (e) {
         console.log(e);
         return {
@@ -78,4 +133,5 @@ const lockCustomer = async (cusId) => {
 module.exports = {
     getCustomersWithPagination,
     lockCustomer,
+    unLockCustomer,
 }

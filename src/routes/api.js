@@ -148,6 +148,7 @@ const initApiRoutes = (app) => {
 
     adminRouter.get('/customer/read', adManageCustomerController.handleGetCustomer);
     adminRouter.put('/customer/lock', adManageCustomerController.handleLockCustomer);
+    adminRouter.put('/customer/unlock', adManageCustomerController.handleUnlockCustomer);
 
     adminRouter.get('/statistic/get-statistic-some', adStatisticController.handleGetStatisticSome);
     adminRouter.get('/statistic/get-revenue', adStatisticController.handleGetRevenueStatistic);
