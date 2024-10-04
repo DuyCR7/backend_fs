@@ -14,6 +14,7 @@ import adOrderController from "../controller/AdminController/OrderController";
 import adVoucherController from "../controller/AdminController/VoucherController";
 import adStatisticController from "../controller/AdminController/StatisticController";
 import adManageCustomerController from "../controller/AdminController/ManageCustomerController";
+import adProfileController from "../controller/AdminController/ProfileController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
@@ -156,6 +157,9 @@ const initApiRoutes = (app) => {
     adminRouter.get('/statistic/get-best-wishlist', adStatisticController.handleGetBestWishlist);
     adminRouter.get('/statistic/get-order-status', adStatisticController.handleGetOrderStatus);
     adminRouter.get('/statistic/get-available-product', adStatisticController.handleGetAvailableProduct);
+
+    adminRouter.get('/profile/get-profile', adProfileController.handleGetProfile);
+    adminRouter.put('/profile/update-profile', upload.single('image'), adProfileController.handleUpdateProfile);
 
     router.use('/admin', adminRouter);
 
