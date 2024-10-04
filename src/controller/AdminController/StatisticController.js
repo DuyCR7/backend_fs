@@ -112,10 +112,9 @@ const handleGetOrderStatus = async (req, res) => {
 
 const handleGetAvailableProduct = async (req, res) => {
     try {
-        let page = req.query.page;
-        let limit = req.query.limit;
+        let { page, limit, sortField, sortOrder } = req.query;
 
-        let data = await statisticService.getAvailableProduct(+page, +limit);
+        let data = await statisticService.getAvailableProduct(+page, +limit, sortField, sortOrder);
 
         return res.status(200).json({
             EM: data.EM,   // error message

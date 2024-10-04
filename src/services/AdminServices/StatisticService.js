@@ -474,9 +474,20 @@ const getOrderStatus = async (type, value) => {
     }
 }
 
-const getAvailableProduct = async (page, limit) => {
+const getAvailableProduct = async (page, limit, sortField, sortOrder) => {
     try {
         let offset = (page - 1) * limit;
+        let order = [];
+
+        if (sortField) {
+            if (sortField === 'soldQuantity') {
+                order.push([literal('soldQuantity'), sortOrder.toUpperCase()]);
+            } else {
+                order.push([sortField, sortOrder.toUpperCase()]);
+            }
+        } else {
+            order.push([{model: db.Product}, 'id', 'DESC']);
+        }
 
         const { count, rows } = await db.Product_Detail.findAndCountAll({
             attributes: [
@@ -507,7 +518,7 @@ const getAvailableProduct = async (page, limit) => {
                     attributes: ['id', 'name'],
                 },
             ],
-            order: [[{model: db.Product}, 'id', 'DESC']],
+            order: order,
             limit,
             offset,
             subQuery: false,
