@@ -191,6 +191,43 @@ const getMessages = async (chatId) => {
   }
 };
 
+const getLastMessage = async (chatId) => {
+  try {
+    const lastMessage = await db.Message.findOne({
+      where: {
+        chatId: chatId,
+      },
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (lastMessage) {
+      if (lastMessage.productInfo) {
+        lastMessage.productInfo = JSON.parse(lastMessage.productInfo);
+      }
+
+      return {
+        EM: "Lấy tin nhắn cuối cùng thành công!",
+        EC: 0,
+        DT: lastMessage,
+      };
+    } else {
+      return {
+        EM: "Không tìm thấy tin nhắn nào!",
+        EC: -1,
+        DT: null,
+      };
+    }
+
+  } catch (e) {
+    console.log(e);
+    return {
+      EM: "Lỗi, vui lòng thử lại sau!",
+      EC: -1,
+      DT: "",
+    };
+  }
+}
+
 const getUnreadMessageCount = async (userId, userType, chatId = null) => {
   try {
     let whereCondition = {
@@ -321,6 +358,7 @@ module.exports = {
   getAdminChats,
   sendMessage,
   getMessages,
+  getLastMessage,
   getUnreadMessageCount,
   markMessagesAsRead,
   getCurrentChat,

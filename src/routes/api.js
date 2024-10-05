@@ -243,6 +243,7 @@ const initApiRoutes = (app) => {
     router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);
     router.post('/chat/send-message', chatController.handleSendMessage);
     router.get('/chat/get-messages/:chatId', chatController.handleGetMessages);
+    router.get('/chat/get-last-message/:chatId', chatController.handleGetLastMessage);
     router.get('/chat/get-unread-message-count', chatController.handleGetUnreadMessageCount);
     router.put('/chat/mark-messages-as-read', chatController.handleMarkMessagesAsRead);
     router.get('/chat/get-current-chat/:cusId', chatController.handleGetCurrentChat);
