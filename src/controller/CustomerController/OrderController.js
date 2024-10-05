@@ -28,8 +28,9 @@ const handleCancelOrder = async (req, res) => {
     try {
         const cusId = req.user.id;
         const orderId = req.params.orderId;
+        const cancelReason = req.body.cancelReason;
 
-        let data = await orderService.cancelOrder(orderId, cusId);
+        let data = await orderService.cancelOrder(orderId, cusId, cancelReason);
 
         return res.status(200).json({
             EM: data.EM,   // error message

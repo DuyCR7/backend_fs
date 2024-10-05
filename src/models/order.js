@@ -69,6 +69,10 @@ module.exports = (sequelize, DataTypes) => {
     appliedDiscount: {
       type: DataTypes.INTEGER,
       allowNull: true,
+    },
+    cancelReason: {
+      type: DataTypes.STRING,
+      allowNull: true,
     }
   }, {
     sequelize,

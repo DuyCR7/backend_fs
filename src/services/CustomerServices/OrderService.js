@@ -84,7 +84,7 @@ const getMyOrders = async (cusId, page, limit) => {
     }
 }
 
-const cancelOrder = async (orderId, cusId) => {
+const cancelOrder = async (orderId, cusId, cancelReason) => {
     const t = await db.sequelize.transaction();
 
     try {
@@ -123,8 +123,28 @@ const cancelOrder = async (orderId, cusId) => {
             });
         }
 
+        if (order.voucherId) {
+            const voucher = await db.Voucher.findByPk(order.voucherId, { transaction: t });
+            if (voucher) {
+                voucher.usedCount--;
+                await voucher.save({ transaction: t });
+
+                await db.Voucher_Customer.update({
+                    isUsed: false,
+                    usedDate: null
+                }, {
+                    where: {
+                        cusId: cusId,
+                        voucherId: order.voucherId
+                    },
+                    transaction: t
+                });
+            }
+        }
+
         order.status = 0;
-        await order.save();
+        order.cancelReason = cancelReason;
+        await order.save({transaction: t});
 
         await t.commit();
 
