@@ -151,6 +151,20 @@ const getAllTrending = async () => {
             attributes: ['id', 'name', 'price', 'price_sale', 'isSale', 'slug', 'categoryId'],
             include: [
                 {
+                    model: db.Team,
+                    attributes: [],
+                    where: {
+                        isActive: true
+                    }
+                },
+                {
+                    model: db.Category,
+                    attributes: [],
+                    where: {
+                        isActive: true
+                    }
+                },
+                {
                     model: db.Product_Image,
                     where: { isMainImage: true },
                     attributes: ['id', 'productId', 'image'],
@@ -179,7 +193,7 @@ const getAllTrending = async () => {
         if(allTrending && allTrending.length > 0) {
             // Lấy tất cả danh mục liên quan
             const categories = await db.Category.findAll({
-                attributes: ['id', 'name', 'parent_id']
+                attributes: ['id', 'name', 'parent_id'],
             });
 
 
@@ -264,8 +278,18 @@ const getSearchProducts = async (search) => {
                     attributes: ['image'],
                 },
                 {
+                    model: db.Team,
+                    attributes: [],
+                    where: {
+                        isActive: true
+                    }
+                },
+                {
                     model: db.Category,
                     attributes: ['id', 'name', 'slug'],
+                    where: {
+                        isActive: true
+                    }
                 }
             ],
             order: [[
@@ -304,6 +328,20 @@ const getAllSalesProducts = async () => {
                 isSale: true
             },
             include: [
+                {
+                    model: db.Team,
+                    attributes: [],
+                    where: {
+                        isActive: true
+                    }
+                },
+                {
+                    model: db.Category,
+                    attributes: [],
+                    where: {
+                        isActive: true
+                    }
+                },
                 {
                     model: db.Product_Image,
                     where: { isMainImage: true },
@@ -391,7 +429,22 @@ const getAllBestSeller = async () => {
                 'slug',
                 [fn('SUM', col('Product_Details.Order_Details.quantity')), 'totalSold']
             ],
+            where: { isActive: true },
             include: [
+                {
+                    model: db.Team,
+                    attributes: [],
+                    where: {
+                        isActive: true
+                    }
+                },
+                {
+                    model: db.Category,
+                    attributes: [],
+                    where: {
+                        isActive: true
+                    }
+                },
                 {
                     model: db.Product_Image,
                     where: { isMainImage: true },
@@ -416,7 +469,10 @@ const getAllBestSeller = async () => {
                 }
             ],
             group: ['Product.id'],
-            order: [[fn('SUM', col('Product_Details.Order_Details.quantity')), 'DESC']],
+            order: [
+                [fn('SUM', col('Product_Details.Order_Details.quantity')), 'DESC'],
+                ['id', 'DESC']
+            ],
             limit: 8,
             subQuery: false,
         });

@@ -203,6 +203,7 @@ const deleteSize = async (id) => {
         });
 
         if (productCount > 0) {
+            console.log("productCount", productCount);
             return {
                 EM: `Không thể xóa size này vì đang có sản phẩm sử dụng!`,
                 EC: 1,

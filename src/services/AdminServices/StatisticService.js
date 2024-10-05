@@ -95,85 +95,6 @@ const getRevenueStatistic = async (type, year) => {
     }
 }
 
-// const getBestSlowSelling = async (type, year) => {
-//     try {
-//         let groupBy, selectExpression;
-
-//         switch (type) {
-//             case 'month':
-//                 groupBy = 'month';
-//                 selectExpression = [fn('DATE_FORMAT', col('createdAt'), '%m-%Y'), 'month'];
-//                 break;
-//             case 'quarter':
-//                 groupBy = 'quarter';
-//                 selectExpression = [
-//                     literal(`CONCAT('Q', QUARTER(createdAt), '-', YEAR(createdAt))`),
-//                     'quarter'
-//                 ];
-//                 break;
-//             case 'year':
-//                 groupBy = 'year';
-//                 selectExpression = [fn('YEAR', col('createdAt')), 'year'];
-//                 break;
-//             default:
-//                 return {
-//                     EM: "Loại thống kê không hợp lệ!",
-//                     EC: -1,
-//                     DT: ""
-//                 }
-//         }
-
-//         let productSales = await db.Product.findAll({
-//             attributes: [
-//                 'name',
-//                 [fn('SUM', col('Product_Details.Order_Details.quantity')), 'totalSold']
-//             ],
-//             include: [
-//                 {
-//                     model: db.Product_Detail,
-//                     attributes: [],
-//                     include: [
-//                         {
-//                             model: db.Order_Detail,
-//                             attributes: [],
-//                             include: [
-//                                 {
-//                                     model: db.Order,
-//                                     where: { 
-//                                         status: 4,
-//                                         createdAt: {
-//                                             [Op.and]: [
-//                                                 where(fn('YEAR', col('Product_Details.Order_Details.Order.createdAt')), year)
-//                                             ]
-//                                         }
-//                                     },
-//                                     attributes: []
-//                                 }
-//                             ]
-//                         }
-//                     ]
-//                 }
-//             ],
-//             group: ['Product.id'],
-//             order: [[fn('SUM', col('Product_Details.Order_Details.quantity')), 'DESC']],
-//         });
-
-//         return {
-//             EM: "Thống kê thành công!",
-//             EC: 0,
-//             DT: productSales
-//         }
-
-//     } catch (e) {
-//         console.log(e);
-//         return {
-//             EM: "Lỗi, vui lòng thử lại sau!",
-//             EC: -1,
-//             DT: ""
-//         }
-//     }
-// }
-
 const getBestSlowSelling = async (type, year) => {
     try {
         let whereClause, groupBy, selectExpression, orderBy;
@@ -220,7 +141,18 @@ const getBestSlowSelling = async (type, year) => {
                 ...selectExpression,
                 [fn('SUM', col('Product_Details.Order_Details.quantity')), 'totalSold']
             ],
+            where: { isActive: true },
             include: [
+                {
+                    model: db.Team,
+                    attributes: [],
+                    where: { isActive: true }
+                },
+                {
+                    model: db.Category,
+                    attributes: [],
+                    where: { isActive: true }
+                },
                 {
                     model: db.Product_Detail,
                     attributes: [],

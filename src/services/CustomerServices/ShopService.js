@@ -3,7 +3,7 @@ import { Sequelize, Op } from "sequelize";
 
 const getSubCategories = async (parentId) => {
     const subCategories = await db.Category.findAll({
-        where: { parent_id: parentId }
+        where: { parent_id: parentId, isActive: true },
     });
     
     const nestedSubCategories = await Promise.all(
@@ -26,7 +26,7 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
 
         if (team) {
             if (team === 'cau-lac-bo' || team === 'doi-tuyen-quoc-gia') {
-                const teamData = await db.Team.findAll({ where: { type: team } });
+                const teamData = await db.Team.findAll({ where: { type: team, isActive: true } });
                 if (teamData && teamData.length > 0) {
                     teamIds = teamData.map(team => team.id);
 
@@ -48,7 +48,7 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
                     };
                 }
             } else {
-                const teamData = await db.Team.findOne({ where: { slug: team } });
+                const teamData = await db.Team.findOne({ where: { slug: team, isActive: true } });
                 if (teamData) {
                     teamIds = [teamData.id];
                     productWhere.teamId = { [Op.in]: teamIds };
@@ -66,7 +66,7 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
         }
 
         if (category) {
-            const categoryData = await db.Category.findOne({ where: { slug: category } });
+            const categoryData = await db.Category.findOne({ where: { slug: category, isActive: true } });
             if (categoryData) {
                 
                 const subCategories = await getSubCategories(categoryData.id);
@@ -143,7 +143,21 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
         }
 
         // Đếm tổng số sản phẩm
-        const totalCount = await db.Product.count({ where: productWhere });
+        const totalCount = await db.Product.count({
+            where: productWhere,
+            include: [
+                {
+                    model: db.Category,
+                    attributes: [],
+                    where: { isActive: true}
+                },
+                {
+                    model: db.Team,
+                    attributes: [],
+                    where: { isActive: true}
+                },
+            ]
+        });
 
         let order = [['id', 'DESC']];  // Mặc định sắp xếp theo id giảm dần
         switch(sortOption) {
@@ -171,10 +185,12 @@ const getAllInforProduct = async (page, limit, filterTeam, filterCategory, filte
                 {
                     model: db.Category,
                     attributes: ['id', 'name'],
+                    where: { isActive: true}
                 },
                 {
                     model: db.Team,
                     attributes: ['id', 'name'],
+                    where: { isActive: true}
                 },
                 {
                     model: db.Product_Image,
@@ -283,11 +299,13 @@ const getCategories = async (filterTeam, filterSize, filterColor, teamIds = [], 
                 'slug',
                 [Sequelize.fn('COUNT', Sequelize.col('Products.id')), 'productCount']
             ],
+            where: { isActive: true},
             include: [
                 {
                     model: db.Product,
                     attributes: [],
                     where: {
+                        isActive: true,
                         ...(categoryIds.length > 0 ? { categoryId: { [Op.in]: categoryIds }} : {}),
                         ...(teamIds.length > 0 
                             ? 
@@ -314,6 +332,13 @@ const getCategories = async (filterTeam, filterSize, filterColor, teamIds = [], 
                             }
                         }),
                     },
+                    include: [
+                        {
+                            model: db.Team,
+                            attributes: [],
+                            where: { isActive: true }
+                        }
+                    ]
                 },
             ],
             group: ['Category.id'],
@@ -341,11 +366,13 @@ const getTeams = async (filterCategory, filterSize, filterColor, teamIds = [], c
                 'slug',
                 [Sequelize.fn('COUNT', Sequelize.col('Products.id')), 'productCount']
             ],
+            where: { isActive: true},
             include: [
                 {
                     model: db.Product,
                     attributes: [],
                     where: {
+                        isActive: true,
                         ...(teamIds.length > 0 ? { teamId: { [Op.in]: teamIds } } : {}),
                         ...(categoryIds.length > 0 
                             ? { categoryId: filterCategory.length > 0 ? { [Op.in]: filterCategory.filter(id => categoryIds.includes(parseInt(id))) } : { [Op.in]: categoryIds } }
@@ -371,6 +398,13 @@ const getTeams = async (filterCategory, filterSize, filterColor, teamIds = [], c
                             }
                         }),
                     },
+                    include: [
+                        {
+                            model: db.Category,
+                            attributes: [],
+                            where: { isActive: true }
+                        }
+                    ]
                 },
             ],
             group: ['Team.id'],
@@ -407,6 +441,7 @@ const getSizes = async (filterCategory, filterTeam, filterColor, teamIds = [], c
                             model: db.Product,
                             attributes: ['id'],
                             where: {
+                                isActive: true,
                                 ...(categoryIds.length > 0 
                                     ? { categoryId: filterCategory.length > 0 ? { [Op.in]: filterCategory.filter(id => categoryIds.includes(parseInt(id))) } : { [Op.in]: categoryIds } }
                                     : filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
@@ -420,6 +455,18 @@ const getSizes = async (filterCategory, filterTeam, filterColor, teamIds = [], c
                                     }
                                 }),
                             },
+                            include: [
+                                {
+                                    model: db.Category,
+                                    attributes: [],
+                                    where: { isActive: true }
+                                },
+                                {
+                                    model: db.Team,
+                                    attributes: [],
+                                    where: { isActive: true }
+                                }
+                            ]
                         },
                     ],
                     where: {
@@ -461,6 +508,7 @@ const getColors = async (filterCategory, filterTeam, filterSize, teamIds = [], c
                             model: db.Product,
                             attributes: ['id'],
                             where: {
+                                isActive: true,
                                 ...(categoryIds.length > 0 
                                     ? { categoryId: filterCategory.length > 0 ? { [Op.in]: filterCategory.filter(id => categoryIds.includes(parseInt(id))) } : { [Op.in]: categoryIds } }
                                     : filterCategory.length > 0 && { categoryId: { [Op.in]: filterCategory } }),
@@ -474,6 +522,18 @@ const getColors = async (filterCategory, filterTeam, filterSize, teamIds = [], c
                                     }
                                 }),
                             },
+                            include: [
+                                {
+                                    model: db.Category,
+                                    attributes: [],
+                                    where: { isActive: true }
+                                },
+                                {
+                                    model: db.Team,
+                                    attributes: [],
+                                    where: { isActive: true }
+                                }
+                            ]
                         },
                     ],
                     where: {
@@ -501,17 +561,20 @@ const getSingleProduct = async (slug) => {
     try {
         const product = await db.Product.findOne({
             where: {
-                slug: slug
+                slug: slug,
+                isActive: true
             },
             attributes: ['id', 'name', 'price', 'price_sale', 'isSale', 'slug','description'],
             include: [
                 {
                     model: db.Team,
                     attributes: ['id', 'name', 'slug'],
+                    where: { isActive: true}
                 },
                 {
                     model: db.Category,
                     attributes: ['id', 'name','slug'],
+                    where: { isActive: true}
                 },
                 {
                     model: db.Product_Image,

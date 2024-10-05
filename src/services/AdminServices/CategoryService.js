@@ -268,12 +268,23 @@ const setActiveCategory = async (id) => {
             };
         }
 
+        // Hàm cập nhật trạng thái cho sản phẩm
+        const updateProductStatus = async (categoryId, status) => {
+            await db.Product.update(
+                { isActive: status },
+                { where: { categoryId: categoryId } }
+            );
+        };
+
+
         // Cập nhật trạng thái của danh mục và các danh mục con nếu cần
         const updateCategoryStatus = async (category, status) => {
             await db.Category.update(
                 { isActive: status },
                 { where: { id: category.id } }
             );
+
+            await updateProductStatus(category.id, status);
 
             if (category.children) {
                 for (let child of category.children) {
@@ -299,6 +310,11 @@ const setActiveCategory = async (id) => {
                 { isActive: newStatus },
                 { where: { id: categoryToUpdate.id } }
             );
+
+            // Chỉ cập nhật trạng thái sản phẩm nếu danh mục bị vô hiệu hóa
+            if (newStatus === false) {
+                await updateProductStatus(categoryToUpdate.id, newStatus);
+            }
         }
 
         return {
@@ -374,6 +390,8 @@ const getAllProductIdsInCategory = async (category) => {
 }
 
 const deleteCategory = async (id) => {
+    const transaction = await db.sequelize.transaction();
+
     try {
         let categories = await db.Category.findAll({
             order: [['id', 'DESC']],
@@ -383,6 +401,7 @@ const deleteCategory = async (id) => {
 
         const categoryToDelete = findCategoryById(id, categoryTree);
         if (!categoryToDelete) {
+            await transaction.rollback();
             return {
                 EM: "Danh mục không tồn tại!",
                 EC: -1,
@@ -390,35 +409,55 @@ const deleteCategory = async (id) => {
             };
         }
 
+        const hasProductsInCategoryTree = async (category) => {
+            // Kiểm tra xem có sản phẩm nào thuộc danh mục này không
+            const productInCategory = await db.Product.findOne({
+                where: { categoryId: category.id },
+                transaction
+            });
+            if (productInCategory) {
+                return true;
+            }
+
+            // Kiểm tra các danh mục con
+            if (category.children) {
+                for (let child of category.children) {
+                    const hasProductsInChild = await hasProductsInCategoryTree(child);
+                    if (hasProductsInChild) {
+                        return true; // Nếu có sản phẩm trong danh mục con
+                    }
+                }
+            }
+            return false;
+        };
+
+        // Nếu có sản phẩm trong danh mục hoặc các danh mục con thì không cho phép xóa
+        const hasProducts = await hasProductsInCategoryTree(categoryToDelete);
+        if (hasProducts) {
+            await transaction.rollback();
+            return {
+                EM: "Không thể xóa danh mục vì có sản phẩm liên quan trong danh mục hoặc danh mục con!",
+                EC: -1,
+                DT: "",
+            };
+        }
+
         // Xóa danh mục và các danh mục con
         const deleteCategoryAndChildren = async (category) => {
-            // Xóa các sản phẩm thuộc danh mục
-            const productIds = await getAllProductIdsInCategory(category);
-            console.log("Product Ids===========================================: " , productIds);
-            // Xóa các bảng liên quan của sản phẩm
-            await db.Product_Image.destroy({
-                where: { productId: productIds }
-            });
-            await db.Product_Detail.destroy({
-                where: { productId: productIds }
-            });
-
-            await db.Product.destroy({
-                where: { id: productIds }
-            });
-
             if (category.children) {
                 for (let child of category.children) {
                     await deleteCategoryAndChildren(child);
                 }
             }
             await db.Category.destroy({
-                where: { id: category.id }
+                where: { id: category.id },
+                transaction
             });
         };
 
-        // Bắt đầu xóa danh mục và các danh mục con (nếu có)
         await deleteCategoryAndChildren(categoryToDelete);
+
+        await transaction.commit();
 
         return {
             EM: "Xóa danh mục thành công!",
@@ -427,6 +466,7 @@ const deleteCategory = async (id) => {
         };
 
     } catch (e) {
+        await transaction.rollback();
         console.log(e);
         return {
             EM: "Lỗi, vui lòng thử lại sau!",

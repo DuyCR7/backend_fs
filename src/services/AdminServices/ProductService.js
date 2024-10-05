@@ -256,6 +256,14 @@ const getProductsWithPagination = async (page, limit, search, sortConfig) => {
             limit: limit,
             include: [
                 {
+                    model: db.Category,
+                    attributes: ['name']
+                },
+                {
+                    model: db.Team,
+                    attributes: ['name']
+                },
+                {
                     model: db.Product_Image,
                     attributes: ['id', 'image', 'isMainImage']
                 },
@@ -598,6 +606,30 @@ const deleteProduct = async (id) => {
                 EC: 1,
                 DT: "",
             }
+        }
+
+        // Kiểm tra xem có Order nào đã chứa Product_Detail của sản phẩm này không
+        const productDetails = await db.Product_Detail.findAll({
+            where: { productId: id },
+            attributes: ['id'],
+            transaction
+        });
+
+        const productDetailIds = productDetails.map(detail => detail.id);
+        console.log("productDetailIds", productDetailIds);
+
+        const orderDetail = await db.Order_Detail.findOne({
+            where: { productDetailId: productDetailIds },
+            transaction
+        });
+
+        if (orderDetail) {
+            await transaction.rollback();
+            return {
+                EM: "Không thể xóa sản phẩm vì đã tồn tại trong đơn hàng!",
+                EC: -1,
+                DT: "",
+            };
         }
 
         await db.Product_Image.destroy({

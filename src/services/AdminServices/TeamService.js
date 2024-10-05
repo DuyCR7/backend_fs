@@ -198,10 +198,20 @@ const setActiveTeam = async (id) => {
             }
         });
 
-        if(team) {
+        if (team) {
+            const newStatus = !team.isActive;
+
             await team.update({
-                isActive: !team.isActive
+                isActive: newStatus
             });
+
+            // Chỉ cập nhật trạng thái sản phẩm nếu đội bóng bị vô hiệu hóa
+            if (newStatus === false) {
+                await db.Product.update(
+                    { isActive: false },
+                    { where: { teamId: team.id } }
+                );
+            }
 
             return {
                 EM: `Cập nhật thành công!`,
@@ -227,11 +237,27 @@ const setActiveTeam = async (id) => {
 }
 
 const deleteTeam = async (id) => {
+    const transaction = await db.sequelize.transaction();
     try {
+        const productUsingTeam = await db.Product.findOne({
+            where: { teamId: id },
+            transaction
+        });
+
+        if (productUsingTeam) {
+            return {
+                EM: "Không thể xóa vì có sản phẩm đang thuộc đội bóng này!",
+                EC: -1,
+                DT: "",
+            };
+        }
+
+
         let team = await db.Team.destroy({
             where: {
                 id: id
-            }
+            },
+            transaction
         });
 
         if(team) {

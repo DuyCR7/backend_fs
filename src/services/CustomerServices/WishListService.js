@@ -3,37 +3,22 @@ import { Op } from "sequelize";
 
 const addToWishList = async (cusId, productId) => {
     try {
-        // let wishList = await db.WishList.findOne({
-        //     where: {
-        //         customerId: cusId,
-        //         productId: productId
-        //     }
-        // });
-        
-        // if (wishList) {
-        //     return {
-        //         EM: "Sản phẩm đã tồn tại trong danh sách yêu thích của bạn!",
-        //         EC: 0,
-        //         DT: ""
-        //     }
-        // } else {
-            await db.Wish_List.create({
-                cusId: cusId,
-                productId: productId
-            });
+        await db.Wish_List.create({
+            cusId: cusId,
+            productId: productId
+        });
             
-            let count = await db.Wish_List.count({
-                where: {
-                    cusId: cusId
-                }
-            });
-            
-            return {
-                EM: "Thêm sản phẩm vào danh sách yêu thích thành công!",
-                EC: 0,
-                DT: count
+        let count = await db.Wish_List.count({
+            where: {
+                cusId: cusId
             }
-        // }
+        });
+            
+        return {
+            EM: "Thêm sản phẩm vào danh sách yêu thích thành công!",
+            EC: 0,
+            DT: count
+        }
 
     } catch (e) {
         console.log(e);
