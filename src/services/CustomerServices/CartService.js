@@ -138,35 +138,46 @@ const getCart = async (cusId) => {
                 DT: [],
             }
         } else {
-            let cartDetails = await db.Cart_Detail.findAll({
-                where: {
-                    cartId: cart.id,
-                },
-                include: [
-                    { 
-                        model: db.Product_Detail, 
-                        include: [
-                            { 
-                                model: db.Product, 
-                                attributes: ['name', 'price', 'price_sale', 'isSale', 'slug'] 
-                            },
-                            {
-                                model: db.Color, 
-                                attributes: ['name']
-                            },
-                            { 
-                                model: db.Size, 
-                                attributes: ['code']
-                            }
-                        ] 
+            const [totalItems, cartDetails] = await Promise.all([
+                db.Cart_Detail.count({
+                    where: {
+                        cartId: cart.id,
+                    }
+                }),
+                db.Cart_Detail.findAll({
+                    where: {
+                        cartId: cart.id,
                     },
-                ]
-            });
+                    include: [
+                        { 
+                            model: db.Product_Detail, 
+                            include: [
+                                { 
+                                    model: db.Product, 
+                                    attributes: ['name', 'price', 'price_sale', 'isSale', 'slug'] 
+                                },
+                                {
+                                    model: db.Color, 
+                                    attributes: ['name']
+                                },
+                                { 
+                                    model: db.Size, 
+                                    attributes: ['code']
+                                }
+                            ] 
+                        },
+                    ]
+                })
+            ]);
+
             return {
                 EM: "Lấy danh sách giỏ hàng thành công!",
                 EC: 0,
-                DT: cartDetails,
-            }
+                DT: {
+                    cartDetails: cartDetails,
+                    totalItems: totalItems
+                },
+            };
         }
     } catch (e) {
         console.log(e);

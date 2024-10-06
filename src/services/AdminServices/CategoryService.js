@@ -233,6 +233,8 @@ const findCategoryById = (id, categories) => {
 };
 
 const setActiveCategory = async (id) => {
+    const transaction = await db.sequelize.transaction();
+
     try {
         let categories = await db.Category.findAll({
             order: [['id', 'DESC']],
@@ -242,6 +244,7 @@ const setActiveCategory = async (id) => {
 
         const categoryToUpdate = findCategoryById(id, categoryTree);
         if (!categoryToUpdate) {
+            await transaction.rollback();
             return {
                 EM: "Danh mục không tồn tại!",
                 EC: 1,
@@ -261,6 +264,7 @@ const setActiveCategory = async (id) => {
         const newStatus = !categoryToUpdate.isActive;
 
         if (!checkParentStatus(categoryToUpdate, newStatus)) {
+            await transaction.rollback();
             return {
                 EM: "Không thể thay đổi trạng thái vì danh mục cha không hoạt động",
                 EC: 1,
@@ -270,10 +274,27 @@ const setActiveCategory = async (id) => {
 
         // Hàm cập nhật trạng thái cho sản phẩm
         const updateProductStatus = async (categoryId, status) => {
-            await db.Product.update(
-                { isActive: status },
-                { where: { categoryId: categoryId } }
-            );
+            const productsToUpdate = await db.Product.findAll({
+                where: { categoryId: categoryId },
+                transaction: transaction
+            });
+
+            const productIds = productsToUpdate.map(product => product.id);
+            console.log("productIds", productIds);
+
+            await db.Product.update({
+                isActive: status
+            }, {
+                where: { id: productIds },
+                transaction: transaction
+            });
+
+            if (status === false) {
+                await db.Cart_Detail.destroy({
+                    where: { productId: { [Op.in]: productIds } },
+                    transaction: transaction
+                });
+            }
         };
 
 
@@ -281,7 +302,10 @@ const setActiveCategory = async (id) => {
         const updateCategoryStatus = async (category, status) => {
             await db.Category.update(
                 { isActive: status },
-                { where: { id: category.id } }
+                { 
+                    where: { id: category.id },
+                    transaction: transaction
+                },
             );
 
             await updateProductStatus(category.id, status);
@@ -299,7 +323,10 @@ const setActiveCategory = async (id) => {
                 // Nếu danh mục cha không hoạt động, chỉ cập nhật trạng thái của danh mục cha
                 await db.Category.update(
                     { isActive: newStatus },
-                    { where: { id: categoryToUpdate.id } }
+                    { 
+                        where: { id: categoryToUpdate.id },
+                        transaction: transaction
+                    },
                 );
             } else {
                 // Nếu danh mục cha đang hoạt động, cập nhật trạng thái cho tất cả danh mục con
@@ -308,7 +335,10 @@ const setActiveCategory = async (id) => {
         } else {
             await db.Category.update(
                 { isActive: newStatus },
-                { where: { id: categoryToUpdate.id } }
+                { 
+                    where: { id: categoryToUpdate.id },
+                    transaction: transaction
+                },
             );
 
             // Chỉ cập nhật trạng thái sản phẩm nếu danh mục bị vô hiệu hóa
@@ -317,6 +347,7 @@ const setActiveCategory = async (id) => {
             }
         }
 
+        await transaction.commit();
         return {
             EM: "Cập nhật thành công!",
             EC: 0,
@@ -324,6 +355,7 @@ const setActiveCategory = async (id) => {
         };
         
     } catch (e) {
+        await transaction.rollback();
         console.log(e);
         return {
             EM: "Lỗi, vui lòng thử lại sau!",

@@ -329,32 +329,73 @@ const getAllProducts = async () => {
 }
 
 const setActiveField = async (id, field) => {
+    const transaction = await db.sequelize.transaction();
+
     try {
         let product = await db.Product.findOne({
             where: {
                 id: id
-            }
+            },
+            include: [
+                {
+                    model: db.Category,
+                    attributes: ['isActive'],
+                    required: true // Đảm bảo rằng có kết nối tới Category
+                },
+                {
+                    model: db.Team,
+                    attributes: ['isActive'],
+                    required: true // Đảm bảo rằng có kết nối tới Team
+                }
+            ]
         });
 
-        if(product) {
-            await product.update({
-                [field]: !product[field]
-            });
-
-            return {
-                EM: `Cập nhật thành công!`,
-                EC: 0,
-                DT: "",
-            }
-        } else {
+        if (!product) {
             return {
                 EM: "Không tìm thấy sản phẩm",
                 EC: 1,
                 DT: "",
+            };
+        }
+
+        if (field === 'isActive') {
+            // Kiểm tra nếu product đang có isActive = false mà Category hoặc Team cũng có isActive = false
+            if (!product.isActive && (product.Category.isActive === false || product.Team.isActive === false)) {
+                return {
+                    EM: "Danh mục hoặc đội bóng của sản phẩm này không hoạt động. Vui lòng kích hoạt danh mục và đội bóng trước.",
+                    EC: 1,
+                    DT: "",
+                };
+            }
+
+            if (product.isActive) {
+                await db.Cart_Detail.destroy({
+                    where: {
+                        productId: id
+                    },
+                    transaction
+                })
             }
         }
+
+        // Cập nhật trường được chỉ định (isActive, isSale, isTrending)
+        await product.update({
+            [field]: !product[field]
+        }, {
+            transaction
+        });
+
+        await transaction.commit();
+
+        return {
+            EM: `Cập nhật thành công!`,
+            EC: 0,
+            DT: "",
+        };
+
         
     } catch (e) {
+        await transaction.rollback();
         console.log(e);
         return {
             EM: "Lỗi, vui lòng thử lại sau!",

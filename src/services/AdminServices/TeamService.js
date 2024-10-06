@@ -191,11 +191,14 @@ const updateTeam = async (dataTeam) => {
 }
 
 const setActiveTeam = async (id) => {
+    const transaction = await db.sequelize.transaction();
+
     try {
         let team = await db.Team.findOne({
             where: {
                 id: id
-            }
+            },
+            transaction: transaction
         });
 
         if (team) {
@@ -203,15 +206,33 @@ const setActiveTeam = async (id) => {
 
             await team.update({
                 isActive: newStatus
+            }, {
+                transaction: transaction
             });
 
             // Chỉ cập nhật trạng thái sản phẩm nếu đội bóng bị vô hiệu hóa
             if (newStatus === false) {
+                const productsToUpdate = await db.Product.findAll({
+                    where: { teamId: team.id },
+                    transaction: transaction
+                });
+
+                const productIds = productsToUpdate.map(product => product.id);
+                console.log("productIds", productIds);
+
                 await db.Product.update(
                     { isActive: false },
-                    { where: { teamId: team.id } }
+                    { where: { id: productIds }, transaction }
                 );
+
+                await db.Cart_Detail.destroy({
+                    where: { productId: { [Op.in]: productIds } },
+                    transaction
+                });
+
             }
+
+            await transaction.commit();
 
             return {
                 EM: `Cập nhật thành công!`,
@@ -227,6 +248,7 @@ const setActiveTeam = async (id) => {
         }
         
     } catch (e) {
+        await transaction.rollback();
         console.log(e);
         return {
             EM: "Lỗi, vui lòng thử lại sau!",
