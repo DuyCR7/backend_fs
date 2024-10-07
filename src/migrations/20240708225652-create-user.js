@@ -27,11 +27,12 @@ module.exports = {
       phone: {
         type: Sequelize.STRING
       },
-      groupId: {
-        type: Sequelize.INTEGER
-      },
       image: {
-        type: Sequelize.TEXT('long')
+        type: Sequelize.STRING
+      },
+      birthdate: {
+        type: Sequelize.DATEONLY,
+        allowNull: true
       },
       isActive: {
         type: Sequelize.BOOLEAN,

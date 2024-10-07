@@ -11,7 +11,10 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      User.belongsTo(models.Group);
+      User.belongsToMany(models.Role, {
+        through: 'User_Role',
+        foreignKey: 'userId',
+      });
       User.hasMany(models.Post, {
         foreignKey: 'userId',
       });
@@ -25,7 +28,6 @@ module.exports = (sequelize, DataTypes) => {
     sex: DataTypes.STRING,
     phone: DataTypes.STRING,
     birthdate: DataTypes.DATEONLY,
-    groupId: DataTypes.INTEGER,
     image: DataTypes.STRING,
     isActive: DataTypes.BOOLEAN,
   }, {

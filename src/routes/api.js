@@ -15,6 +15,7 @@ import adVoucherController from "../controller/AdminController/VoucherController
 import adStatisticController from "../controller/AdminController/StatisticController";
 import adManageCustomerController from "../controller/AdminController/ManageCustomerController";
 import adProfileController from "../controller/AdminController/ProfileController";
+import adUserController from "../controller/AdminController/UserController";
 
 import cusAuthController from "../controller/CustomerController/AuthController";
 import cusHomeController from "../controller/CustomerController/HomeController";
@@ -54,6 +55,7 @@ const initApiRoutes = (app) => {
 
     adminRouter.use(checkUserJWT);
 
+    // api management product
     adminRouter.post('/sign-in', adAuthController.handleSignIn);
     adminRouter.post('/logout', adAuthController.handleLogout);
     adminRouter.post('/refresh-token', adAuthController.handleRefreshToken);
@@ -102,6 +104,7 @@ const initApiRoutes = (app) => {
     adminRouter.put('/product/set-active-field', adProductController.handleSetActiveField);
     adminRouter.delete('/product/delete', adProductController.handleDeleteProduct);
 
+    // api management banner
     adminRouter.post('/banner/create', upload.fields([
         { name: 'imageDesktop', maxCount: 1 },
         { name: 'imageMobile', maxCount: 1 }
@@ -115,6 +118,7 @@ const initApiRoutes = (app) => {
     adminRouter.delete('/banner/delete', adBannerController.handleDeleteBanner);
     adminRouter.delete('/banner/delete-many', adBannerController.handleDeleteBannerMany);
 
+    // api management event
     adminRouter.post('/event/create', 
         upload.fields([
             { name: 'imageDesktop', maxCount: 1 },
@@ -133,24 +137,29 @@ const initApiRoutes = (app) => {
     );
     adminRouter.delete('/event/delete', adEventController.handleDeleteEvent);
 
+    // api management post
     adminRouter.post('/post/create', upload.single('image'), adPostController.handleCreatePost);
     adminRouter.get('/post/read', adPostController.handleGetPost);
     adminRouter.put('/post/update', upload.single('image'), adPostController.handleUpdatePost);
     adminRouter.put('/post/set-active', adPostController.handleSetActive);
     adminRouter.delete('/post/delete', adPostController.handleDeletePost);
 
+    // api management voucher
     adminRouter.post('/voucher/create', adVoucherController.handleCreateVoucher);
     adminRouter.get('/voucher/read', adVoucherController.handleGetVoucher);
     adminRouter.put('/voucher/update', adVoucherController.handleUpdateVoucher);
     adminRouter.put('/voucher/set-active', adVoucherController.handleSetActive);
 
+    // api management order
     adminRouter.get('/order/read', adOrderController.handleGetOrder);
     adminRouter.put('/order/update-status/:orderId', adOrderController.handleUpdateOrderStatus);
 
+    // api management customer
     adminRouter.get('/customer/read', adManageCustomerController.handleGetCustomer);
     adminRouter.put('/customer/lock', adManageCustomerController.handleLockCustomer);
     adminRouter.put('/customer/unlock', adManageCustomerController.handleUnlockCustomer);
 
+    // api management statistic
     adminRouter.get('/statistic/get-statistic-some', adStatisticController.handleGetStatisticSome);
     adminRouter.get('/statistic/get-revenue', adStatisticController.handleGetRevenueStatistic);
     adminRouter.get('/statistic/get-best-slow-selling', adStatisticController.handleGetBestSlowSelling);
@@ -160,6 +169,13 @@ const initApiRoutes = (app) => {
 
     adminRouter.get('/profile/get-profile', adProfileController.handleGetProfile);
     adminRouter.put('/profile/update-profile', upload.single('image'), adProfileController.handleUpdateProfile);
+    adminRouter.put('/profile/change-password', adProfileController.handleChangePassword);
+
+    adminRouter.get('/user/get-all-roles', adUserController.handleGetAllRoles);
+    adminRouter.post('/user/create', upload.single('image'), adUserController.handleCreateUser);
+    adminRouter.get('/user/read', adUserController.handleReadUser);
+    adminRouter.put('/user/update', upload.single('image'), adUserController.handleUpdateUser);
+    adminRouter.put('/user/set-active', adUserController.handleSetActive);
 
     router.use('/admin', adminRouter);
 
@@ -239,7 +255,7 @@ const initApiRoutes = (app) => {
     router.put('/profile/update-profile', checkCustomerJWT, upload.single('image'), cusProfileController.handleUpdateProfile);
     router.put('/profile/change-password', checkCustomerJWT, cusProfileController.handleChangePassword);
 
-    router.post('/chat', chatController.handleCreateOrUpdateChat);
+    router.post('/chat', chatController.handleCreateOrGetChat);
     router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);
     router.post('/chat/send-message', chatController.handleSendMessage);
     router.get('/chat/get-messages/:chatId', chatController.handleGetMessages);

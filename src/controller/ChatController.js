@@ -1,10 +1,10 @@
 import chatService from "../services/ChatService";
 
-const handleCreateOrUpdateChat = async (req, res) => {
+const handleCreateOrGetChat = async (req, res) => {
     const { cusId } = req.body;
 
     try {
-        let data = await chatService.createOrUpdateChat(cusId);
+        let data = await chatService.createOrGetChat(cusId);
 
         return res.status(200).json({
             EM: data.EM,   // error message
@@ -172,7 +172,7 @@ const handleGetCurrentChat = async (req, res) => {
 }
 
 module.exports = {
-    handleCreateOrUpdateChat,
+    handleCreateOrGetChat,
     handleGetAdminChats,
     handleSendMessage,
     handleGetMessages,

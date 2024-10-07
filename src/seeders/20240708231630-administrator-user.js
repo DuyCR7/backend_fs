@@ -22,7 +22,6 @@ module.exports = {
           email: 'duy0184666@huce.edu.vn',
           password: bcrypt.hashSync('12345678', salt),
           username: 'admin',
-          groupId: 1,
           createdAt: new Date(),
           updatedAt: new Date(),
           image: "avatar.jpg",

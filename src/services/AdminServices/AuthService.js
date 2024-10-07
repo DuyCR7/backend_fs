@@ -10,6 +10,35 @@ const checkPassword = (inputPassword, hashPassword) => {
   return bcrypt.compareSync(inputPassword, hashPassword); // true or false
 };
 
+const getRolesAndPermissions = async (userId) => {
+  try {
+    let user = await db.User.findByPk(userId, {
+      include: [
+        {
+          model: db.Role,
+          through: { model: db.User_Role, attributes: [] },
+          include: [
+            {
+              model: db.Permission,
+              through: { model: db.Role_Permission, attributes: [] },
+            }
+          ]
+        }
+      ]
+    });
+
+    const rolesAndPermissions = user.Roles.map(role => ({
+      roleName: role.name,
+      permissions: role.Permissions.map(permission => permission.url),
+    }));
+
+    return rolesAndPermissions ? rolesAndPermissions : [];
+
+  } catch (e) {
+    console.error(e);
+  }
+}
+
 const signInUser = async (email, password) => {
   try {
     let user = await db.User.findOne({
@@ -18,20 +47,27 @@ const signInUser = async (email, password) => {
       },
     });
 
-    // console.log("Check user js object: ", user.get({ plain: true}));
-    // console.log("Check user sequelize object: ", user);
     if (user) {
+      if (!user.isActive) {
+        return {
+          EM: "Tài khoản đã bị khoá!",
+          EC: -1,
+          DT: "",
+        };
+      }
+
       let isPasswordCorrect = checkPassword(
         password,
         user.password
       );
       if (isPasswordCorrect) {
         // let groupWithRoles = await getGroupWithRoles(user);
+        let rolesAndPermissions = await getRolesAndPermissions(user.id);
         let payload = {
           id: user.id,
           email: user.email,
           username: user.username,
-        //   groupWithRoles,
+          rolesAndPermissions: rolesAndPermissions
         };
 
         // let token
@@ -44,7 +80,7 @@ const signInUser = async (email, password) => {
           DT: {
             access_token: token,
             refresh_token: refresh_token,
-            // groupWithRoles,
+            rolesAndPermissions: rolesAndPermissions,
             id: user.id,
             email: user.email,
             username: user.username,

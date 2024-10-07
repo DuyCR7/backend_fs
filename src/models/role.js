@@ -11,13 +11,18 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Role.belongsToMany(models.Group, { through: 'Group_Role', foreignKey: 'roleId' });
+      Role.belongsToMany(models.Permission, {
+        through: 'Role_Permission',
+        foreignKey: 'roleId',
+      });
+      Role.belongsToMany(models.User, {
+        through: 'User_Role',
+        foreignKey: 'roleId',
+      })
     }
   }
   Role.init({
-    url: DataTypes.STRING,
-    description: DataTypes.STRING,
-    isActice: DataTypes.BOOLEAN,
+    name: DataTypes.STRING,
   }, {
     sequelize,
     modelName: 'Role',

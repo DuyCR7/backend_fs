@@ -1,9 +1,20 @@
 import db from "../models/index";
 import { Op } from "sequelize";
 
-const createOrUpdateChat = async (cusId) => {
+const createOrGetChat = async (cusId) => {
   try {
-    const users = await db.User.findAll();
+    const users = await db.User.findAll({
+      attributes: ['id', 'username'],
+      include: [
+        {
+          model: db.Role,
+          where: {
+            id: 8
+          },
+          through: { attributes: [] }
+        }
+      ]
+    });
     const participants = users.map((user) => ({
       id: user.id,
       username: user.username,
@@ -16,21 +27,24 @@ const createOrUpdateChat = async (cusId) => {
     });
 
     if (chat) {
-      await chat.update({
-        participants: [...participants],
-      });
+      return {
+        EM: "Lấy đoạn chat thành công!",
+        EC: 0,
+        DT: chat,
+      }
     } else {
       chat = await db.Chat.create({
         cusId: cusId,
         participants: [...participants],
       });
+
+      return {
+        EM: "Tạo đoạn chat thành công!",
+        EC: 0,
+        DT: chat,
+      };
     }
 
-    return {
-      EM: "Tạo hoặc cập nhật đoạn chat thành công!",
-      EC: 0,
-      DT: chat,
-    };
   } catch (e) {
     console.log(e);
     return {
@@ -354,7 +368,7 @@ const getCurrentChat = async (cusId) => {
 }
 
 module.exports = {
-  createOrUpdateChat,
+  createOrGetChat,
   getAdminChats,
   sendMessage,
   getMessages,
