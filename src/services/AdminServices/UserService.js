@@ -134,7 +134,7 @@ const createUser = async (dataUser) => {
     await sendEmail(user.email, "Thông tin tài khoản quản trị của bạn", emailContent);
 
     return {
-      EM: "Thêm mới admin thành công!",
+      EM: "Thêm mới admin thành công! Đã gửi email đến cho admin.",
       EC: 0,
       DT: user,
     };
@@ -323,7 +323,7 @@ const updateUser = async (dataUser) => {
     await sendEmail(dataUser.email, "Cập nhật thông tin tài khoản quản trị của bạn", emailContent);
 
       return {
-        EM: "Cập nhật thông tin admin thành công!",
+        EM: "Cập nhật thông tin admin thành công! Đã gửi email đến cho admin.",
         EC: 0,
         DT: user,
       };

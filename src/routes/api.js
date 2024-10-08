@@ -177,6 +177,14 @@ const initApiRoutes = (app) => {
     adminRouter.put('/user/update', upload.single('image'), adUserController.handleUpdateUser);
     adminRouter.put('/user/set-active', adUserController.handleSetActive);
 
+    // api chat
+    adminRouter.get('/chat/get-admin-chats', chatController.handleGetAdminChats);
+    adminRouter.post('/chat/send-message', chatController.handleSendMessage);
+    adminRouter.get('/chat/get-messages/:chatId', chatController.handleGetMessages);
+    adminRouter.get('/chat/get-last-message/:chatId', chatController.handleGetLastMessage);
+    adminRouter.get('/chat/get-unread-message-count', chatController.handleGetUnreadMessageCount);
+    adminRouter.put('/chat/mark-messages-as-read', chatController.handleMarkMessagesAsRead);
+
     router.use('/admin', adminRouter);
 
     router.post('/sign-up', cusAuthController.handleSignUp);
@@ -256,10 +264,8 @@ const initApiRoutes = (app) => {
     router.put('/profile/change-password', checkCustomerJWT, cusProfileController.handleChangePassword);
 
     router.post('/chat', chatController.handleCreateOrGetChat);
-    router.get('/chat/get-admin-chats/:userId', chatController.handleGetAdminChats);
     router.post('/chat/send-message', chatController.handleSendMessage);
     router.get('/chat/get-messages/:chatId', chatController.handleGetMessages);
-    router.get('/chat/get-last-message/:chatId', chatController.handleGetLastMessage);
     router.get('/chat/get-unread-message-count', chatController.handleGetUnreadMessageCount);
     router.put('/chat/mark-messages-as-read', chatController.handleMarkMessagesAsRead);
 

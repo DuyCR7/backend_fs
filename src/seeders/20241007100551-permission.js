@@ -199,12 +199,9 @@ module.exports = {
         url: "/customer/unlock",
       },
 
-      // chat: 57-64
+      // chat: 57-62
       {
-        url: "/chat",
-      },
-      {
-        url: "/chat/get-admin-chat/",
+        url: "/chat/get-admin-chat",
       },
       {
         url: "/chat/send-message",
@@ -221,11 +218,8 @@ module.exports = {
       {
         url: "/chat/mark-messages-as-read",
       },
-      {
-        url: "/chat/get-current-chat/",
-      },
 
-      // manage admin: 65-69
+      // manage admin: 63-67
       {
         url: "/user/get-all-roles",
       },

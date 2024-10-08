@@ -251,7 +251,7 @@ module.exports = {
         permissionId: 56,
       },
 
-      // chat: 57-64
+      // chat: 57-62
       {
         roleId: 8,
         permissionId: 57,
@@ -276,16 +276,16 @@ module.exports = {
         roleId: 8,
         permissionId: 62,
       },
+
+      // manage admin: 63-67
       {
-        roleId: 8,
+        roleId: 9,
         permissionId: 63,
       },
       {
-        roleId: 8,
+        roleId: 9,
         permissionId: 64,
       },
-
-      // statistic: 65-69
       {
         roleId: 9,
         permissionId: 65,
@@ -297,14 +297,6 @@ module.exports = {
       {
         roleId: 9,
         permissionId: 67,
-      },
-      {
-        roleId: 9,
-        permissionId: 68,
-      },
-      {
-        roleId: 9,
-        permissionId: 69,
       },
     ]);
   },

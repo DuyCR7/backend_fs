@@ -23,7 +23,7 @@ const handleCreateOrGetChat = async (req, res) => {
 
 const handleGetAdminChats = async (req, res) => {
 
-    const userId = +req.params.userId;
+    const userId = req.user.id;
 
     try {
         let data = await chatService.getAdminChats(userId);
