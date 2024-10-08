@@ -150,27 +150,6 @@ const handleMarkMessagesAsRead = async (req, res) => {
     }
 }
 
-const handleGetCurrentChat = async (req, res) => {
-    const { cusId } = req.params;
-
-    try {
-        let data = await chatService.getCurrentChat(cusId);
-
-        return res.status(200).json({
-            EM: data.EM,   // error message
-            EC: data.EC,   // error code
-            DT: data.DT,   // data
-        });
-    } catch (e) {
-        console.log(e);
-        return res.status(500).json({
-            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
-            EC: -1,   // error code
-            DT: '',   // data
-        })
-    }
-}
-
 module.exports = {
     handleCreateOrGetChat,
     handleGetAdminChats,
@@ -179,5 +158,4 @@ module.exports = {
     handleGetLastMessage,
     handleGetUnreadMessageCount,
     handleMarkMessagesAsRead,
-    handleGetCurrentChat,
 }

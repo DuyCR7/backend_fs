@@ -111,11 +111,11 @@ const checkUserPermission = (req, res, next) => {
     if(nonSecurePathsPermissions.includes(req.path)) return next();
     // console.log(req.path);
     if(req.user){
-        console.log("User: ", req.user);
+        // console.log("User: ", req.user);
         let permissions = req.user.rolesAndPermissions.flatMap(role => role.permissions);
 
-        console.log("permissions", permissions);
-        console.log(req.path);
+        // console.log("permissions", permissions);
+        // console.log(req.path);
 
         let currentUrl = req.path;
         if(!permissions || permissions.length === 0){
@@ -131,7 +131,7 @@ const checkUserPermission = (req, res, next) => {
             // Kiểm tra xem đường dẫn hiện tại có bắt đầu bằng quyền không
             return currentUrl.startsWith(permission);
         });
-        console.log("Can access:", canAccess);
+        // console.log("Can access:", canAccess);
         if(canAccess === true) {
             next();
         } else {

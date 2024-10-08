@@ -27,6 +27,9 @@ const createOrGetChat = async (cusId) => {
     });
 
     if (chat) {
+      chat = chat.toJSON();
+      chat.participants = JSON.parse(chat.participants);
+
       return {
         EM: "Lấy đoạn chat thành công!",
         EC: 0,
@@ -37,6 +40,9 @@ const createOrGetChat = async (cusId) => {
         cusId: cusId,
         participants: [...participants],
       });
+
+      chat = chat.toJSON();
+      chat.participants = participants;
 
       return {
         EM: "Tạo đoạn chat thành công!",
@@ -335,38 +341,6 @@ console.log("messages", messages);
   }
 }
 
-const getCurrentChat = async (cusId) => {
-  try {
-    const chat = await db.Chat.findOne({
-      where: {
-        cusId: cusId,
-      },
-    });
-
-    if (!chat) {
-      return {
-        EM: "Đoạn chat không tồn tại!",
-        EC: 1,
-        DT: "",
-      };
-    }
-
-    return {
-      EM: "Lấy đoạn chat hiện tại thành công!",
-      EC: 0,
-      DT: chat.id,
-    };
-
-  } catch (e) {
-    console.log(e);
-    return {
-      EM: "Lỗi, vui lòng thử lại sau!",
-      EC: -1,
-      DT: "",
-    };
-  }
-}
-
 module.exports = {
   createOrGetChat,
   getAdminChats,
@@ -375,5 +349,4 @@ module.exports = {
   getLastMessage,
   getUnreadMessageCount,
   markMessagesAsRead,
-  getCurrentChat,
 };
