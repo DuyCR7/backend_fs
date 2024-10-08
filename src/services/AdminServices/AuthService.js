@@ -104,39 +104,6 @@ const signInUser = async (email, password) => {
   }
 };
 
-const getUserById = async (id) => {
-    try {
-      let user = await db.User.findOne({
-        where: {
-          id: id
-        },
-        attributes: ['id', 'email', 'username', 'phone','sex', 'address', 'image']
-      });
-  
-      if (user) {
-        return {
-          EM: "Lấy thông tin người dùng dựa vào id thành công!",
-          EC: 0,
-          DT: user,
-        };
-      }
-  
-      return {
-        EM: "Không tìm thấy người dùng!",
-        EC: 1,
-        DT: "",
-      };
-  
-    } catch (e) {
-      console.log(e);
-      return {
-        EM: "Lỗi, vui lòng thử lại sau!",
-        EC: -1,
-      };
-    }
-  }
-
 module.exports = {
     signInUser,
-    getUserById
 };

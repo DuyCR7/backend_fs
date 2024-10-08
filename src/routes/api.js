@@ -53,14 +53,12 @@ const adminRouter = express.Router();
 
 const initApiRoutes = (app) => {
 
-    adminRouter.use(checkUserJWT);
+    adminRouter.use(checkUserJWT, checkUserPermission);
 
     // api management product
     adminRouter.post('/sign-in', adAuthController.handleSignIn);
     adminRouter.post('/logout', adAuthController.handleLogout);
     adminRouter.post('/refresh-token', adAuthController.handleRefreshToken);
-    adminRouter.get('/account', adAuthController.handleGetUserAccount);
-    adminRouter.get("/get-by-id/:id", adAuthController.handleGetUserById);
 
     adminRouter.post('/team/create', upload.single('image'), adTeamController.handleCreateTeam);
     adminRouter.get('/team/read', adTeamController.handleGetTeam);
@@ -167,10 +165,12 @@ const initApiRoutes = (app) => {
     adminRouter.get('/statistic/get-order-status', adStatisticController.handleGetOrderStatus);
     adminRouter.get('/statistic/get-available-product', adStatisticController.handleGetAvailableProduct);
 
+    // api management profile
     adminRouter.get('/profile/get-profile', adProfileController.handleGetProfile);
     adminRouter.put('/profile/update-profile', upload.single('image'), adProfileController.handleUpdateProfile);
     adminRouter.put('/profile/change-password', adProfileController.handleChangePassword);
 
+    // api management user
     adminRouter.get('/user/get-all-roles', adUserController.handleGetAllRoles);
     adminRouter.post('/user/create', upload.single('image'), adUserController.handleCreateUser);
     adminRouter.get('/user/read', adUserController.handleReadUser);

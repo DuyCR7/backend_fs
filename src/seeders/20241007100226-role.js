@@ -38,7 +38,7 @@ module.exports = {
         name: "Chăm sóc khách hàng",
       },
       {
-        name: "Báo cáo thống kê"
+        name: "Quản lý admin"
       }
     ]);
   },

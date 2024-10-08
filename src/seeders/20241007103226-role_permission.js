@@ -285,7 +285,7 @@ module.exports = {
         permissionId: 64,
       },
 
-      // statistic: 65-70
+      // statistic: 65-69
       {
         roleId: 9,
         permissionId: 65,
@@ -305,10 +305,6 @@ module.exports = {
       {
         roleId: 9,
         permissionId: 69,
-      },
-      {
-        roleId: 9,
-        permissionId: 70,
       },
     ]);
   },

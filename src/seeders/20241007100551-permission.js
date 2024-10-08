@@ -225,25 +225,22 @@ module.exports = {
         url: "/chat/get-current-chat/",
       },
 
-      // statistic: 65-70
+      // manage admin: 65-69
       {
-        url: "/statistic/get-statistic-some",
+        url: "/user/get-all-roles",
       },
       {
-        url: "/statistic/get-revenue",
+        url: "/user/create",
       },
       {
-        url: "/statistic/get-best-slow-selling",
+        url: "/user/read",
       },
       {
-        url: "/statistic/get-best-wishlist",
+        url: "/user/update",
       },
       {
-        url: "/statistic/get-order-status",
-      },
-      {
-        url: "/statistic/get-available-product",
-      },
+        url: "/user/set-active",
+      }
     ]);
   },
 
