@@ -4,7 +4,7 @@ import slugify from "slugify";
 const handleCreateCategory = async (req, res) => {
     // validate
     if(!req.body.name){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập tên danh mục!',   // error message
             EC: 1,   // error code
             DT: 'name',   // data
@@ -12,7 +12,7 @@ const handleCreateCategory = async (req, res) => {
     }
     
     if(!req.file){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng chọn hình ảnh!',   // error message
             EC: 1,   // error code
             DT: 'image',   // data
@@ -94,7 +94,7 @@ const handleGetCategory = async (req, res) => {
 const handleUpdateCategory = async (req, res) => {
     try {
         if(!req.body.name){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập tên danh mục!',   // error message
                 EC: 1,   // error code
                 DT: 'name',   // data
@@ -104,7 +104,7 @@ const handleUpdateCategory = async (req, res) => {
         let id = req.body.id;
         let category = await categoryService.getCategoryById(id);
         if(!category) {
-            return res.status(200).json({
+            return res.status(404).json({
                 EM: 'Danh mục không tồn tại!',   // error message
                 EC: 1,   // error code
                 DT: '',   // data

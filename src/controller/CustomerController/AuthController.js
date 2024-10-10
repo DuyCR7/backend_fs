@@ -16,7 +16,7 @@ const handleSignUp = async (req, res) => {
         const confirmPassword = req.body.confirmPassword;
         console.log(req.body);
         if(!email){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập email!',   // error message
                 EC: 1,   // error code
                 DT: 'email',   // data
@@ -24,7 +24,7 @@ const handleSignUp = async (req, res) => {
         }
 
         if(!validateEmail(email)){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập đúng định dạng email!',   // error message
                 EC: 1,   // error code
                 DT: 'email',   // data
@@ -32,7 +32,7 @@ const handleSignUp = async (req, res) => {
         }
 
         if(!password){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập mật khẩu!',   // error message
                 EC: 1,   // error code
                 DT: 'password',   // data
@@ -40,7 +40,7 @@ const handleSignUp = async (req, res) => {
         }
 
         if(password.includes(' ')) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu không được chứa khoảng trắng!',   // error message
                 EC: 1,   // error code
                 DT: 'password',   // data
@@ -48,7 +48,7 @@ const handleSignUp = async (req, res) => {
         }
 
         if(password && password.length < 8){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu tối thiểu phải có 8 ký tự!',   // error message
                 EC: 1,   // error code
                 DT: 'password',   // data
@@ -56,7 +56,7 @@ const handleSignUp = async (req, res) => {
         }
 
         if (!confirmPassword) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng xác nhận lại mật khẩu!',   // error message
                 EC: 1,   // error code
                 DT: 'cfPassword',   // data
@@ -64,7 +64,7 @@ const handleSignUp = async (req, res) => {
         }
 
         if(password !== confirmPassword){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu xác nhận không khớp!',   // error message
                 EC: 1,   // error code
                 DT: 'cfPassword',   // data
@@ -117,7 +117,7 @@ const handleSignIn = async (req, res) => {
         console.log(req.body);
 
         if(!email){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập email!',   // error message
                 EC: 1,   // error code
                 DT: 'email',   // data
@@ -125,7 +125,7 @@ const handleSignIn = async (req, res) => {
         }
 
         if(!password){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập mật khẩu!',   // error message
                 EC: 1,   // error code
                 DT: 'password',   // data
@@ -300,7 +300,7 @@ const handleVerifyAndResetPassword = async (req, res) => {
         let password = req.body.password;
 
         if(password && password.length < 8){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu tối thiểu phải có 8 ký tự!',   // error message
                 EC: 1,   // error code
                 DT: '',   // data
@@ -332,7 +332,7 @@ const handleResetPassword = async (req, res) => {
         let password = req.body.password;
 
         if(password && password.length < 8){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu tối thiểu phải có 8 ký tự!',   // error message
                 EC: 1,   // error code
                 DT: '',   // data

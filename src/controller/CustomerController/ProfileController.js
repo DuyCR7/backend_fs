@@ -22,10 +22,35 @@ const handleGetProfile = async (req, res) => {
     }
 }
 
+const validateEmail = (email) => {
+    return String(email)
+        .toLowerCase()
+        .match(
+            /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+        );
+};
+
 const handleSendVerificationCode = async (req, res) => {
     try {
+
+        if(!req.body.email){
+            return res.status(400).json({
+                EM: 'Vui lòng nhập email!',   // error message
+                EC: 1,   // error code
+                DT: 'email',   // data
+            })
+        }
+
         const cusId = req.user.id;
         const email = req.body.email;
+
+        if(!validateEmail(email)){
+            return res.status(400).json({
+                EM: 'Vui lòng nhập đúng định dạng email!',   // error message
+                EC: 1,   // error code
+                DT: 'email',   // data
+            })
+        }
 
         let data = await profileService.sendVerifycationCode(cusId, email);
         
@@ -80,7 +105,7 @@ const handleUpdateProfile = async (req, res) => {
         if (birthdate) {
             const birthDate = moment(birthdate, 'YYYY-MM-DD', true);
             if (!birthDate.isValid()) {
-                return res.status(200).json({
+                return res.status(400).json({
                     EM: 'Ngày sinh không hợp lệ!',   // error message
                     EC: -1,   // error code
                     DT: '',   // data
@@ -88,7 +113,7 @@ const handleUpdateProfile = async (req, res) => {
             }
 
             if (birthDate.isAfter(moment())) {
-                return res.status(200).json({
+                return res.status(400).json({
                     EM: 'Ngày sinh phải nhỏ hơn ngày hiện tại!',   // error message
                     EC: -1,   // error code
                     DT: '',   // data
@@ -120,7 +145,7 @@ const handleChangePassword = async (req, res) => {
         const confirmPassword = req.body.confirmPassword;
 
         if (!oldPassword) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập mật khẩu cũ!',
                 EC: 1,
                 DT: 'oldPassword',
@@ -128,7 +153,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (!newPassword) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập mật khẩu mới!',
                 EC: 1,
                 DT: 'newPassword',
@@ -136,7 +161,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (newPassword.includes(' ')) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu không được chứa khoảng trống!',
                 EC: 1,
                 DT: 'newPassword',
@@ -144,7 +169,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (newPassword.length < 8) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu tối thiểu phải có 8 ký tự!',
                 EC: 1,
                 DT: 'newPassword',
@@ -152,7 +177,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (!confirmPassword) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng xác nhận mật khẩu mới!',
                 EC: 1,
                 DT: 'confirmPassword',
@@ -160,7 +185,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (newPassword !== confirmPassword) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu xác nhận không đúng!',
                 EC: 1,
                 DT: 'confirmPassword',

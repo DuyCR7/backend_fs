@@ -3,7 +3,7 @@ import colorService from "../../services/AdminServices/ColorService";
 const handleCreateColor = async (req, res) => {
     // validate
     if(!req.body.name){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập tên màu!',   // error message
             EC: 1,   // error code
             DT: 'name',   // data
@@ -11,7 +11,7 @@ const handleCreateColor = async (req, res) => {
     }
     
     if(!req.body.code){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập mã màu!',   // error message
             EC: 1,   // error code
             DT: 'code',   // data
@@ -108,7 +108,7 @@ const handleSetActive = async (req, res) => {
 const handleUpdateColor = async (req, res) => {
     try {
         if(!req.body.name){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập tên đội bóng!',   // error message
                 EC: 1,   // error code
                 DT: 'name',   // data
@@ -116,7 +116,7 @@ const handleUpdateColor = async (req, res) => {
         }
 
         if(!req.body.code){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập tên mã code!',   // error message
                 EC: 1,   // error code
                 DT: 'name',   // data

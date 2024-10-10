@@ -95,7 +95,7 @@ const handleCreateProduct = async (req, res) => {
         } = req.body;
         
         if(!name || !price || !categoryId || !teamId || !req.files.images || !req.files.detailImages || !imageInfo || !productDetails) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập đầy đủ thông tin!',   // error message
                 EC: 1,   // error code
                 DT: '',   // data
@@ -103,7 +103,7 @@ const handleCreateProduct = async (req, res) => {
         }
 
         if(price_sale && +price_sale <= 0) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Giá khuyến mãi phải lớn hơn 0!',   // error message
                 EC: 1,   // error code
                 DT: 'price_sale',   // data
@@ -159,7 +159,7 @@ const handleUpdateProduct = async (req, res) => {
         } = req.body;
         
         if(!name || !price || !categoryId || !teamId || !imageInfo || !productDetails) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập đầy đủ thông tin!',   // error message
                 EC: 1,   // error code
                 DT: '',   // data
@@ -168,7 +168,7 @@ const handleUpdateProduct = async (req, res) => {
 
         let product = await productService.getProductById(id);
         if(!product) {
-            return res.status(200).json({
+            return res.status(404).json({
                 EM: 'Sản phẩm không tồn tại!',   // error message
                 EC: -1,   // error code
                 DT: '',   // data
@@ -177,7 +177,7 @@ const handleUpdateProduct = async (req, res) => {
         // console.log("product", product.DT);
         
         if(price_sale && +price_sale <= 0) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Giá khuyến mãi phải lớn hơn 0!',   // error message
                 EC: 1,   // error code
                 DT: 'price_sale',   // data

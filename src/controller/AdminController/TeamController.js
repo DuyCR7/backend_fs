@@ -4,7 +4,7 @@ import slugify from "slugify";
 const handleCreateTeam = async (req, res) => {
     // validate
     if(!req.body.name){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập tên đội bóng!',   // error message
             EC: 1,   // error code
             DT: 'name',   // data
@@ -12,7 +12,7 @@ const handleCreateTeam = async (req, res) => {
     }
     
     if(!req.file){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng chọn hình ảnh!',   // error message
             EC: 1,   // error code
             DT: 'image',   // data
@@ -89,7 +89,7 @@ const handleGetTeam = async (req, res) => {
 const handleUpdateTeam = async (req, res) => {
     try {
         if(!req.body.name){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập tên đội bóng!',   // error message
                 EC: 1,   // error code
                 DT: 'name',   // data
@@ -99,7 +99,7 @@ const handleUpdateTeam = async (req, res) => {
         let id = req.body.id;
         let team = await teamService.getTeamById(id);
         if(!team) {
-            return res.status(200).json({
+            return res.status(404).json({
                 EM: 'Đội bóng không tồn tại!',   // error message
                 EC: 1,   // error code
                 DT: '',   // data

@@ -78,7 +78,7 @@ const handleSubmitReview = async (req, res) => {
         const { rating, comment } = req.body;
 
         if (!rating || rating < 1 || rating > 5) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Rating không hợp lệ, phải từ 1 đến 5.', 
                 EC: 1,
                 DT: ''
@@ -110,7 +110,7 @@ const handleUpdateReview = async (req, res) => {
         const { rating, comment } = req.body;
 
         if (!rating || rating < 1 || rating > 5) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Rating không hợp lệ, phải từ 1 đến 5.', 
                 EC: 1,
                 DT: ''

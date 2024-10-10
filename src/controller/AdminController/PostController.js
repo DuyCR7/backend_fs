@@ -4,7 +4,7 @@ import slugify from "slugify";
 const handleCreatePost = async (req, res) => {
     // validate
     if(!req.body.title){
-        return res.status(200).json({
+        return res.status(404).json({
             EM: 'Vui lòng nhập tiêu đề bài viết!',   // error message
             EC: 1,   // error code
             DT: 'title',   // data
@@ -12,7 +12,7 @@ const handleCreatePost = async (req, res) => {
     }
     
     if(!req.file){
-        return res.status(200).json({
+        return res.status(404).json({
             EM: 'Vui lòng chọn hình ảnh!',   // error message
             EC: 1,   // error code
             DT: 'image',   // data
@@ -91,7 +91,7 @@ const handleGetPost = async (req, res) => {
 const handleUpdatePost = async (req, res) => {
     try {
         if(!req.body.title){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập tiêu đề bài viết!',   // error message
                 EC: 1,   // error code
                 DT: 'title',   // data
@@ -101,7 +101,7 @@ const handleUpdatePost = async (req, res) => {
         let id = req.body.id;
         let post = await postService.getPostById(id);
         if(!post) {
-            return res.status(200).json({
+            return res.status(404).json({
                 EM: 'Bài viết không tồn tại!',   // error message
                 EC: 1,   // error code
                 DT: '',   // data

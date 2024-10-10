@@ -3,7 +3,7 @@ import bannerService from "../../services/AdminServices/BannerService";
 const handleCreateBanner = async (req, res) => {
     // validate
     if(!req.body.name){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập tên banner!',   // error message
             EC: 1,   // error code
             DT: 'name',   // data
@@ -11,7 +11,7 @@ const handleCreateBanner = async (req, res) => {
     }
 
     if(!req.body.url) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập đường dẫn!',   // error message
             EC: 1,   // error code
             DT: 'url',   // data
@@ -19,7 +19,7 @@ const handleCreateBanner = async (req, res) => {
     }
 
     if(!req.files['imageDesktop']){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng chọn hình ảnh desktop!',   // error message
             EC: 1,   // error code
             DT: 'imageDesktop',   // data
@@ -27,7 +27,7 @@ const handleCreateBanner = async (req, res) => {
     }
 
     if(!req.files['imageMobile']){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng chọn hình ảnh mobile!',   // error message
             EC: 1,   // error code
             DT: 'imageMobile',   // data
@@ -118,7 +118,7 @@ const handleSetActive = async (req, res) => {
 const handleUpdateBanner = async (req, res) => {
     try {
         if(!req.body.name){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập tên banner!',   // error message
                 EC: 1,   // error code
                 DT: 'name',   // data
@@ -126,7 +126,7 @@ const handleUpdateBanner = async (req, res) => {
         }
 
         if(!req.body.url) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập đường dẫn!',   // error message
                 EC: 1,   // error code
                 DT: 'url',   // data
@@ -136,7 +136,7 @@ const handleUpdateBanner = async (req, res) => {
         let id = req.body.id;
         let banner = await bannerService.getBannerById(id);
         if(!banner) {
-            return res.status(200).json({
+            return res.status(404).json({
                 EM: 'Banner không tồn tại!',   // error message
                 EC: 1,   // error code
                 DT: '',   // data

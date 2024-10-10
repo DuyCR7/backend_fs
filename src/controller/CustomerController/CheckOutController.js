@@ -24,7 +24,7 @@ const handleGetAddress = async (req, res) => {
 
 const handleAddNewAddress = async (req, res) => {
     if(!req.body.name){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập tên!',   // error message
             EC: 1,   // error code
             DT: 'name',   // data
@@ -32,7 +32,7 @@ const handleAddNewAddress = async (req, res) => {
     }
     
     if(!req.body.address){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập địa chỉ!',   // error message
             EC: 1,   // error code
             DT: 'address',   // data
@@ -40,7 +40,7 @@ const handleAddNewAddress = async (req, res) => {
     }
 
     if(!req.body.phone){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập số điện thoại!',   // error message
             EC: 1,   // error code
             DT: 'phone',   // data
@@ -48,7 +48,7 @@ const handleAddNewAddress = async (req, res) => {
     }
 
     if(!req.body.email){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập email!',   // error message
             EC: 1,   // error code
             DT: 'email',   // data
@@ -91,7 +91,7 @@ const handleAddNewAddress = async (req, res) => {
 
 const handleUpdateAddress = async (req, res) => {
     if(!req.body.name){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập tên!',   // error message
             EC: 1,   // error code
             DT: 'name',   // data
@@ -99,7 +99,7 @@ const handleUpdateAddress = async (req, res) => {
     }
     
     if(!req.body.address){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập địa chỉ!',   // error message
             EC: 1,   // error code
             DT: 'address',   // data
@@ -107,7 +107,7 @@ const handleUpdateAddress = async (req, res) => {
     }
 
     if(!req.body.phone){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập số điện thoại!',   // error message
             EC: 1,   // error code
             DT: 'phone',   // data
@@ -115,7 +115,7 @@ const handleUpdateAddress = async (req, res) => {
     }
 
     if(!req.body.email){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập email!',   // error message
             EC: 1,   // error code
             DT: 'email',   // data

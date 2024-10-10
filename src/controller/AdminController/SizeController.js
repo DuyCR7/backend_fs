@@ -3,7 +3,7 @@ import sizeService from "../../services/AdminServices/SizeService";
 const handleCreateSize = async (req, res) => {
     // validate
     if(!req.body.name){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập tên size!',   // error message
             EC: 1,   // error code
             DT: 'name',   // data
@@ -11,7 +11,7 @@ const handleCreateSize = async (req, res) => {
     }
     
     if(!req.body.code){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập mã code!',   // error message
             EC: 1,   // error code
             DT: 'code',   // data
@@ -108,7 +108,7 @@ const handleSetActive = async (req, res) => {
 const handleUpdateSize = async (req, res) => {
     try {
         if(!req.body.name){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập tên đội bóng!',   // error message
                 EC: 1,   // error code
                 DT: 'name',   // data
@@ -116,7 +116,7 @@ const handleUpdateSize = async (req, res) => {
         }
 
         if(!req.body.code){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập tên mã code!',   // error message
                 EC: 1,   // error code
                 DT: 'name',   // data

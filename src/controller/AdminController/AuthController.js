@@ -7,7 +7,7 @@ const handleSignIn = async (req, res) => {
         const password = req.body.password;
 
         if(!email){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập email!',   // error message
                 EC: 1,   // error code
                 DT: 'email',   // data
@@ -15,7 +15,7 @@ const handleSignIn = async (req, res) => {
         }
 
         if(!password){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập mật khẩu!',   // error message
                 EC: 1,   // error code
                 DT: 'password',   // data

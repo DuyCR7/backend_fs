@@ -22,7 +22,7 @@ const handleCreateVoucher = async (req, res) => {
     // console.log("usageLimit", usageLimit);
 
     if(!code || !code.trim()) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Vui lòng nhập mã code giảm giá",
             EC: 1,
             DT: 'code',
@@ -31,7 +31,7 @@ const handleCreateVoucher = async (req, res) => {
 
     if (discountType === "fixed") {
         if (!discountValue || discountValue <= 0) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: "Giá trị giảm phải lớn hơn 0",
                 EC: 1,
                 DT: 'discountValue',
@@ -39,21 +39,21 @@ const handleCreateVoucher = async (req, res) => {
         }
     } else if (discountType === "percentage") {
         if (!discountValue || discountValue <= 0 || discountValue > 100) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: "Giá trị giảm phải trong khoảng từ 1 đến 100",
                 EC: 1,
                 DT: 'discountValue',
             });
         }
         if (!maxDiscountAmount || maxDiscountAmount <= 0) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: "Giá trị giảm tối đa phải lớn hơn 0",
                 EC: 1,
                 DT: 'maxDiscountAmount',
             });
         }
     } else {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Loại giảm giá không hợp lệ",
             EC: 1,
             DT: 'discountType',
@@ -61,7 +61,7 @@ const handleCreateVoucher = async (req, res) => {
     }
 
     if (!minOrderValue || minOrderValue <= 0) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Giá trị đơn hàng tối thiểu phải lớn hơn 0",
             EC: 1,
             DT: 'minOrderValue',
@@ -69,7 +69,7 @@ const handleCreateVoucher = async (req, res) => {
     }
 
     if (!req.body.startDate) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Vui lòng chọn ngày bắt đầu",
             EC: 1,
             DT:'startDate',
@@ -77,7 +77,7 @@ const handleCreateVoucher = async (req, res) => {
     }
 
     if (!req.body.endDate) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Vui lòng chọn ngày kết thúc",
             EC: 1,
             DT: 'endDate',
@@ -180,7 +180,7 @@ const handleUpdateVoucher = async (req, res) => {
     // console.log("usageLimit", usageLimit);
 
     if(!code || !code.trim()) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Vui lòng nhập mã code giảm giá",
             EC: 1,
             DT: 'code',
@@ -189,7 +189,7 @@ const handleUpdateVoucher = async (req, res) => {
 
     if (discountType === "fixed") {
         if (!discountValue || discountValue <= 0) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: "Giá trị giảm phải lớn hơn 0",
                 EC: 1,
                 DT: 'discountValue',
@@ -197,21 +197,21 @@ const handleUpdateVoucher = async (req, res) => {
         }
     } else if (discountType === "percentage") {
         if (!discountValue || discountValue <= 0 || discountValue > 100) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: "Giá trị giảm phải trong khoảng từ 1 đến 100",
                 EC: 1,
                 DT: 'discountValue',
             });
         }
         if (!maxDiscountAmount || maxDiscountAmount <= 0) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: "Giá trị giảm tối đa phải lớn hơn 0",
                 EC: 1,
                 DT: 'maxDiscountAmount',
             });
         }
     } else {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Loại giảm giá không hợp lệ",
             EC: 1,
             DT: 'discountType',
@@ -219,7 +219,7 @@ const handleUpdateVoucher = async (req, res) => {
     }
 
     if (!minOrderValue || minOrderValue <= 0) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Giá trị đơn hàng tối thiểu phải lớn hơn 0",
             EC: 1,
             DT: 'minOrderValue',
@@ -227,7 +227,7 @@ const handleUpdateVoucher = async (req, res) => {
     }
 
     if (!req.body.startDate) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Vui lòng chọn ngày bắt đầu",
             EC: 1,
             DT:'startDate',
@@ -235,7 +235,7 @@ const handleUpdateVoucher = async (req, res) => {
     }
 
     if (!req.body.endDate) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Vui lòng chọn ngày kết thúc",
             EC: 1,
             DT: 'endDate',
@@ -245,7 +245,7 @@ const handleUpdateVoucher = async (req, res) => {
     const start = new Date(startDate);
     const end = new Date(endDate);
     if (start >= end) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: "Ngày kết thúc phải sau ngày bắt đầu",
             EC: 1,
             DT: 'endDate',

@@ -35,7 +35,7 @@ const handleUpdateProfile = async (req, res) => {
         if (birthdate) {
             const birthDate = moment(birthdate, 'YYYY-MM-DD', true);
             if (!birthDate.isValid()) {
-                return res.status(200).json({
+                return res.status(400).json({
                     EM: 'Ngày sinh không hợp lệ!',   // error message
                     EC: -1,   // error code
                     DT: '',   // data
@@ -43,7 +43,7 @@ const handleUpdateProfile = async (req, res) => {
             }
 
             if (birthDate.isAfter(moment())) {
-                return res.status(200).json({
+                return res.status(400).json({
                     EM: 'Ngày sinh phải nhỏ hơn ngày hiện tại!',   // error message
                     EC: -1,   // error code
                     DT: '',   // data
@@ -75,7 +75,7 @@ const handleChangePassword = async (req, res) => {
         const confirmPassword = req.body.confirmPassword;
 
         if (!oldPassword) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập mật khẩu cũ!',
                 EC: 1,
                 DT: 'oldPassword',
@@ -83,7 +83,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (!newPassword) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập mật khẩu mới!',
                 EC: 1,
                 DT: 'newPassword',
@@ -91,7 +91,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (newPassword.includes(' ')) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu không được chứa khoảng trống!',
                 EC: 1,
                 DT: 'newPassword',
@@ -99,7 +99,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (newPassword.length < 8) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu tối thiểu phải có 8 ký tự!',
                 EC: 1,
                 DT: 'newPassword',
@@ -107,7 +107,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (!confirmPassword) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng xác nhận mật khẩu mới!',
                 EC: 1,
                 DT: 'confirmPassword',
@@ -115,7 +115,7 @@ const handleChangePassword = async (req, res) => {
         }
 
         if (newPassword !== confirmPassword) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Mật khẩu xác nhận không đúng!',
                 EC: 1,
                 DT: 'confirmPassword',

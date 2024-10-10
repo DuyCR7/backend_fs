@@ -3,7 +3,7 @@ import eventService from "../../services/AdminServices/EventService";
 const handleCreateEvent = async (req, res) => {
     // validate
     if(!req.body.name || req.body.name.trim().length === 0){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập tên sự kiện!',   // error message
             EC: 1,   // error code
             DT: 'name',   // data
@@ -11,7 +11,7 @@ const handleCreateEvent = async (req, res) => {
     }
 
     if(!req.body.description){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập mô tả sự kiện!',   // error message
             EC: 1,   // error code
             DT: 'description',   // data
@@ -19,7 +19,7 @@ const handleCreateEvent = async (req, res) => {
     }
 
     if(!req.body.url){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập đường dẫn sự kiện!',   // error message
             EC: 1,   // error code
             DT: 'url',   // data
@@ -27,7 +27,7 @@ const handleCreateEvent = async (req, res) => {
     }
 
     if(!req.body.eventDate){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng nhập đúng ngày giờ diễn ra sự kiện!',   // error message
             EC: 1,   // error code
             DT: 'eventDate',   // data
@@ -38,7 +38,7 @@ const handleCreateEvent = async (req, res) => {
     const currentDate = new Date();
 
     if (isNaN(eventDate.getTime()) || eventDate <= currentDate) {
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Ngày giờ sự kiện không hợp lệ hoặc đã qua!',
             EC: 1,
             DT: 'eventDate',
@@ -46,7 +46,7 @@ const handleCreateEvent = async (req, res) => {
     }
     
     if(!req.files['imageDesktop']){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng chọn hình ảnh desktop!',   // error message
             EC: 1,   // error code
             DT: 'imageDesktop',   // data
@@ -54,7 +54,7 @@ const handleCreateEvent = async (req, res) => {
     }
 
     if(!req.files['imageMobile']){
-        return res.status(200).json({
+        return res.status(400).json({
             EM: 'Vui lòng chọn hình ảnh mobile!',   // error message
             EC: 1,   // error code
             DT: 'imageMobile',   // data
@@ -141,7 +141,7 @@ const handleUpdateEvent = async (req, res) => {
     try {
         // validate
         if(!req.body.name || req.body.name.trim().length === 0){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập tên sự kiện!',   // error message
                 EC: 1,   // error code
                 DT: 'name',   // data
@@ -149,7 +149,7 @@ const handleUpdateEvent = async (req, res) => {
         }
 
         if(!req.body.description){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập mô tả sự kiện!',   // error message
                 EC: 1,   // error code
                 DT: 'description',   // data
@@ -157,7 +157,7 @@ const handleUpdateEvent = async (req, res) => {
         }
 
         if(!req.body.url){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập đường dẫn sự kiện!',   // error message
                 EC: 1,   // error code
                 DT: 'url',   // data
@@ -165,7 +165,7 @@ const handleUpdateEvent = async (req, res) => {
         }
 
         if(!req.body.eventDate){
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Vui lòng nhập đúng ngày giờ diễn ra sự kiện!',   // error message
                 EC: 1,   // error code
                 DT: 'eventDate',   // data
@@ -176,7 +176,7 @@ const handleUpdateEvent = async (req, res) => {
         const currentDate = new Date();
 
         if (isNaN(eventDate.getTime()) || eventDate <= currentDate) {
-            return res.status(200).json({
+            return res.status(400).json({
                 EM: 'Ngày giờ sự kiện không hợp lệ hoặc đã qua!',
                 EC: 1,
                 DT: 'eventDate',
@@ -186,7 +186,7 @@ const handleUpdateEvent = async (req, res) => {
         let id = req.body.id;
         let event = await eventService.getEventById(id);
         if(!event) {
-            return res.status(200).json({
+            return res.status(404).json({
                 EM: 'Sự kiện không tồn tại!',   // error message
                 EC: 1,   // error code
                 DT: '',   // data
