@@ -166,6 +166,21 @@ const createProduct = async (dataProduct) => {
             dataProduct.description = '';
         }
 
+        let checkExistName = await db.Product.findOne({
+            where: {
+                name: dataProduct.name
+            },
+            transaction: transaction
+        });
+
+        if(checkExistName) {
+            return {
+                EM: `Đã tồn tại sản phẩm có ten: ${dataProduct.name}!`,
+                EC: 1,
+                DT: ""
+            }
+        }
+
         const newProduct = await db.Product.create({
             name: dataProduct.name,
             slug: dataProduct.slug,
@@ -672,6 +687,14 @@ const deleteProduct = async (id) => {
                 DT: "",
             };
         }
+
+        await db.Cart_Detail.destroy({
+            where: {
+                productDetailId: productDetailIds
+            },
+            transaction
+        });
+
 
         await db.Product_Image.destroy({
             where: {

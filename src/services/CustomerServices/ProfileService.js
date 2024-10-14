@@ -294,6 +294,44 @@ const changePassword = async (cusId, oldPassword, newPassword, confirmPassword) 
 
         await customer.save();
 
+        // send mail
+        const emailContent = `
+        <!DOCTYPE html>
+        <html lang="vi">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Thay đổi mật khẩu thành công</title>
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f4f4f4; }
+                .container { width: 100%; max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+                .header { text-align: center; padding: 20px 0; }
+                .content { padding: 20px 0; }
+                .footer { background-color: #f4f4f4; padding: 20px; text-align: center; font-size: 12px; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Thay đổi mật khẩu thành công</h1>
+                </div>
+                <div class="content">
+                    <p>Bạn đã thay đổi mật khẩu tài khoản thành công.</p>
+                    <strong>Đây là mật khẩu mới của bạn! Hãy tránh để lộ thông tin!</strong>
+                    <div style="text-align: center;">
+                        <b>Mật khẩu mới: </b>${newPassword}
+                    </div>
+                </div>
+                <div class="footer">
+                    <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+                </div>
+            </div>
+        </body>
+        </html>
+        `;
+
+        await sendEmail(customer.email, "Thay đổi mật khẩu thành công", emailContent);
+
         return {
             EM: "Thay đổi mật khẩu thành công!",
             EC: 0,
