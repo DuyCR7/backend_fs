@@ -97,16 +97,29 @@ const updateVoucher = async (dataVoucher) => {
                 }
             }
 
-            await voucher.update({
-                code: dataVoucher.code,
-                discountType: dataVoucher.discountType,
-                discountValue: dataVoucher.discountValue,
-                maxDiscountAmount: dataVoucher.maxDiscountAmount,
-                minOrderValue: dataVoucher.minOrderValue,
-                startDate: dataVoucher.startDate,
-                endDate: dataVoucher.endDate,
-                usageLimit: dataVoucher.usageLimit,
-            });
+            if (dataVoucher.discountType === "percentage") {
+                await voucher.update({
+                    code: dataVoucher.code,
+                    discountType: dataVoucher.discountType,
+                    discountValue: dataVoucher.discountValue,
+                    maxDiscountAmount: dataVoucher.maxDiscountAmount,
+                    minOrderValue: dataVoucher.minOrderValue,
+                    startDate: dataVoucher.startDate,
+                    endDate: dataVoucher.endDate,
+                    usageLimit: dataVoucher.usageLimit,
+                });
+            } else {
+                await voucher.update({
+                    code: dataVoucher.code,
+                    discountType: dataVoucher.discountType,
+                    discountValue: dataVoucher.discountValue,
+                    maxDiscountAmount: 0,
+                    minOrderValue: dataVoucher.minOrderValue,
+                    startDate: dataVoucher.startDate,
+                    endDate: dataVoucher.endDate,
+                    usageLimit: dataVoucher.usageLimit,
+                });
+            }
 
             return {
                 EM: `Cập nhật thành công!`,

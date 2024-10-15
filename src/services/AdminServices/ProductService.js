@@ -541,12 +541,11 @@ const updateProduct = async (dataProduct) => {
             });
 
             for (const detail of details) {
+                console.log("detail", detail);
                 let detailImage = null;
                 if (detail.hasImage && dataProduct.detailImages) {
-                    console.log("fihsfihsdpfhs", Buffer.from("rosÃ©.jpg", 'latin1').toString('utf8'))
                     const matchingFile = dataProduct.detailImages.find(file => Buffer.from(file.originalname, 'latin1').toString('utf8') === detail.imageName);
                     if (matchingFile) {
-                        console.log("matching file ", matchingFile);
                         detailImage = matchingFile.filename;
                     }
                 }
@@ -556,24 +555,24 @@ const updateProduct = async (dataProduct) => {
                 
                 for (const item of detail.sizes) {
                     const existingDetail = existingDetails.find(ed => 
-                        ed.sizeId === +item.sizeId && 
-                        ed.colorId === +detail.colorId
+                        ed.sizeId === item.sizeId && 
+                        ed.colorId === detail.colorId
                     );
-
+                    
                     if (existingDetail) {
                         // Cập nhật bản ghi hiện có
                         await existingDetail.update({
                             image: detailImage,
-                            quantity: +item.quantity,
+                            quantity: existingDetail.quantity + item.quantityToAdd,
                         }, { transaction });
                     } else {
                         // Tạo bản ghi mới nếu không tồn tại
                         await db.Product_Detail.create({
                             productId: dataProduct.id,
-                            sizeId: +item.sizeId,
-                            colorId: +detail.colorId,
+                            sizeId: item.sizeId,
+                            colorId: detail.colorId,
                             image: detailImage,
-                            quantity: +item.quantity,
+                            quantity: item.quantity,
                         }, { transaction });
                     }
                 }
@@ -583,7 +582,6 @@ const updateProduct = async (dataProduct) => {
             const updatedDetailIds = details.flatMap(detail => 
                 detail.sizes.map(item => `${detail.colorId}-${item.sizeId}`)
             );
-            console.log("details", details);
             console.log("existingDetails", existingDetails.map(detail => detail.get({ plain: true })));
             console.log("updatedDetailIds", updatedDetailIds);
             let cannotDeleteDetails = [];
