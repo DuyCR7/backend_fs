@@ -543,8 +543,10 @@ const updateProduct = async (dataProduct) => {
             for (const detail of details) {
                 let detailImage = null;
                 if (detail.hasImage && dataProduct.detailImages) {
-                    const matchingFile = dataProduct.detailImages.find(file => file.originalname === detail.imageName);
+                    console.log("fihsfihsdpfhs", Buffer.from("rosÃ©.jpg", 'latin1').toString('utf8'))
+                    const matchingFile = dataProduct.detailImages.find(file => Buffer.from(file.originalname, 'latin1').toString('utf8') === detail.imageName);
                     if (matchingFile) {
+                        console.log("matching file ", matchingFile);
                         detailImage = matchingFile.filename;
                     }
                 }
