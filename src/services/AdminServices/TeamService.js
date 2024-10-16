@@ -275,28 +275,24 @@ const deleteTeam = async (id) => {
         }
 
 
-        let team = await db.Team.destroy({
+        await db.Team.destroy({
             where: {
                 id: id
             },
             transaction
         });
 
-        if(team) {
-            return {
-                EM: `Xóa thành công!`,
-                EC: 0,
-                DT: "",
-            }
-        } else {
-            return {
-                EM: "Không tìm thấy đội bóng!",
-                EC: 1,
-                DT: "",
-            }
+        await transaction.commit();
+
+        return {
+            EM: `Xóa thành công!`,
+            EC: 0,
+            DT: "",
         }
 
+
     } catch (e) {
+        await transaction.rollback();
         console.log(e);
         return {
             EM: "Lỗi, vui lòng thử lại sau!",
