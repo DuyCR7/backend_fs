@@ -22,7 +22,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Customer.init({
-    email: DataTypes.STRING,
+    email: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
     username: DataTypes.STRING,
     password: DataTypes.STRING,
     fullname: DataTypes.STRING,
@@ -30,12 +34,23 @@ module.exports = (sequelize, DataTypes) => {
     sex: DataTypes.STRING,
     birthdate: DataTypes.DATEONLY,
     address: DataTypes.STRING,
-    image: DataTypes.STRING,
-    isActive: DataTypes.BOOLEAN,
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
     typeLogin: DataTypes.STRING,
     googleId: DataTypes.STRING,
     tokenLoginGoogle: DataTypes.STRING,
-    verified: DataTypes.BOOLEAN
+    verified: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    }
   }, {
     sequelize,
     modelName: 'Customer',

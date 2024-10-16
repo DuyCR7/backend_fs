@@ -17,10 +17,17 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Post.init({
-    title: DataTypes.STRING,
-    image: DataTypes.STRING,
+    title: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     content: DataTypes.TEXT,
     userId: {
+      allowNull: false,
       type: DataTypes.INTEGER,
       references: {
         model: 'User',
@@ -28,8 +35,15 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     views: DataTypes.INTEGER,
-    slug: DataTypes.STRING,
-    isActive: DataTypes.BOOLEAN,
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'Post',

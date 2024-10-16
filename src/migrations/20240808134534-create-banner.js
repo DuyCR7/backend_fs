@@ -13,17 +13,21 @@ module.exports = {
         type: Sequelize.STRING
       },
       imageDesktop: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       imageMobile: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       url: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       isActive: {
         type: Sequelize.BOOLEAN,
-        defaultValue: true
+        defaultValue: true,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

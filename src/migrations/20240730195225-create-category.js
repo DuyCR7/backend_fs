@@ -10,20 +10,25 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        unique: true,
+        allowNull: false
       },
       parent_id: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       description: {
         type: Sequelize.STRING
       },
       image: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false
       },
       isActive: {
         type: Sequelize.BOOLEAN,
-        defaultValue: true
+        defaultValue: true,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,

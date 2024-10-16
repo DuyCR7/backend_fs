@@ -21,15 +21,33 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   User.init({
-    email: DataTypes.STRING,
-    password: DataTypes.STRING,
+    email: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     username: DataTypes.STRING,
     address: DataTypes.STRING,
     sex: DataTypes.STRING,
-    phone: DataTypes.STRING,
+    phone: {
+      type: DataTypes.STRING,
+      unique: true,
+      allowNull: false,
+    },
     birthdate: DataTypes.DATEONLY,
-    image: DataTypes.STRING,
-    isActive: DataTypes.BOOLEAN,
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'User',

@@ -15,6 +15,7 @@ module.exports = {
           model: 'Customer',
           key: 'id'
         },
+        allowNull: false
       },
       createdAt: {
         allowNull: false,

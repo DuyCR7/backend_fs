@@ -15,6 +15,9 @@ const getAllRoles = async () => {
   try {
     let roles = await db.Role.findAll({
       attributes: ["id", "name"],
+      where: {
+        id: { [Op.ne]: 9 }
+      }
     });
     return {
       EM: "Lấy danh sách quyền thành công!",
@@ -148,16 +151,23 @@ const createUser = async (dataUser) => {
   }
 };
 
-const getUsersWithPagination = async (page, limit, search, sortConfig) => {
+const getUsersWithPagination = async (page, limit, search, sortConfig, userId) => {
   try {
     let offset = (page - 1) * limit;
     let order = [[sortConfig.key, sortConfig.direction]];
 
     const whereClause = {
-      [Op.or]: [
-        { email: { [Op.like]: `%${search}%` } },
-        { phone: { [Op.like]: `%${search}%` } },
-      ],
+      [Op.and]: [
+        {
+          id: { [Op.ne]: userId },
+        },
+        {
+          [Op.or]: [
+            { email: { [Op.like]: `%${search}%` } },
+            { phone: { [Op.like]: `%${search}%` } },
+          ],
+        }
+      ]
     };
 
     const { count, rows } = await db.User.findAndCountAll({

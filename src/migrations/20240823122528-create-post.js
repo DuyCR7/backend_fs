@@ -10,16 +10,19 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       title: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       image: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       content: {
         type: Sequelize.TEXT
       },
       userId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'User',
           key: 'id'
@@ -31,10 +34,12 @@ module.exports = {
       },
       slug: {
         type: Sequelize.STRING,
+        allowNull: false
       },
       isActive: {
         type: Sequelize.BOOLEAN,
-        defaultValue: true
+        defaultValue: true,
+        allowNull: false
       },
       createdAt: {
         allowNull: false,

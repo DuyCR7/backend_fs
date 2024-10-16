@@ -8,7 +8,8 @@ module.exports = {
       'verified',
       {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
+        allowNull: false,
       }
     )
     /**

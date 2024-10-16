@@ -15,6 +15,7 @@ module.exports = {
           model: 'Chat',
           key: 'id'
         },
+        allowNull: false,
       },
       senderId: {
         type: Sequelize.INTEGER,

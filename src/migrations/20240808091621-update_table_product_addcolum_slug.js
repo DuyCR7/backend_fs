@@ -8,6 +8,7 @@ module.exports = {
       'slug',
       {
         type: Sequelize.STRING,
+        allowNull: false,
       }
     )
     /**

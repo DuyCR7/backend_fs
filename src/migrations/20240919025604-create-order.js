@@ -14,19 +14,24 @@ module.exports = {
         references: {
           model: 'Customer',
           key: 'id'
-        }
+        },
+        allowNull: false,
       },
       totalPrice: {
         type: Sequelize.INTEGER,
+        allowNull: false,
       },
       status: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false,
       },
       paymentMethod: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       shippingMethod: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
       },
       cusAddressId: {
         type: Sequelize.INTEGER,

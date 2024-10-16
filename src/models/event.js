@@ -14,13 +14,35 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Event.init({
-    name: DataTypes.STRING,
-    description: DataTypes.STRING,
-    url: DataTypes.STRING,
-    eventDate: DataTypes.DATE,
-    imageDesktop: DataTypes.STRING,
-    imageMobile: DataTypes.STRING,
-    isActive: DataTypes.BOOLEAN,
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    description: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    eventDate: {
+      type: DataTypes.DATE,
+      allowNull: false,
+    },
+    imageDesktop: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    imageMobile: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'Event',

@@ -50,7 +50,8 @@ module.exports = (sequelize, DataTypes) => {
     },
     quantity: {
       type: DataTypes.INTEGER,
-    }
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'Cart_Detail',

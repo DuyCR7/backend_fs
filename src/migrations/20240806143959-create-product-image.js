@@ -10,6 +10,7 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       productId: {
+        allowNull: false,
         type: Sequelize.INTEGER,
         references: {
           model: 'Product',
@@ -18,10 +19,12 @@ module.exports = {
       },
       image: {
         type: Sequelize.STRING,
+        allowNull: false,
       },
       isMainImage: {
         type: Sequelize.BOOLEAN,
         defaultValue: false,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

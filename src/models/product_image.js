@@ -16,14 +16,22 @@ module.exports = (sequelize, DataTypes) => {
   }
   Product_Image.init({
     productId: {
+      allowNull: false,
       type: DataTypes.INTEGER,
       references: {
         model: 'Product',
         key: 'id'
       }
     },
-    image: DataTypes.STRING,
-    isMainImage: DataTypes.BOOLEAN
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isMainImage: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    }
   }, {
     sequelize,
     modelName: 'Product_Image',

@@ -11,6 +11,7 @@ module.exports = {
       },
       productId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Product',
           key: 'id'
@@ -18,6 +19,7 @@ module.exports = {
       },
       sizeId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Size',
           key: 'id'
@@ -25,6 +27,7 @@ module.exports = {
       },
       colorId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Color',
           key: 'id'

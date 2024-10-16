@@ -11,6 +11,7 @@ module.exports = {
       },
       cartId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Cart',
           key: 'id'
@@ -18,6 +19,7 @@ module.exports = {
       },
       productId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Product',
           key: 'id'
@@ -25,6 +27,7 @@ module.exports = {
       },
       productDetailId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Product_Detail',
           key: 'id'
@@ -32,6 +35,7 @@ module.exports = {
       },
       quantity: {
         type: Sequelize.INTEGER,
+        allowNull: false,
       },
       createdAt: {
         allowNull: false,

@@ -15,10 +15,23 @@ module.exports = (sequelize, DataTypes) => {
   }
   Banner.init({
     name: DataTypes.STRING,
-    imageDesktop: DataTypes.STRING,
-    imageMobile: DataTypes.STRING,
-    url: DataTypes.STRING,
-    isActive: DataTypes.BOOLEAN,
+    imageDesktop: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    imageMobile: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    url: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'Banner',

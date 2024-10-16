@@ -10,31 +10,39 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       name: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true
       },
       description: {
         type: Sequelize.TEXT
       },
       price: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       price_sale: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
       },
       isSale: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
+        allowNull: false
       },
       isTrending: {
         type: Sequelize.BOOLEAN,
-        defaultValue: false
+        defaultValue: false,
+        allowNull: false
       },
       isActive: {
         type: Sequelize.BOOLEAN,
-        defaultValue: true
+        defaultValue: true,
+        allowNull: false
       },
       categoryId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Category',
           key: 'id'
@@ -42,6 +50,7 @@ module.exports = {
       },
       teamId: {
         type: Sequelize.INTEGER,
+        allowNull: false,
         references: {
           model: 'Team',
           key: 'id'

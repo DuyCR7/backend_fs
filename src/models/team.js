@@ -15,11 +15,28 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Team.init({
-    name: DataTypes.STRING,
-    image: DataTypes.STRING,
-    slug: DataTypes.STRING,
-    type: DataTypes.STRING,
-    isActive: DataTypes.BOOLEAN
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    type: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    }
   }, {
     sequelize,
     modelName: 'Team',

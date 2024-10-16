@@ -128,10 +128,12 @@ const handleReadUser = async (req, res) => {
         let search = req.query.search || "";
         let sortConfig = req.query.sort ? JSON.parse(req.query.sort) : {key: 'id', direction: 'DESC'};
 
-        let page = req.query.page
-        let limit = req.query.limit
+        let page = req.query.page;
+        let limit = req.query.limit;
 
-        let data = await userService.getUsersWithPagination(+page, +limit, search, sortConfig);
+        let userId = req.user.id;
+
+        let data = await userService.getUsersWithPagination(+page, +limit, search, sortConfig, userId);
 
         return res.status(200).json({
             EM: data.EM,   // error message

@@ -31,6 +31,7 @@ module.exports = (sequelize, DataTypes) => {
   Product_Detail.init({
     productId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
         model: 'Product',
         key: 'id'
@@ -38,6 +39,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     sizeId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
         model: 'Size',
         key: 'id'
@@ -45,13 +47,21 @@ module.exports = (sequelize, DataTypes) => {
     },
     colorId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
         model: 'Color',
         key: 'id'
       }
     },
-    image: DataTypes.STRING,
-    quantity: DataTypes.INTEGER,
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0,
+    },
   }, {
     sequelize,
     modelName: 'Product_Detail',

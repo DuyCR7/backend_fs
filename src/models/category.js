@@ -15,13 +15,34 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Category.init({
-    name: DataTypes.STRING,
-    parent_id: DataTypes.INTEGER,
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    parent_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
     description: DataTypes.STRING,
-    image: DataTypes.STRING,
-    slug: DataTypes.STRING,
-    isActive: DataTypes.BOOLEAN,
-    isHome: DataTypes.BOOLEAN,
+    image: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: true,
+      allowNull: false,
+    },
+    isHome: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: false,
+    },
   }, {
     sequelize,
     modelName: 'Category',

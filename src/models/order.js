@@ -25,15 +25,28 @@ module.exports = (sequelize, DataTypes) => {
   Order.init({
     cusId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
         model: 'Customer',
         key: 'id',
       },
     },
-    totalPrice: DataTypes.INTEGER,
-    status: DataTypes.INTEGER,
-    paymentMethod: DataTypes.STRING,
-    shippingMethod: DataTypes.STRING,
+    totalPrice: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    status: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    paymentMethod: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    shippingMethod: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     addLocation: {
       type: DataTypes.STRING,
       allowNull: false,

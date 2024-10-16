@@ -33,16 +33,42 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   Product.init({
-    name: DataTypes.STRING,
-    slug: DataTypes.STRING,
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    slug: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
     description: DataTypes.TEXT,
-    price: DataTypes.INTEGER,
-    price_sale: DataTypes.INTEGER,
-    isSale: DataTypes.BOOLEAN,
-    isTrending: DataTypes.BOOLEAN,
-    isActive: DataTypes.BOOLEAN,
+    price: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    price_sale: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    isSale: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    isTrending: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
+    isActive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: true,
+    },
     categoryId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
         model: 'Category',
         key: 'id'
@@ -50,6 +76,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     teamId: {
       type: DataTypes.INTEGER,
+      allowNull: false,
       references: {
         model: 'Team',
         key: 'id'
