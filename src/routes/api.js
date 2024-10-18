@@ -205,10 +205,24 @@ const initApiRoutes = (app) => {
             next();
         })(req, res, next);
     }, (req, res) => {
-        res.redirect(`${process.env.REACT_URL}/sign-in-success/${req.user?.id}/${req.user.tokenLoginGoogle}`);
+        res.redirect(`${process.env.REACT_URL}/sign-in-success-google/${req.user?.id}/${req.user.tokenLoginGoogle}`);
     }); 
 
-    router.post('/sign-in-success', cusAuthController.handleSignInGoogleSuccess);
+    router.post('/sign-in-success-google', cusAuthController.handleSignInGoogleSuccess);
+
+    router.get('/auth/github',
+        passport.authenticate('github', { scope: ['profile'], session: false }));
+      
+    router.get('/auth/github/callback', (req, res, next) => {
+        passport.authenticate('github', (err, profile) => {
+            req.user = profile;
+            next();
+        })(req, res, next);
+    }, (req, res) => {
+        res.redirect(`${process.env.REACT_URL}/sign-in-success-github/${req.user?.id}/${req.user.tokenLoginGithub}`);
+    });
+
+    router.post('/sign-in-success-github', cusAuthController.handleSignInGithubSuccess);
 
     router.get('/banner/read', cusHomeController.handleGetBanner);
     router.get('/team/read', cusHomeController.handleGetTeam);

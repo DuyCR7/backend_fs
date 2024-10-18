@@ -462,11 +462,14 @@ const createOrder = async (cusId, paymentMethod, shippingMethod, totalPrice, add
         await t.commit();
 
         const customer = await db.Customer.findByPk(cusId);
-        const orderConfirmationEmail = generateOrderConfirmationEmail(customer, newOrder, orderDetails);
-        await sendEmail(customer.email, "Thông Tin Đơn Hàng", orderConfirmationEmail);
+
+        if (customer.email) {
+            const orderConfirmationEmail = generateOrderConfirmationEmail(customer, newOrder, orderDetails);
+            await sendEmail(customer.email, "Thông Tin Đơn Hàng", orderConfirmationEmail);
+        }
 
         return {
-            EM: "Đặt hàng thành công!",
+            EM: customer.email ? "Đặt hàng thành công! Một email xác nhận đã được gửi đến địa chỉ email của bạn." : "Đặt hàng thành công!",
             EC: 0,
             DT: {
                 orderId: newOrder.id,

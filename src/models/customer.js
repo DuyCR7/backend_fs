@@ -25,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     email: {
       type: DataTypes.STRING,
       unique: true,
-      allowNull: false,
+      allowNull: true,
     },
     username: DataTypes.STRING,
     password: DataTypes.STRING,
@@ -33,7 +33,7 @@ module.exports = (sequelize, DataTypes) => {
     phone: {
       type: DataTypes.STRING,
       unique: true,
-      allowNull: false,
+      allowNull: true,
     },
     sex: DataTypes.STRING,
     birthdate: DataTypes.DATEONLY,
@@ -50,6 +50,8 @@ module.exports = (sequelize, DataTypes) => {
     typeLogin: DataTypes.STRING,
     googleId: DataTypes.STRING,
     tokenLoginGoogle: DataTypes.STRING,
+    githubId: DataTypes.STRING,
+    tokenLoginGithub: DataTypes.STRING,
     verified: {
       type: DataTypes.BOOLEAN,
       allowNull: false,

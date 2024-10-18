@@ -294,7 +294,8 @@ const changePassword = async (cusId, oldPassword, newPassword, confirmPassword) 
 
         await customer.save();
 
-        // send mail
+        if (customer.email) {
+            // send mail
         const emailContent = `
         <!DOCTYPE html>
         <html lang="vi">
@@ -330,7 +331,8 @@ const changePassword = async (cusId, oldPassword, newPassword, confirmPassword) 
         </html>
         `;
 
-        await sendEmail(customer.email, "Thay đổi mật khẩu thành công", emailContent);
+            await sendEmail(customer.email, "Thay đổi mật khẩu thành công", emailContent);
+        }
 
         return {
             EM: "Thay đổi mật khẩu thành công!",

@@ -253,6 +253,44 @@ const handleSignInGoogleSuccess = async (req, res) => {
     }
 }
 
+const handleSignInGithubSuccess = async (req, res) => {
+    let { id, tokenLoginGithub } = req?.body;
+    try {
+        if (!id || !tokenLoginGithub) {
+            return res.status(400).json({
+                EM: 'Lỗi, ID Github không hợp lệ!',   // error message
+                EC: 1,   // error code
+                DT: '',   // data
+            });
+        }
+
+        let data = await authService.signInGithub(id, tokenLoginGithub);
+
+        // set cookie
+        // thuộc tính httpOnly giúp nâng cao bảo mật cookie, phía client không lấy được
+        if(data && data.DT && data.DT.access_token){
+            res.cookie("cus_jwt", data.DT.access_token, { httpOnly: true, maxAge: 60 * 60 * 1000, samesite: 'strict' });
+            res.cookie("cus_refresh_token", data.DT.refresh_token, { httpOnly: true, maxAge: 365 * 24 * 60 * 60 * 1000, samesite: 'strict' });
+        }
+
+        const { refresh_token, ...newData } = data.DT;
+
+        return res.status(200).json({
+            EM: data.EM,   // error message
+            EC: data.EC,   // error code
+            DT: newData,   // data
+        });
+
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            EM: 'Lỗi, vui lòng thử lại sau!',   // error message
+            EC: -1,   // error code
+            DT: '',   // data
+        })
+    }
+}
+
 const handleResetPasswordSendLink = async (req, res) => {
     try {
         let data = await authService.resetPasswordSendLink(req.body.email);
@@ -364,6 +402,7 @@ module.exports = {
     handleLogout,
     handleRefreshToken,
     handleSignInGoogleSuccess,
+    handleSignInGithubSuccess,
     handleResetPasswordSendLink,
     handleResetPasswordVerify,
     handleVerifyAndResetPassword,

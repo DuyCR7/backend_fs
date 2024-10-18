@@ -218,9 +218,17 @@ const signInCustomer = async (email, password) => {
           };
       }
 
-        if (cus.password === null) {
+        if (cus.password === null && cus.typeLogin === 'google') {
           return {
             EM: "Hãy đăng nhập tài khoản này bằng Google!",
+            EC: -1,
+            DT: "",
+          };
+        }
+
+        if (cus.password === null && cus.typeLogin === 'github') {
+          return {
+            EM: "Hãy đăng nhập tài khoản này bằng Github!",
             EC: -1,
             DT: "",
           };
@@ -391,6 +399,68 @@ const signInGoogle = async (id, tokenLoginGoogle) => {
   }
 }
 
+const signInGithub = async (id, tokenLoginGithub) => {
+  try {
+    const newTokenLoginGithub = uuidv4();
+    let cus = await db.Customer.findOne({
+      where: {
+        githubId: id,
+        tokenLoginGithub: tokenLoginGithub
+      },
+    });
+
+    if(cus) {
+      if (!cus.isActive) {
+        return {
+          EM: "Tài khoản của bạn đã bị khóa! Vui lòng liên hệ email: anhduy0317@gmail.com để được hỗ trợ!",
+          EC: 1,
+          DT: "",
+        };
+      }
+
+      await db.Customer.update({
+        tokenLoginGithub: newTokenLoginGithub
+      }, {
+        where: {
+          githubId: id
+        }
+      })
+
+      let payload = {
+        id: cus.id,
+        email: cus.email ? cus.email : "",
+      };
+      let token = createJWT(payload);
+      let refresh_token = refreshJWT(payload);
+      return {
+        EM: "Đăng nhập thành công!",
+        EC: 0,
+        DT: {
+          access_token: token,
+          refresh_token: refresh_token,
+          id: cus.id,
+          email: cus.email ? cus.email : "",
+          image: cus.image,
+          typeLogin: cus.typeLogin,
+        },
+      };
+    } else {
+      return {
+        EM: "Đăng nhập không thành công!",
+        EC: 1,
+        DT: "",
+      }
+    }
+
+  } catch (e) {
+    console.log(e);
+    return {
+      EM: "Lỗi, vui lòng thử lại sau!",
+      EC: -1,
+    };
+  }
+}
+
 const resetPasswordSendLink = async (email) => {
   try {
     let cus = await db.Customer.findOne({
@@ -406,9 +476,16 @@ const resetPasswordSendLink = async (email) => {
       };
     }
 
-    if (!cus.password) {
+    if (!cus.password && cus.typeLogin === 'google') {
       return {
         EM: "Hãy đăng nhập tài khoản này bằng Google!",
+        EC: 1,
+      };
+    }
+
+    if (!cus.password && cus.typeLogin === 'github') {
+      return {
+        EM: "Hãy đăng nhập tài khoản này bằng Github!",
         EC: 1,
       };
     }
@@ -730,6 +807,7 @@ module.exports = {
     verifyEmail,
     signInCustomer,
     signInGoogle,
+    signInGithub,
     resetPasswordSendLink,
     verifyAndResetPassword,
     resetPasswordVerify,
