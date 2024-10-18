@@ -71,7 +71,7 @@ const getAdminChats = async (userId) => {
       include: [
         {
           model: db.Customer,
-          attributes: ["id", "email", "image"],
+          attributes: ["id", "email", "username", "image"],
         },
       ],
     });
