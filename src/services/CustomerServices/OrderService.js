@@ -65,7 +65,7 @@ const getMyOrders = async (cusId, page, limit) => {
         ])
 
         return {
-            EM: `Lấy danh sách đơn hàng của khách hàng ${customer.email} thành công!`,
+            EM: `Lấy danh sách đơn hàng của khách hàng ${customer.email ? customer.email : ''} thành công!`,
             EC: 0,
             DT: {
                 totalRows: totalCount, 
