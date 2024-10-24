@@ -307,7 +307,7 @@ const generateOrderConfirmationEmail = (customer, order, orderDetails) => {
                 <p>Trân trọng,<br>Đội ngũ cửa hàng</p>
             </div>
             <div class="footer">
-                <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+                <p>© 2024 Seven Shop</p>
             </div>
         </div>
     </body>

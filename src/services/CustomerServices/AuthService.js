@@ -94,7 +94,7 @@ const signUpCustomer = async (email, password) => {
                     <p>Nếu bạn không tạo tài khoản này, vui lòng bỏ qua email này.</p>
                 </div>
                 <div class="footer">
-                    <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+                    <p>© 2024 Seven Shop</p>
                 </div>
             </div>
         </body>
@@ -289,7 +289,7 @@ const signInCustomer = async (email, password) => {
                           <p>Nếu bạn không yêu cầu xác minh này, vui lòng bỏ qua email này hoặc liên hệ với bộ phận hỗ trợ của chúng tôi.</p>
                       </div>
                       <div class="footer">
-                          <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+                          <p>© 2024 Seven Shop</p>
                       </div>
                   </div>
               </body>
@@ -543,7 +543,7 @@ const resetPasswordSendLink = async (email) => {
                   <strong>Link này sẽ hết hạn sau 1 giờ.</strong>
               </div>
               <div class="footer">
-                  <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+                  <p>© 2024 Seven Shop</p>
               </div>
           </div>
       </body>
@@ -585,7 +585,7 @@ const resetPasswordSendLink = async (email) => {
                   <strong>Link này sẽ hết hạn sau 1 giờ.</strong>
               </div>
               <div class="footer">
-                  <p>© 2024 CR7 Shop. Tất cả các quyền được bảo lưu.</p>
+                  <p>© 2024 Seven Shop</p>
               </div>
           </div>
       </body>
