@@ -203,6 +203,14 @@ const updateProfile = async (cusId, fullname, username, phone, sex, birthdate, i
         }
 
         if (phone) {
+            const phoneRegex = /^0\d{9}$/;
+            if (!phoneRegex.test(phone)) {
+                return {
+                    EM: "Vui lòng nhập số điện thoại hợp lệ!",
+                    EC: 1,
+                    DT: "",
+                }
+            }
             const existsPhone = await db.Customer.findOne({
                 where: {
                     phone: phone,
