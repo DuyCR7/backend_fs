@@ -33,6 +33,7 @@ const getProfile = async (userId) => {
 
 const updateProfile = async (userId, address, username, phone, sex, birthdate, image) => {
     try {
+        console.log("address", address);
         if (username) {
             const existsUsername = await db.User.findOne({
                 where: {

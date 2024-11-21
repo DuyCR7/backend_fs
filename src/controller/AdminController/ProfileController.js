@@ -24,6 +24,7 @@ const handleGetProfile = async (req, res) => {
 
 const handleUpdateProfile = async (req, res) => {
     try {
+        console.log("req", req.body)
         const userId = req.user.id;
         let address = req.body.address ? req.body.address : null;
         let username = req.body.username ? req.body.username : null;
