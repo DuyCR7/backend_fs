@@ -4,11 +4,12 @@ const handleGetOrder = async (req, res) => {
     try {
         let search = req.query.search || "";
         let sortConfig = req.query.sort ? JSON.parse(req.query.sort) : {key: 'id', direction: 'DESC'};
+        let statuses = req.query.statuses ? JSON.parse(req.query.statuses) : [];
 
         let page = req.query.page;
         let limit = req.query.limit;
 
-        let data = await orderService.getOrdersWithPagination(+page, +limit, search, sortConfig);
+        let data = await orderService.getOrdersWithPagination(+page, +limit, search, sortConfig, statuses);
 
         return res.status(200).json({
             EM: data.EM,   // error message

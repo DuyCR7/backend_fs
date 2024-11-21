@@ -1,7 +1,7 @@
 import db from "../../models/index";
 import { Op } from "sequelize";
 
-const getOrdersWithPagination = async (page, limit, search, sortConfig) => {
+const getOrdersWithPagination = async (page, limit, search, sortConfig, statuses) => {
     try {
         let offset = (page - 1) * limit;
         let order = [[sortConfig.key, sortConfig.direction]];
@@ -9,8 +9,15 @@ const getOrdersWithPagination = async (page, limit, search, sortConfig) => {
         const whereClause = {
             [Op.or]: [
                 { id: { [Op.like]: `%${search}%` } },
+                { addPhone: { [Op.like]: `%${search}%` } }
             ]
         };
+
+        if (statuses && statuses.length > 0) {
+            whereClause.status = {
+                [Op.in]: statuses
+            };
+        }
 
         const [totalCount, orders] = await Promise.all([
             db.Order.count({
