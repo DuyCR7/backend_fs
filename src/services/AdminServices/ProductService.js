@@ -253,14 +253,19 @@ const createProduct = async (dataProduct) => {
     }
 }
 
-const getProductsWithPagination = async (page, limit, search, sortConfig) => {
+const getProductsWithPagination = async (page, limit, search, teamId, sortConfig) => {
     try {
         let offset = (page - 1) * limit;
         let order = [[sortConfig.key, sortConfig.direction]];
 
         const whereClause = {
-            [Op.or]: [
-                { name: { [Op.like]: `%${search}%` } },
+            [Op.and]: [
+                { 
+                    [Op.or]: [
+                        { name: { [Op.like]: `%${search}%` } },
+                    ]
+                },
+                teamId ? { teamId: teamId } : {}
             ]
         };
 
